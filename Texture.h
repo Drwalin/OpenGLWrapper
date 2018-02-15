@@ -20,7 +20,7 @@ public:
 	unsigned int GetWidth() const;
 	unsigned int GetHeight() const;
 	
-	int Load( const char * file, const int paramWrap, const int paramFilter, const bool generateMipMap );
+	int Load( const char * fileName, const int paramWrap, const int paramFilter, const bool generateMipMap );
 	
 	void Bind() const;
 	unsigned int GetTexture() const;

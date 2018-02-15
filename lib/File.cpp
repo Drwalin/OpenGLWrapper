@@ -269,6 +269,7 @@ File::File()
 
 File::File( const char * filename, const char * format )
 {
+	file = NULL;
 	open( filename, format );
 }
 

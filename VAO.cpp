@@ -9,15 +9,15 @@ void VAO::SetAttribPointer( const int location, const unsigned int count, const 
 	if( generated )
 	{
 		glBindVertexArray( vaoID );
-		//glBindBuffer( GL_ARRAY_BUFFER, vboID );
+		glBindBuffer( GL_ARRAY_BUFFER, vboID );
 		glEnableVertexAttribArray( location );
 		glVertexAttribPointer( location, count, type, normalized, vertexSize, (void*)offset );
 	}
 }
 
-void VAO::AddVertex( const char * bytes )
+void VAO::AddVertex( const void * bytes )
 {
-	vertices.insert( vertices.end(), bytes, bytes + vertexSize );
+	vertices.insert( vertices.size(), (unsigned char*)bytes, (unsigned char*)(bytes + vertexSize) );
 }
 
 void VAO::SetVertexSize( const unsigned int size )
@@ -40,7 +40,7 @@ void VAO::Generate()
 	
 	glGenBuffers( 1, &vboID );
 	glBindBuffer( GL_ARRAY_BUFFER, vboID );
-	glBufferData( GL_ARRAY_BUFFER, vertices.size(), vertices.begin(), GL_STATIC_DRAW );
+	glBufferData( GL_ARRAY_BUFFER, vertices.size()*sizeof(unsigned char), vertices.begin(), GL_STATIC_DRAW );
 	glBindVertexArray( 0 );
 	glBindBuffer( GL_ARRAY_BUFFER, 0 );
 	
@@ -52,12 +52,12 @@ void VAO::ClearVertices()
 	vertices.clear();
 }
 
-void VAO::Draw( unsigned int beg, unsigned int end, const GLenum type ) const
+void VAO::Draw( const GLenum type, unsigned int beg, unsigned int end ) const
 {
 	if( generated )
 	{
 		glBindVertexArray( vaoID );
-		//glBindBuffer( GL_ARRAY_BUFFER, vboID );
+		glBindBuffer( GL_ARRAY_BUFFER, vboID );
 		glDrawArrays( type, beg, end );
 	}
 }
@@ -81,7 +81,7 @@ void VAO::Destroy()
 
 VAO::VAO()
 {
-	vertexSize = 12;
+	vertexSize = 4;
 	generated = false;
 	vaoID = 0;
 	vboID = 0;

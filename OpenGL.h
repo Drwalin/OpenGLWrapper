@@ -11,13 +11,14 @@
 
 #include "lib/Array.cpp"
 
-void KeyCallback( GLFWwindow * window, int key, int scancode, int action, int mode );
-void ScrollCallback( GLFWwindow * window, double xOffset, double yOffset );
-void MouseCallback( GLFWwindow * window, double xPos, double yPos );
+void OpenGLKeyCallback( GLFWwindow * window, int key, int scancode, int action, int mode );
+void OpenGLScrollCallback( GLFWwindow * window, double xOffset, double yOffset );
+void OpenGLMouseCallback( GLFWwindow * window, double xPos, double yPos );
 
 class OpenGL
 {
 private:
+public:
 	
 	Array < bool > keys;
 	Array < bool > bKeys;

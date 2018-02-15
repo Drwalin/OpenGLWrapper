@@ -19,15 +19,15 @@ unsigned int Texture::GetHeight() const
 	return height;
 }
 
-int Texture::Load( const char * file, const int paramWrap, const int paramFilter, const bool generateMipMap )
+int Texture::Load( const char * fileName, const int paramWrap, const int paramFilter, const bool generateMipMap )
 {
 	glEnable( GL_TEXTURE_2D );
 	
 	if( textureID )
 		Destroy();
 	
-	File file( file, "r" );
-	if( !file.good() )
+	File file;
+	if( !file.open( fileName, "r" ) )
 		return 1;
 	file.close();
 	
@@ -40,8 +40,9 @@ int Texture::Load( const char * file, const int paramWrap, const int paramFilter
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, paramFilter );
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, paramFilter );
 	
-	
-	unsigned char * image = SOIL_load_image( file, &width, &height, 0, SOIL_LOAD_RGBA );
+	unsigned char * image = SOIL_load_image( fileName, (int*)&width, (int*)&height, 0, SOIL_LOAD_RGBA );
+	if( image == NULL )
+		return 2;
 	glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image );
 	
 	if( generateMipMap )
@@ -50,6 +51,8 @@ int Texture::Load( const char * file, const int paramWrap, const int paramFilter
 	SOIL_free_image_data( image );
 	
 	glBindTexture( GL_TEXTURE_2D, 0 );
+	
+	return 0;
 }
 
 void Texture::Bind() const
@@ -65,7 +68,7 @@ unsigned int Texture::GetTexture() const
 
 void Texture::Destroy()
 {
-	if( loaded )
+	if( textureID )
 	{
 		glEnable( GL_TEXTURE_2D );
 		glDeleteTextures( 1, &textureID );

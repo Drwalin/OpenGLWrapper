@@ -23,17 +23,18 @@ public:
     void Use();
     unsigned int GetProgram();
 	
-	int GetLocation( const char * name ) const;
+	int GetUniformLocation( const char * name ) const;
+	int GetAttributeLocation( const char * name ) const;
 	
-	void setBool( const int location, bool value ) const;
-	void setInt( const int location, int value ) const;
-	void setFloat( const int location, float value ) const;
-	void setVec2( const int location, const glm::vec2 &value ) const;
-	void setVec3( const int location, const glm::vec3 &value ) const;
-	void setVec4( const int location, const glm::vec4 &value ) const;
-	void setMat2( const int location, const glm::mat2 &mat ) const;
-	void setMat3( const int location, const glm::mat3 &mat ) const;
-	void setMat4( const int location, const glm::mat4 &mat ) const;
+	void SetBool( const int location, bool value ) const;
+	void SetInt( const int location, int value ) const;
+	void SetFloat( const int location, float value ) const;
+	void SetVec2( const int location, const glm::vec2 &value ) const;
+	void SetVec3( const int location, const glm::vec3 &value ) const;
+	void SetVec4( const int location, const glm::vec4 &value ) const;
+	void SetMat2( const int location, const glm::mat2 &mat ) const;
+	void SetMat3( const int location, const glm::mat3 &mat ) const;
+	void SetMat4( const int location, const glm::mat4 &mat ) const;
 	
 	Shader();
 	~Shader();

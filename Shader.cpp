@@ -5,6 +5,8 @@
 
 int Shader::Load( const char * vertexPath, const char * geometryPath, const char * fragmentPath )
 {
+	if( this->program )
+		return 311;
 	// 1. Retrieve the vertex/fragment source code from filePath
 	File gShaderFile;
 	File vShaderFile;
@@ -144,46 +146,51 @@ unsigned int Shader::GetProgram()
 	return this->program;
 }
 
-int Shader::GetLocation( const char * name ) const
+int Shader::GetUniformLocation( const char * name ) const
 {
 	return glGetUniformLocation( this->program, name );
 }
 
-void Shader::setBool( const int location, bool value ) const
+int Shader::GetAttributeLocation( const char * name ) const
+{
+	return glGetAttribLocation( program, name );
+}
+
+void Shader::SetBool( const int location, bool value ) const
 {		 
 	glUniform1i( location, (int)value ); 
 }
-void Shader::setInt( const int location, int value ) const
+void Shader::SetInt( const int location, int value ) const
 { 
 	glUniform1i( location, value ); 
 }
-void Shader::setFloat( const int location, float value ) const
+void Shader::SetFloat( const int location, float value ) const
 { 
 	glUniform1f( location, value ); 
 }
-void Shader::setVec2( const int location, const glm::vec2 &value ) const
-{ 
-	glUniform2fv( location, 1, &value[0] );
-}
-void Shader::setVec3( const int location, const glm::vec3 &value ) const
-{ 
-	glUniform3fv( location, 1, &value[0] );
-}
-void Shader::setVec4( const int location, const glm::vec4 &value ) const
-{ 
-	glUniform4fv( location, 1, &value[0] );
-}
-void Shader::setMat2( const int location, const glm::mat2 &mat ) const
+void Shader::SetVec2( const int location, const glm::vec2 &value ) const
 {
-	glUniformMatrix2fv( location, 1, GL_FALSE, &mat[0][0] );
+	glUniform2fv( location, 1, glm::value_ptr( value ) );
 }
-void Shader::setMat3( const int location, const glm::mat3 &mat ) const
-{
-	glUniformMatrix3fv( location, 1, GL_FALSE, &mat[0][0] );
+void Shader::SetVec3( const int location, const glm::vec3 &value ) const
+{ 
+	glUniform3fv( location, 1, glm::value_ptr( value ) );
 }
-void Shader::setMat4( const int location, const glm::mat4 &mat ) const
+void Shader::SetVec4( const int location, const glm::vec4 &value ) const
+{ 
+	glUniform4fv( location, 1, glm::value_ptr( value ) );
+}
+void Shader::SetMat2( const int location, const glm::mat2 &mat ) const
 {
-	glUniformMatrix4fv( location, 1, GL_FALSE, &mat[0][0] );
+	glUniformMatrix2fv( location, 1, GL_FALSE, glm::value_ptr( mat ) );
+}
+void Shader::SetMat3( const int location, const glm::mat3 &mat ) const
+{
+	glUniformMatrix3fv( location, 1, GL_FALSE, glm::value_ptr( mat ) );
+}
+void Shader::SetMat4( const int location, const glm::mat4 &mat ) const
+{
+	glUniformMatrix4fv( location, 1, GL_FALSE, glm::value_ptr( mat ) );
 }
 
 Shader::Shader()
