@@ -2,9 +2,9 @@
 #define SHADER_H
 
 #include <stdio.h>
-#include "lib/File.h"
-#include "lib/String.h"
-#include "lib/Map.cpp"
+#include "../lib/SourceHeader/File.h"
+#include "../lib/SourceHeader/String.h"
+#include "../lib/SourceCode/Map.cpp"
 
 #include <GL/glew.h>
 #include <glm/glm.hpp>
@@ -19,7 +19,7 @@ private:
 	
 public:
 	
-    int Load( const char * vertexPath, const char * geometryPath, const char * fragmentPath );
+    int Load( const char * vertexPath, const char * geometryPath, const char * fragmentPath );		// return 0 if no errors
     void Use();
     unsigned int GetProgram();
 	

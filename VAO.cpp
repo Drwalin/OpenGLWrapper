@@ -30,7 +30,7 @@ bool VAO::IsGenerated()
 	return generated;
 }
 
-void VAO::Generate()
+void VAO::Generate( const GLenum type )
 {
 	if( generated )
 		Destroy();
@@ -44,6 +44,8 @@ void VAO::Generate()
 	glBindVertexArray( 0 );
 	glBindBuffer( GL_ARRAY_BUFFER, 0 );
 	
+	this->type = type;
+	
 	generated = true;
 }
 
@@ -52,7 +54,7 @@ void VAO::ClearVertices()
 	vertices.clear();
 }
 
-void VAO::Draw( const GLenum type, unsigned int beg, unsigned int end ) const
+void VAO::Draw( unsigned int beg, unsigned int end ) const
 {
 	if( generated )
 	{
@@ -64,7 +66,7 @@ void VAO::Draw( const GLenum type, unsigned int beg, unsigned int end ) const
 
 void VAO::Draw( const GLenum type ) const
 {
-	Draw( type, 0, vertices.size() );
+	Draw( 0, vertices.size() );
 }
 
 void VAO::Destroy()

@@ -200,6 +200,11 @@ Shader::Shader()
 
 Shader::~Shader()
 {
+	if( this->program )
+	{
+		glUseProgram( 0 );
+		glDeleteProgram( this->program );
+	}
 	this->program = 0;
 }
 

@@ -4,7 +4,7 @@
 
 #include <GL/glew.h>
 
-#include "lib/Array.cpp"
+#include "../SourceCode/Array.cpp"
 
 class VAO
 {
@@ -14,6 +14,7 @@ private:
 	bool generated;
 	unsigned int vaoID, vboID;
 	Array < unsigned char > vertices;
+	GLenum type;
 	
 public:
 	
@@ -22,11 +23,11 @@ public:
 	void SetVertexSize( const unsigned int size );
 	
 	bool IsGenerated();
-	void Generate();
+	void Generate( const GLenum type );
 	void ClearVertices();
 	
-	void Draw( const GLenum type, unsigned int beg, unsigned int end ) const;
-	void Draw( const GLenum type ) const;
+	void Draw( unsigned int beg, unsigned int end ) const;
+	void Draw() const;
 	
 	void Destroy();
 	

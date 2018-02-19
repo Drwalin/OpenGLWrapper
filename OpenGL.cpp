@@ -3,8 +3,6 @@
 #define OPEN_GL_ENGINE_CPP
 
 #include "OpenGL.h"
-#include "lib/File.cpp"
-#include "lib/String.cpp"
 
 void OpenGL::SwapInput()
 {
@@ -106,10 +104,10 @@ void OpenGL::InitGraphic()
 	glEnable( GL_DEPTH_TEST );
 	glEnable( GL_BLEND );
 	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-	//glDepthFunc( GL_LESS );
+	glDepthFunc( GL_LESS );
 	
-	//glEnable( GL_ALPHA_TEST );
-	//glAlphaFunc( GL_GREATER, 0.5 );
+	glEnable( GL_ALPHA_TEST );
+	glAlphaFunc( GL_GREATER, 0.5 );
 }
 
 void OpenGL::InitFrame()

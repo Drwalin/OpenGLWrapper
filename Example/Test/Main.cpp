@@ -137,7 +137,7 @@ int main()
     
     while ( !glfwWindowShouldClose( openGL.window ) )
     {
-        GLfloat currentFrame = glfwGetTime( );
+        GLfloat currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
         
