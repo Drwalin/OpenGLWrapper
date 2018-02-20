@@ -164,9 +164,21 @@ void Shader::SetInt( const int location, int value ) const
 { 
 	glUniform1i( location, value ); 
 }
+void Shader::SetInt( const int location, const Array < int >& array ) const
+{
+	glUniform1uiv( location, array.size(), array.begin() );
+}
+void Shader::SetInt( const int location, const Array < unsigned int >& array ) const
+{
+	glUniform1uiv( location, array.size(), array.begin() );
+}
 void Shader::SetFloat( const int location, float value ) const
 { 
 	glUniform1f( location, value ); 
+}
+void Shader::SetFloat( const int location, const Array < float >& array ) const
+{
+	glUniform1fv( location, array.size(), array.begin() );
 }
 void Shader::SetVec2( const int location, const glm::vec2 &value ) const
 {
@@ -175,6 +187,10 @@ void Shader::SetVec2( const int location, const glm::vec2 &value ) const
 void Shader::SetVec3( const int location, const glm::vec3 &value ) const
 { 
 	glUniform3fv( location, 1, glm::value_ptr( value ) );
+}
+void Shader::SetVec3( const int location, const Array < glm::vec3 >& array ) const
+{
+	glUniform3fv( location, array.size(), array.begin() );
 }
 void Shader::SetVec4( const int location, const glm::vec4 &value ) const
 { 
@@ -191,6 +207,10 @@ void Shader::SetMat3( const int location, const glm::mat3 &mat ) const
 void Shader::SetMat4( const int location, const glm::mat4 &mat ) const
 {
 	glUniformMatrix4fv( location, 1, GL_FALSE, glm::value_ptr( mat ) );
+}
+void Shader::SetMat4( const int location, const Array < glm::mat4 >& array ) const
+{
+	glUniformMatrix4fv( location, array.size(), GL_FALSE, array.begin() );
 }
 
 Shader::Shader()
