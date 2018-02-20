@@ -4,6 +4,11 @@
 
 #include "VAO.h"
 
+Array < unsigned char >& VAO::AccessVertices()
+{
+	return vertices;
+}
+
 void VAO::SetAttribPointer( const int location, const unsigned int count, const GLenum type, const bool normalized, const unsigned int offset )
 {
 	if( generated )

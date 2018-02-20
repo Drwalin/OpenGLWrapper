@@ -18,6 +18,7 @@ private:
 	
 public:
 	
+	Array < unsigned char >& AccessVertices();
 	void SetAttribPointer( const int location, const unsigned int count, const GLenum type, const bool normalized, const unsigned int offset );		// offset in bytes
 	void AddVertex( const void * bytes );
 	void SetVertexSize( const unsigned int size );
