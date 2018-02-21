@@ -5,7 +5,7 @@
 #include <GL/glew.h>
 #include "C:\programowanie\cpp\OpenGL\SpartanJ-soil2-54073b423037\src\SOIL2\SOIL2.h"
 
-#include "../lib/SourceHeader/File.h"
+#include "lib/File.h"
 
 class Texture
 {

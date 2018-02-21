@@ -128,7 +128,7 @@ int main()
         glm::vec3 (-1.3f,1.0f, -1.5f)
     };
     
-    vao.Generate();
+    vao.Generate( GL_POINTS );
     vao.ClearVertices();
 	vao.SetAttribPointer( ourShader.GetAttributeLocation( "position" ), 3, GL_FLOAT, false, 0 );
 	
@@ -179,7 +179,7 @@ int main()
 	            {
 		            model = glm::translate( model, glm::vec3(0.0f,0.0f,0.0f+float((j*i)<<1)) );
         			ourShader.SetMat4( modelLoc, model );
-	         		vao.Draw( GL_POINTS, 0, 1 );
+	         		vao.Draw( 0, 1 );
 		        }/*
 		        else
 		        {

@@ -4,7 +4,7 @@
 
 #include <GL/glew.h>
 
-#include "../SourceCode/Array.cpp"
+#include "lib/Array.cpp"
 
 class VAO
 {

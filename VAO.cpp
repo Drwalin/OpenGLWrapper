@@ -69,7 +69,7 @@ void VAO::Draw( unsigned int beg, unsigned int end ) const
 	}
 }
 
-void VAO::Draw( const GLenum type ) const
+void VAO::Draw() const
 {
 	Draw( 0, vertices.size() );
 }

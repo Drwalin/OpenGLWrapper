@@ -2,9 +2,9 @@
 #define SHADER_H
 
 #include <stdio.h>
-#include "../lib/SourceHeader/File.h"
-#include "../lib/SourceHeader/String.h"
-#include "../lib/SourceCode/Map.cpp"
+#include "lib/File.h"
+#include "lib/String.h"
+#include "lib/Map.cpp"
 
 #include <GL/glew.h>
 #include <glm/glm.hpp>

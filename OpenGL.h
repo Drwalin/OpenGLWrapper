@@ -9,7 +9,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "../lib/SourceCode/Array.cpp"
+#include "lib/Array.cpp"
+#include "lib/File.cpp"
+#include "lib/String.cpp"
 
 void OpenGLKeyCallback( GLFWwindow * window, int key, int scancode, int action, int mode );
 void OpenGLScrollCallback( GLFWwindow * window, double xOffset, double yOffset );
