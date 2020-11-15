@@ -1,231 +1,233 @@
-#ifndef SHADER_CPP
-#define SHADER_CPP
 
 #include "Shader.h"
 
-int Shader::Load( const char * vertexPath, const char * geometryPath, const char * fragmentPath )
-{
-	if( this->program )
+#include <fstream>
+#include <cstdio>
+
+unsigned Shader::currentProgram = 0;
+
+int Shader::Load(const char * vertexPath, const char * geometryPath, const char * fragmentPath) {
+	if(this->program)
 		return 311;
-	// 1. Retrieve the vertex/fragment source code from filePath
-	File gShaderFile;
-	File vShaderFile;
-	File fShaderFile;
-	 
-	char *gShaderCode = NULL;
-	char *vShaderCode = NULL; 
-	char *fShaderCode = NULL;
 	
-	{
-		// Open files
-		if( geometryPath )
-			gShaderFile.open( geometryPath, "r" );
-		vShaderFile.open( vertexPath, "r" );
-		fShaderFile.open( fragmentPath, "r" );
-		if( !vShaderFile.good() || !fShaderFile.good() || ( geometryPath && !gShaderFile.good() ) )
-		{
-			printf( "\n ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ  v%i - f%i - g%i ", (int)vShaderFile.good(), (int)fShaderFile.good(), (int)gShaderFile.good() );
-			return 1;
-		}
-		else
-		{
-			// Read file's buffer contents into streams
-			unsigned long long int glen = 0;
-			if( geometryPath )
-				glen = gShaderFile.getfilesize();
-			unsigned long long int vlen = vShaderFile.getfilesize();
-			unsigned long long int flen = fShaderFile.getfilesize();
+	const char* files[3] = {vertexPath, geometryPath, fragmentPath};
+	char* code[3] = {NULL, NULL, NULL};
+	
+	for(int i=0; i<3; ++i) {
+		if(files[i] == NULL)
+			continue;
+		std::ifstream file(files[i], std::ios::binary);
+		if(file.good()) {
+			size_t fileSize = file.tellg();
+			file.seekg(0, std::ios::end);
+			fileSize = (size_t)file.tellg() - fileSize;
+			file.seekg(0, std::ios::beg);
 			
-			if( geometryPath )
-			{
-				gShaderCode = (char*)malloc( glen+1 );
-				gShaderCode[glen] = 0;
-			}
-			vShaderCode = (char*)malloc( vlen+1 );
-			vShaderCode[vlen] = 0;
-			fShaderCode = (char*)malloc( flen+1 );
-			fShaderCode[flen] = 0;
+			code[i] = (char*)malloc(fileSize+1);
+			file.read(code[i], fileSize);
+			code[i][fileSize] = 0;
 			
-			if( geometryPath )
-				gShaderFile.read( gShaderCode, glen );
-			vShaderFile.read( vShaderCode, vlen );
-			fShaderFile.read( fShaderCode, flen );
-			
-			// close file handlers
-			if( geometryPath )
-				gShaderFile.close( );
-			vShaderFile.close( );
-			fShaderFile.close( );
+			file.close();
 		}
 	}
 	
-	// 2. Compile shaders
-	GLuint geometry, vertex, fragment;
-	GLint success;
-	GLchar infoLog[512];
-	
-	// Geometry Shader
-	if( geometryPath )
-	{
-		geometry = glCreateShader( GL_GEOMETRY_SHADER );
-		glShaderSource( geometry, 1, &gShaderCode, NULL );
-		glCompileShader( geometry );
-		// Print compile errors if any
-		glGetShaderiv( geometry, GL_COMPILE_STATUS, &success );
-		if ( !success )
-		{
-			glGetShaderInfoLog( geometry, 512, NULL, infoLog );
-			printf( "\n ERROR::SHADER::GEOMETRY::COMPILATION_FAILED\n %c", infoLog );
-			return 2;
-		}
+	if(!code[0] || !code[2] || (geometryPath && !code[1])) {
+		printf("\n ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ  v:%i - f:%i - g:%i ", (int)(bool)code[0], (int)(bool)code[2], (int)(bool)code[1]);
+		for(int i=0; i<3; ++i)
+			if(code[i])
+				free(code[i]);
+		return 1;
 	}
 	
-	// Vertex Shader
-	vertex = glCreateShader( GL_VERTEX_SHADER );
-	glShaderSource( vertex, 1, &vShaderCode, NULL );
-	glCompileShader( vertex );
-	// Print compile errors if any
-	glGetShaderiv( vertex, GL_COMPILE_STATUS, &success );
-	if ( !success )
-	{
-		glGetShaderInfoLog( vertex, 512, NULL, infoLog );
-		printf( "\n ERROR::SHADER::VERTEX::COMPILATION_FAILED\n %c", infoLog );
+	unsigned vertex, geometry, fragment;
+	
+	vertex = Shader::CompileProgram(code[0], GL_VERTEX_SHADER, "VERTEX");
+	if(code[1])
+		geometry = Shader::CompileProgram(code[1], GL_GEOMETRY_SHADER, "GEOMETRY");
+	fragment = Shader::CompileProgram(code[2], GL_FRAGMENT_SHADER, "FRAGMENT");
+	
+	if(!vertex || !fragment || (geometryPath && !geometry)) {
+		for(int i=0; i<3; ++i)
+			if(code[i])
+				free(code[i]);
+		return 2;
+	}
+	
+	program = glCreateProgram();
+	if(geometryPath)
+		glAttachShader(program, geometry);
+	glAttachShader(program, vertex);
+	glAttachShader(program, fragment);
+	glLinkProgram(program);
+	int success;
+	glGetProgramiv(program, GL_LINK_STATUS, &success);
+	if(!success) {
+		char infoLog[512];
+		glGetProgramInfoLog(program, 512, NULL, infoLog);
+		printf("\n ERROR::SHADER::PROGRAM::LINKING_FAILED\n %c", infoLog);
+		for(int i=0; i<3; ++i)
+			if(code[i])
+				free(code[i]);
 		return 3;
 	}
 	
-	// Fragment Shader
-	fragment = glCreateShader( GL_FRAGMENT_SHADER );
-	glShaderSource( fragment, 1, &fShaderCode, NULL );
-	glCompileShader( fragment );
-	// Print compile errors if any
-	glGetShaderiv( fragment, GL_COMPILE_STATUS, &success );
-	if ( !success )
-	{
-		glGetShaderInfoLog( fragment, 512, NULL, infoLog );
-		printf( "\n ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n %c", infoLog );
-		return 4;
-	}
+	if(geometryPath)
+		glDeleteShader(geometry);
+	glDeleteShader(vertex);
+	glDeleteShader(fragment);
 	
-	// Shader program
-	this->program = glCreateProgram( );
-	if( geometryPath )
-		glAttachShader( this->program, geometry );
-	glAttachShader( this->program, vertex );
-	glAttachShader( this->program, fragment );
-	glLinkProgram( this->program );
-	// Print linking errors if any
-	glGetProgramiv( this->program, GL_LINK_STATUS, &success );
-	if (!success)
-	{
-		glGetProgramInfoLog( this->program, 512, NULL, infoLog );
-		printf( "\n ERROR::SHADER::PROGRAM::LINKING_FAILED\n %c", infoLog );
-		return 5;
-	}
-	// Delete the shaders as they're linked into our program now and no longer necessery
-	if( geometryPath )
-		glDeleteShader( geometry );
-	glDeleteShader( vertex );
-	glDeleteShader( fragment );
+	for(int i=0; i<3; ++i)
+		if(code[i])
+			free(code[i]);
 	
-	if( geometryPath )
-		free( gShaderCode );
-	free( vShaderCode );
-	free( fShaderCode );
-	
-	printf( "\n Shader compiled!" );
 	return 0;
 }
-	
-void Shader::Use()
-{
-	glUseProgram( this->program );
-}
 
-unsigned int Shader::GetProgram()
-{
-	return this->program;
-}
-
-int Shader::GetUniformLocation( const char * name ) const
-{
-	return glGetUniformLocation( this->program, name );
-}
-
-int Shader::GetAttributeLocation( const char * name ) const
-{
-	return glGetAttribLocation( program, name );
-}
-
-void Shader::SetBool( const int location, bool value ) const
-{		 
-	glUniform1i( location, (int)value ); 
-}
-void Shader::SetInt( const int location, int value ) const
-{ 
-	glUniform1i( location, value ); 
-}
-void Shader::SetInt( const int location, const Array < int >& array ) const
-{
-	glUniform1uiv( location, array.size(), (unsigned int*)array.begin() );
-}
-void Shader::SetInt( const int location, const Array < unsigned int >& array ) const
-{
-	glUniform1uiv( location, array.size(), array.begin() );
-}
-void Shader::SetFloat( const int location, float value ) const
-{ 
-	glUniform1f( location, value ); 
-}
-void Shader::SetFloat( const int location, const Array < float >& array ) const
-{
-	glUniform1fv( location, array.size(), array.begin() );
-}
-void Shader::SetVec2( const int location, const glm::vec2 &value ) const
-{
-	glUniform2fv( location, 1, glm::value_ptr( value ) );
-}
-void Shader::SetVec3( const int location, const glm::vec3 &value ) const
-{ 
-	glUniform3fv( location, 1, glm::value_ptr( value ) );
-}
-void Shader::SetVec3( const int location, const Array < glm::vec3 >& array ) const
-{
-	glUniform3fv( location, array.size(), (float*)array.begin() );
-}
-void Shader::SetVec4( const int location, const glm::vec4 &value ) const
-{ 
-	glUniform4fv( location, 1, glm::value_ptr( value ) );
-}
-void Shader::SetMat2( const int location, const glm::mat2 &mat ) const
-{
-	glUniformMatrix2fv( location, 1, GL_FALSE, glm::value_ptr( mat ) );
-}
-void Shader::SetMat3( const int location, const glm::mat3 &mat ) const
-{
-	glUniformMatrix3fv( location, 1, GL_FALSE, glm::value_ptr( mat ) );
-}
-void Shader::SetMat4( const int location, const glm::mat4 &mat ) const
-{
-	glUniformMatrix4fv( location, 1, GL_FALSE, glm::value_ptr( mat ) );
-}
-void Shader::SetMat4( const int location, const Array < glm::mat4 >& array ) const
-{
-	glUniformMatrix4fv( location, array.size(), GL_FALSE, (float*)array.begin() );
-}
-
-Shader::Shader()
-{
-	this->program = 0;
-}
-
-Shader::~Shader()
-{
-	if( this->program )
-	{
-		glUseProgram( 0 );
-		glDeleteProgram( this->program );
+unsigned Shader::CompileProgram(const char* code, unsigned type, const char* msg) {
+	if(code) {
+		int success;
+		char infoLog[5120];
+		unsigned program = glCreateShader(type);
+		glShaderSource(program, 1, &code, NULL);
+		glCompileShader(program);
+		glGetShaderiv(program, GL_COMPILE_STATUS, &success);
+		if(!success) {
+			GLsizei size;
+			glGetShaderInfoLog(program, 5120, &size, infoLog);
+			printf("\n ERROR::SHADER::%s::COMPILATION_FAILED\n %s", msg, infoLog);
+			PrintCode(code);
+			glDeleteShader(program);
+			return 0;
+		}
+		return program;
 	}
-	this->program = 0;
+	return 0;
 }
 
-#endif
+void Shader::PrintCode(const char* code) {
+	printf("\n Code: \n    1: ");
+	int line = 1;
+	char const*i = code;
+	int x=0;
+	for(; *i; ++i) {
+		switch(*i) {
+			case '\n':
+			case '\r':
+				x = 0;
+				++line;
+				printf("\n%5i: ", line);
+				break;
+			case '\t':
+				for(int t=((x+4)>>2)<<2; x < t; ++x)
+					putchar(' ');
+				break;
+			case 0:
+				return;
+			default:
+				putchar(*i);
+				++x;
+		}
+	}
+}
+
+void Shader::Use() {
+	if(program) {
+		if(currentProgram != program)
+			glUseProgram(program);
+		currentProgram = program;
+	}
+}
+
+unsigned int Shader::GetProgram() {
+	return program;
+}
+
+int Shader::GetUniformLocation(const char * name) const {
+	return glGetUniformLocation(program, name);
+}
+
+int Shader::GetAttributeLocation(const char * name) const {
+	return glGetAttribLocation(program, name);
+}
+
+void Shader::SetBool(const int location, bool value) {
+	Use();
+	glUniform1i(location, (int)value); 
+}
+
+void Shader::SetInt(const int location, int value) {
+	Use();
+	glUniform1i(location, value); 
+}
+
+void Shader::SetInt(const int location, const std::vector<int>& array) {
+	Use();
+	glUniform1uiv(location, array.size(), (unsigned int*)&array.front());
+}
+
+void Shader::SetInt(const int location, const std::vector<unsigned int>& array) {
+	Use();
+	glUniform1uiv(location, array.size(), &array.front());
+}
+
+void Shader::SetFloat(const int location, float value) { 
+	Use();
+	glUniform1f(location, value); 
+}
+
+void Shader::SetFloat(const int location, const std::vector<float>& array) {
+	Use();
+	glUniform1fv(location, array.size(), &array.front());
+}
+
+void Shader::SetVec2(const int location, const glm::vec2 &value) {
+	Use();
+	glUniform2fv(location, 1, glm::value_ptr(value));
+}
+
+void Shader::SetVec3(const int location, const glm::vec3 &value) {
+	Use();
+	glUniform3fv(location, 1, glm::value_ptr(value));
+}
+
+void Shader::SetVec3(const int location, const std::vector<glm::vec3>& array) {
+	Use();
+	glUniform3fv(location, array.size(), (float*)&array.front());
+}
+
+void Shader::SetVec4(const int location, const glm::vec4 &value) {
+	Use();
+	glUniform4fv(location, 1, glm::value_ptr(value));
+}
+
+void Shader::SetMat2(const int location, const glm::mat2 &mat) {
+	Use();
+	glUniformMatrix2fv(location, 1, GL_FALSE, glm::value_ptr(mat));
+}
+
+void Shader::SetMat3(const int location, const glm::mat3 &mat) {
+	Use();
+	glUniformMatrix3fv(location, 1, GL_FALSE, glm::value_ptr(mat));
+}
+
+void Shader::SetMat4(const int location, const glm::mat4 &mat) {
+	Use();
+	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(mat));
+}
+
+void Shader::SetMat4(const int location, const std::vector<glm::mat4>& array) {
+	Use();
+	glUniformMatrix4fv(location, array.size(), GL_FALSE, (float*)&array.front());
+}
+
+Shader::Shader() {
+	program = 0;
+}
+
+Shader::~Shader() {
+	if(program) {
+		glUseProgram(0);
+		glDeleteProgram(program);
+	}
+	program = 0;
+}

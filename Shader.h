@@ -1,48 +1,50 @@
 #ifndef SHADER_H
 #define SHADER_H
 
-#include <stdio.h>
-#include "lib/File.h"
-#include "lib/String.h"
-#include "lib/Map.cpp"
+#include <vector>
 
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-class Shader
-{
-private:
-	
-    unsigned int program;
-	
+class Shader {
 public:
 	
-    int Load( const char * vertexPath, const char * geometryPath, const char * fragmentPath );		// return 0 if no errors
+    int Load(const char* vertexPath, const char* geometryPath, const char* fragmentPath);		// return 0 if no errors
     void Use();
-    unsigned int GetProgram();
+    unsigned GetProgram();
 	
-	int GetUniformLocation( const char * name ) const;
-	int GetAttributeLocation( const char * name ) const;
+	int GetUniformLocation(const char* name) const;
+	int GetAttributeLocation(const char* name) const;
 	
-	void SetBool( const int location, bool value ) const;
-	void SetInt( const int location, int value ) const;
-	void SetInt( const int location, const Array < int >& array ) const;
-	void SetInt( const int location, const Array < unsigned int >& array ) const;
-	void SetFloat( const int location, float value ) const;
-	void SetFloat( const int location, const Array < float >& array ) const;
-	void SetVec2( const int location, const glm::vec2 &value ) const;
-	void SetVec3( const int location, const glm::vec3 &value ) const;
-	void SetVec3( const int location, const Array < glm::vec3 >& array ) const;
-	void SetVec4( const int location, const glm::vec4 &value ) const;
-	void SetMat2( const int location, const glm::mat2 &mat ) const;
-	void SetMat3( const int location, const glm::mat3 &mat ) const;
-	void SetMat4( const int location, const glm::mat4 &mat ) const;
-	void SetMat4( const int location, const Array < glm::mat4 >& array ) const;
+	void SetBool(const int location, bool value);
+	void SetInt(const int location, int value);
+	void SetInt(const int location, const std::vector<int>& array);
+	void SetInt(const int location, const std::vector<unsigned int>& array);
+	void SetFloat(const int location, float value);
+	void SetFloat(const int location, const std::vector<float>& array);
+	void SetVec2(const int location, const glm::vec2 &value);
+	void SetVec3(const int location, const glm::vec3 &value);
+	void SetVec3(const int location, const std::vector<glm::vec3>& array);
+	void SetVec4(const int location, const glm::vec4 &value);
+	void SetMat2(const int location, const glm::mat2 &mat);
+	void SetMat3(const int location, const glm::mat3 &mat);
+	void SetMat4(const int location, const glm::mat4 &mat);
+	void SetMat4(const int location, const std::vector<glm::mat4>& array);
 	
 	Shader();
 	~Shader();
+	
+private:
+	
+	static unsigned currentProgram;
+	
+	static unsigned CompileProgram(const char* code, unsigned type, const char* msg);
+	static void PrintCode(const char* code);
+	
+    unsigned int program;
+	
 };
 
 #endif
