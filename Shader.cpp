@@ -1,5 +1,6 @@
 
 #include "Shader.h"
+#include "Texture.h"
 
 #include <fstream>
 #include <cstdio>
@@ -151,72 +152,78 @@ int Shader::GetAttributeLocation(const char * name) const {
 	return glGetAttribLocation(program, name);
 }
 
-void Shader::SetBool(const int location, bool value) {
+void Shader::SetTexture(int location, class Texture* texture, unsigned textureId) {
+	glActiveTexture(GL_TEXTURE0+textureId);
+	texture->Bind();
+	SetInt(location, textureId);
+}
+
+void Shader::SetBool(int location, bool value) {
 	Use();
 	glUniform1i(location, (int)value); 
 }
 
-void Shader::SetInt(const int location, int value) {
+void Shader::SetInt(int location, int value) {
 	Use();
 	glUniform1i(location, value); 
 }
 
-void Shader::SetInt(const int location, const std::vector<int>& array) {
+void Shader::SetInt(int location, const std::vector<int>& array) {
 	Use();
 	glUniform1uiv(location, array.size(), (unsigned int*)&array.front());
 }
 
-void Shader::SetInt(const int location, const std::vector<unsigned int>& array) {
+void Shader::SetInt(int location, const std::vector<unsigned int>& array) {
 	Use();
 	glUniform1uiv(location, array.size(), &array.front());
 }
 
-void Shader::SetFloat(const int location, float value) { 
+void Shader::SetFloat(int location, float value) { 
 	Use();
 	glUniform1f(location, value); 
 }
 
-void Shader::SetFloat(const int location, const std::vector<float>& array) {
+void Shader::SetFloat(int location, const std::vector<float>& array) {
 	Use();
 	glUniform1fv(location, array.size(), &array.front());
 }
 
-void Shader::SetVec2(const int location, const glm::vec2 &value) {
+void Shader::SetVec2(int location, const glm::vec2 &value) {
 	Use();
 	glUniform2fv(location, 1, glm::value_ptr(value));
 }
 
-void Shader::SetVec3(const int location, const glm::vec3 &value) {
+void Shader::SetVec3(int location, const glm::vec3 &value) {
 	Use();
 	glUniform3fv(location, 1, glm::value_ptr(value));
 }
 
-void Shader::SetVec3(const int location, const std::vector<glm::vec3>& array) {
+void Shader::SetVec3(int location, const std::vector<glm::vec3>& array) {
 	Use();
 	glUniform3fv(location, array.size(), (float*)&array.front());
 }
 
-void Shader::SetVec4(const int location, const glm::vec4 &value) {
+void Shader::SetVec4(int location, const glm::vec4 &value) {
 	Use();
 	glUniform4fv(location, 1, glm::value_ptr(value));
 }
 
-void Shader::SetMat2(const int location, const glm::mat2 &mat) {
+void Shader::SetMat2(int location, const glm::mat2 &mat) {
 	Use();
 	glUniformMatrix2fv(location, 1, GL_FALSE, glm::value_ptr(mat));
 }
 
-void Shader::SetMat3(const int location, const glm::mat3 &mat) {
+void Shader::SetMat3(int location, const glm::mat3 &mat) {
 	Use();
 	glUniformMatrix3fv(location, 1, GL_FALSE, glm::value_ptr(mat));
 }
 
-void Shader::SetMat4(const int location, const glm::mat4 &mat) {
+void Shader::SetMat4(int location, const glm::mat4 &mat) {
 	Use();
 	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(mat));
 }
 
-void Shader::SetMat4(const int location, const std::vector<glm::mat4>& array) {
+void Shader::SetMat4(int location, const std::vector<glm::mat4>& array) {
 	Use();
 	glUniformMatrix4fv(location, array.size(), GL_FALSE, (float*)&array.front());
 }

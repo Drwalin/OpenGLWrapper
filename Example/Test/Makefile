@@ -21,7 +21,10 @@ bin$(S)%.o: ..$(S)..$(S)thirdparty$(S)soil2$(S)%.c
 	g++ -c $(CXXFLAGS) $(INCLUDES) -o $@ $<
 
 
-
+.PHONY: clean
+clean:
+	del main.exe
+	del bin\*.o
 
 
 REGE:

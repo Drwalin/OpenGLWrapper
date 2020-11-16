@@ -57,7 +57,7 @@ int main() {
     
     VBO vbo(3*sizeof(float), GL_ARRAY_BUFFER, GL_STATIC_DRAW);
     auto buf = vbo.Buffer<Atr<glm::vec3, 1>>();
-    for(int i = 0; i < 6; ++i)
+    for(int i = 0; i < 36; ++i)
         buf.At<0>(i) = glm::vec3(i, i/2.f, i/3.f);
     vbo.Generate();
     
@@ -67,7 +67,9 @@ int main() {
     
     
 	Texture texture;
-    texture.Load("image.jpg", GL_REPEAT, GL_LINEAR, false);
+    texture.Load("image.jpg", GL_REPEAT, GL_NEAREST, false);
+    
+    ourShader.SetTexture(ourShader.GetUniformLocation("ourTexture1"), &texture, 0);
     
     while(!glfwWindowShouldClose(openGL.window)) {
         GLfloat currentFrame = glfwGetTime();
@@ -80,9 +82,6 @@ int main() {
         openGL.InitFrame();
         
         
-		glActiveTexture(GL_TEXTURE0);
-        texture.Bind();
-        ourShader.SetInt(ourShader.GetUniformLocation("ourTexture1"), 0);
         
         
         ourShader.Use();
@@ -108,6 +107,7 @@ int main() {
                 model = glm::scale(model, glm::vec3(10));
                 model = glm::translate(model, glm::vec3(0.0f,0.0f,0.0f+float((j*i)<<1)));
                 ourShader.SetMat4(modelLoc, model);
+                vao.SetInstances(220*220);
                 vao.Draw();//0, 36);
 	        }
 	    }

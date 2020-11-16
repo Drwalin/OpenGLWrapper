@@ -9,21 +9,24 @@ VAO::VAO(GLenum mode) : mode(mode) {
 	glGenVertexArrays(1, &vaoID);
 	glBindVertexArray(0);
 	drawArrays = true;
-
+	instances = 0;
 }
 
 VAO::~VAO() {
 	glDeleteVertexArrays(1, &vaoID);
 }
 
-void VAO::SetAttribPointer(VBO& vbo, int location, unsigned count, GLenum type, bool normalized, unsigned offset) {
+void VAO::SetAttribPointer(VBO& vbo, int location, unsigned count, GLenum type, bool normalized, unsigned offset, unsigned divisor) {
 	glBindVertexArray(vaoID);
 	glBindBuffer(vbo.target, vbo.vboID);
 	glEnableVertexAttribArray(location);
 	glVertexAttribPointer(location, count, type, normalized, vbo.vertexSize, (void*)offset);
+	glVertexAttribDivisor(location, divisor);
 	glBindVertexArray(0);
 	glBindBuffer(vbo.target, 0);
-	if(vbo.target == GL_ELEMENT_ARRAY_BUFFER) {
+	if(divisor>0) {
+		instances = std::max(instances, divisor*vbo.vertices);
+	} else if(vbo.target == GL_ELEMENT_ARRAY_BUFFER) {
 		drawArrays = false;
 		sizeI = std::max(vbo.vertices, sizeI);
 		typeElements = type;
@@ -32,12 +35,8 @@ void VAO::SetAttribPointer(VBO& vbo, int location, unsigned count, GLenum type, 
 	}
 }
 
-void VAO::SetAttribDivider(VBO& vbo, int location, unsigned divisor) {
-	glBindVertexArray(vaoID);
-	glBindBuffer(vbo.target, vbo.vboID);
-	glVertexAttribDivisor(location, divisor);
-	glBindVertexArray(0);
-	glBindBuffer(vbo.target, 0);
+void VAO::SetInstances(unsigned instances) {
+	this->instances = instances;
 }
 
 void VAO::Draw() {
@@ -53,13 +52,20 @@ void VAO::Draw(unsigned start, unsigned count) {
 
 void VAO::DrawArrays(unsigned start, unsigned count) {
 	glBindVertexArray(vaoID);
-	glDrawArrays(mode, start, count);
+	if(instances)
+		glDrawArraysInstanced(mode, start, count, instances);
+	else
+		glDrawArrays(mode, start, count);
 	glBindVertexArray(0);
 }
 
 void VAO::DrawElements(unsigned start, unsigned count) {
 	glBindVertexArray(vaoID);
-	glDrawElements(mode, count, typeElements, (void*)start);
+#warning glDrawElements::indices should be (void*)start or (void*)start*sizeof(typeElements)
+	if(instances)
+		glDrawElementsInstanced(mode, count, typeElements, (void*)start, instances);
+	else
+		glDrawElements(mode, count, typeElements, (void*)start);
 	glBindVertexArray(0);
 }
 

@@ -14,10 +14,10 @@ public:
 	VAO(GLenum mode);
 	~VAO();
 	
-	void SetAttribPointer(VBO& vbo, int location, unsigned count, GLenum type, bool normalized, unsigned offset);		// offset in bytes
-	void SetAttribDivider(VBO& vbo, int location, unsigned divisor);
+	void SetAttribPointer(VBO& vbo, int location, unsigned count, GLenum type, bool normalized, unsigned offset, unsigned divisor=0);		// offset in bytes
 	
 	void SetSize(unsigned count);
+	void SetInstances(unsigned instances);
 	
 	void Draw();
 	void Draw(unsigned start, unsigned count);
@@ -27,7 +27,7 @@ public:
 private:
 	
 	GLenum typeElements;
-	unsigned sizeA, sizeI;
+	unsigned sizeA, sizeI, instances;
 	unsigned vaoID;
 	GLenum mode;
 	bool drawArrays;

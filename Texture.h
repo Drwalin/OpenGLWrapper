@@ -17,7 +17,8 @@ public:
 	unsigned int GetWidth() const;
 	unsigned int GetHeight() const;
 	
-	int Load(const char* fileName, const int paramWrap, const int paramFilter, const bool generateMipMap);		// return 0 if no errors
+	int Load(const char* fileName, int paramWrap, int paramFilter, bool generateMipMap);		// return 0 if no errors
+	void UpdateTextureData(const void* data, unsigned w, unsigned h, int paramWrap, int paramFilter, bool generateMipMap, GLenum target, GLenum internalformat, GLenum dataformat, GLenum datatype);
 	
 	void Bind() const;
 	unsigned int GetTexture() const;
