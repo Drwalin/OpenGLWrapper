@@ -26,6 +26,7 @@ void DoMovement();
 #include <Shader.h>
 #include <Texture.h>
 #include <VAO.h>
+#include <VBO.h>
 
 
 Camera camera(glm::vec3(0.0f,0.0f, 0.0f));
@@ -40,7 +41,7 @@ GLfloat lastFrame = 0.0f;
 
 
 
-
+#include <cstdio>
 
 int main() {
     openGL.Init("Window test name 311", 800, 600, false, false);
@@ -53,63 +54,20 @@ int main() {
     Shader ourShader;
 	ourShader.Load("../GeometryShader/core.vs", "../GeometryShader/core.gs", "../GeometryShader/core.fs");
     
-    GLfloat vertices[] = {
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-        0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-    };
     
-    VAO vao;
-    vao.SetVertexSize(5*sizeof(float));
+    VBO vbo(3*sizeof(float), GL_ARRAY_BUFFER, GL_STATIC_DRAW);
+    auto buf = vbo.Buffer<Atr<glm::vec3, 1>>();
+    for(int i = 0; i < 6; ++i)
+        buf.At<0>(i) = glm::vec3(i, i/2.f, i/3.f);
+    vbo.Generate();
     
-    for(int i = 0; i < 36; ++i) {
-    	vao.AddVertex(vertices+(i*5*sizeof(float)));
-    }
+    VAO vao(GL_POINTS);
+	vao.SetAttribPointer(vbo, ourShader.GetAttributeLocation("position"), 3, GL_FLOAT, false, 0);
     
-    vao.Generate(GL_POINTS);
-    vao.ClearVertices();
-	vao.SetAttribPointer(ourShader.GetAttributeLocation("position"), 3, GL_FLOAT, false, 0);
-	
+    
+    
 	Texture texture;
-    texture.Load("resources/imafges/image1.jpg", GL_REPEAT, GL_LINEAR, false);
+    texture.Load("image.jpg", GL_REPEAT, GL_LINEAR, false);
     
     while(!glfwWindowShouldClose(openGL.window)) {
         GLfloat currentFrame = glfwGetTime();
@@ -150,7 +108,7 @@ int main() {
                 model = glm::scale(model, glm::vec3(10));
                 model = glm::translate(model, glm::vec3(0.0f,0.0f,0.0f+float((j*i)<<1)));
                 ourShader.SetMat4(modelLoc, model);
-                vao.Draw();
+                vao.Draw();//0, 36);
 	        }
 	    }
         
@@ -172,6 +130,12 @@ void DoMovement() {
     }
     if(keys[GLFW_KEY_A] || keys[GLFW_KEY_LEFT]) {
         camera.ProcessKeyboard(LEFT, deltaTime);
+    }
+    if(keys[GLFW_KEY_Q]) {
+        camera.Up(-1, deltaTime);
+    }
+    if(keys[GLFW_KEY_E]) {
+        camera.Up(1, deltaTime);
     }
 }
 

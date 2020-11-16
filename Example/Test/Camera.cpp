@@ -110,6 +110,10 @@ public:
         }
     }
     
+    void Up(float scale, GLfloat deltaTime) {
+        position.y += deltaTime * scale * SPEED;
+    }
+    
     void ProcessMouseMovement (GLfloat xOffset, GLfloat yOffset, GLboolean constrainPitch = true )
     {
         xOffset *= this->mouseSensitivity;

@@ -112,10 +112,11 @@ void Shader::PrintCode(const char* code) {
 	for(; *i; ++i) {
 		switch(*i) {
 			case '\n':
-			case '\r':
 				x = 0;
 				++line;
 				printf("\n%5i: ", line);
+				break;
+			case '\r':
 				break;
 			case '\t':
 				for(int t=((x+4)>>2)<<2; x < t; ++x)

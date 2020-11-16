@@ -8,7 +8,7 @@ CXXFLAGS = -m64 -std=c++17 -Wint-to-pointer-cast -Wpointer-arith -DGLEW_STATIC
 INCLUDES = -IC:\Programs\mingw-w64\include -I..\..\thirdparty -I..\..
 CXX = g++
 
-main.exe: bin\Main.o bin\OpenGL.o bin\Shader.o bin\Texture.o bin\VAO.o bin\SOIL2.o bin\etc1_utils.o bin\image_helper.o bin\image_DXT.o
+main.exe: bin\Main.o bin\OpenGL.o bin\Shader.o bin\Texture.o bin\VBO.o bin\VAO.o bin\SOIL2.o bin\etc1_utils.o bin\image_helper.o bin\image_DXT.o
 	g++ $(CXXFLAGS $(INCLUDES)) $(LIBS) -o $@ $^ $(LIBS)
 
 bin$(S)%.o: ..$(S)..$(S)%.cpp
