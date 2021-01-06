@@ -171,12 +171,15 @@ void DoMovement() {
 	}
 }
 
-void KeyCallback(GLFWwindow * window, int key, int scancode, int action, int mode) {
+void KeyCallback(GLFWwindow * window, int key, int scancode, int action,
+		int mode) {
 	if(GLFW_KEY_ESCAPE == key && action == GLFW_PRESS) {
 		glfwSetWindowShouldClose(window, GL_TRUE);
 	}
 	if(key >= 0 && key <= 1024) {
 		if(GLFW_PRESS == action) {
+			if(key == GLFW_KEY_P)
+				openGL.SetFullscreen(!openGL.IsFullscreen());
 			keys[key] = true;
 		} else if(GLFW_RELEASE == action) {
 			keys[key] = false;
@@ -201,10 +204,7 @@ void MouseCallback(GLFWwindow * window, double xPos, double yPos) {
 }
 
 void ScrollCallback(GLFWwindow * window, double xOffset, double yOffset) {
-
 	camera.ProcessMouseScroll(yOffset);
-	
-
 }
 
 

@@ -2,7 +2,7 @@
 LIBS = -lgdi32 -LC:\Programs\mingw-w64\lib -LC:\Programs\mingw-w64\shared -lOpenGL32 -lm -lpthread -lglew\glew64s -lwinmm -lgdi32 -lkernel32 -luser32 -lgdi32 -lcomdlg32 -lole32 -ldinput -lddraw -ldxguid -lwinmm -ldsound -lshlwapi -lglu32 -lshlwapi -lOpenGL32 -lm -lpthread -lglew\glew64s -lwinmm -lgdi32 -lkernel32 -luser32 -lgdi32 -lcomdlg32 -lole32 -ldinput -lddraw -ldxguid -lwinmm -ldsound -lshlwapi -lglu32 -lglfw3 -lshlwapi -lgdi32
 
 
-CXXFLAGS = -m64 -std=c++17 -Wint-to-pointer-cast -Wpointer-arith -DGLEW_STATIC
+CXXFLAGS = -m64 -std=c++17 -Wint-to-pointer-cast -Wpointer-arith -DGLEW_STATIC -s -Ofast
 INCLUDES = -IC:\Programs\mingw-w64\include -I..\..\thirdparty -I..\..
 CXX = g++
 

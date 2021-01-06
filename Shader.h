@@ -2,19 +2,37 @@
 #define SHADER_H
 
 #include <vector>
+#include <string>
 
 #include <GL/glew.h>
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
 class Shader {
 public:
 	
-    int Load(const char* vertexPath, const char* geometryPath,
+	enum Type {
+		Vertex = 0,
+		Geometry = 1,
+		Fragment = 2
+		//Tesselation = 3,
+		//Compute = 4
+	};
+	inline static const unsigned gl_types[] = {
+		GL_VERTEX_SHADER,
+		GL_GEOMETRY_SHADER,
+		GL_FRAGMENT_SHADER
+	};
+	inline static const char* const gl_string_types[] = {
+		"VERTEX",
+		"GEOMETRY",
+		"FRAGMENT"
+	};
+	
+	
+	int Load(const char* vertexPath, const char* geometryPath,
 			const char* fragmentPath);		// return 0 if no errors
-    void Use();
-    unsigned GetProgram();
+	void Use();
+	unsigned GetProgram();
 	
 	int GetUniformLocation(const char* name) const;
 	int GetAttributeLocation(const char* name) const;
@@ -28,12 +46,16 @@ public:
 	void SetFloat(int location, const std::vector<float>& array);
 	void SetVec2(int location, const glm::vec2 &value);
 	void SetVec3(int location, const glm::vec3 &value);
-	void SetVec3(int location, const std::vector<glm::vec3>& array);
 	void SetVec4(int location, const glm::vec4 &value);
+	void SetVec2(int location, const std::vector<glm::vec2>& array);
+	void SetVec3(int location, const std::vector<glm::vec3>& array);
+	void SetVec4(int location, const std::vector<glm::vec4>& array);
 	void SetMat2(int location, const glm::mat2 &mat);
 	void SetMat3(int location, const glm::mat3 &mat);
 	void SetMat4(int location, const glm::mat4 &mat);
 	void SetMat4(int location, const std::vector<glm::mat4>& array);
+	
+	void Destroy();
 	
 	Shader();
 	~Shader();
@@ -42,12 +64,12 @@ private:
 	
 	static unsigned currentProgram;
 	
-	static unsigned CompileProgram(const char* code, unsigned type,
-			const char* msg);
+	static unsigned CompileShaderObject(const char* fileName, Type type);
+	static unsigned CompileGLSL(const char* code, Type type);
 	static void PrintCode(const char* code);
 	
-    unsigned int program;
-	
+	unsigned int program;
 };
 
 #endif
+

@@ -26,10 +26,15 @@ public:
 	double mouseLastX, mouseLastY;
 	double mouseCurrentX, mouseCurrentY;
 	double wheelDY;
-	unsigned int width, height;
+	int width, height;
+	int backupWinX, backupWinY;
+	int backupWidth, backupHeight;
 	GLFWwindow* window;
 	
 public:
+	
+	void SetFullscreen(bool fullscreen);
+	bool IsFullscreen() const;
 	
 	void SwapInput();
 	bool IsKeyDown(const int id) const;

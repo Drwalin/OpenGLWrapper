@@ -2,67 +2,32 @@
 #include "Shader.h"
 #include "Texture.h"
 
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include <fstream>
 #include <cstdio>
 
 unsigned Shader::currentProgram = 0;
 
-int Shader::Load(const char * vertexPath, const char * geometryPath,
-		const char * fragmentPath) {
-	if(this->program)
-		return 311;
+int Shader::Load(const char* vertexPath, const char* geometryPath,
+		const char* fragmentPath) {
+	Destroy();
 	
-	const char* files[3] = {vertexPath, geometryPath, fragmentPath};
-	char* code[3] = {NULL, NULL, NULL};
-	
-	for(int i=0; i<3; ++i) {
-		if(files[i] == NULL)
-			continue;
-		std::ifstream file(files[i], std::ios::binary);
-		if(file.good()) {
-			size_t fileSize = file.tellg();
-			file.seekg(0, std::ios::end);
-			fileSize = (size_t)file.tellg() - fileSize;
-			file.seekg(0, std::ios::beg);
-			
-			code[i] = (char*)malloc(fileSize+1);
-			file.read(code[i], fileSize);
-			code[i][fileSize] = 0;
-			
-			file.close();
-		}
-	}
-	
-	if(!code[0] || !code[2] || (geometryPath && !code[1])) {
-		printf("\n ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ  v:%i - f:%i - g:%i ",
-				(int)(bool)code[0], (int)(bool)code[2], (int)(bool)code[1]);
-		for(int i=0; i<3; ++i)
-			if(code[i])
-				free(code[i]);
-		return 1;
-	}
-	
-	unsigned vertex, geometry, fragment;
-	
-	vertex = Shader::CompileProgram(code[0], GL_VERTEX_SHADER, "VERTEX");
-	if(code[1])
-		geometry = Shader::CompileProgram(code[1], GL_GEOMETRY_SHADER,
-				"GEOMETRY");
-	fragment = Shader::CompileProgram(code[2], GL_FRAGMENT_SHADER, "FRAGMENT");
-	
-	if(!vertex || !fragment || (geometryPath && !geometry)) {
-		for(int i=0; i<3; ++i)
-			if(code[i])
-				free(code[i]);
-		return 2;
-	}
+	unsigned vertex = Shader::CompileShaderObject(vertexPath,
+			Shader::Type::Vertex);
+	unsigned geometry = Shader::CompileShaderObject(geometryPath,
+			Shader::Type::Geometry);
+	unsigned fragment = Shader::CompileShaderObject(fragmentPath,
+			Shader::Type::Fragment);
 	
 	program = glCreateProgram();
-	if(geometryPath)
+	if(geometry)
 		glAttachShader(program, geometry);
 	glAttachShader(program, vertex);
 	glAttachShader(program, fragment);
 	glLinkProgram(program);
+	
 	int success;
 	glGetProgramiv(program, GL_LINK_STATUS, &success);
 	if(!success) {
@@ -70,38 +35,61 @@ int Shader::Load(const char * vertexPath, const char * geometryPath,
 		int size;
 		glGetProgramInfoLog(program, 512, &size, infoLog);
 		printf("\n ERROR::SHADER::PROGRAM::LINKING_FAILED\n %s", infoLog);
-		for(int i=0; i<3; ++i)
-			if(code[i])
-				free(code[i]);
+		if(vertex)
+			glDeleteShader(vertex);
+		if(geometry)
+			glDeleteShader(geometry);
+		if(fragment)
+			glDeleteShader(fragment);
 		return 3;
 	}
 	
-	if(geometryPath)
+	if(vertex)
+		glDeleteShader(vertex);
+	if(geometry)
 		glDeleteShader(geometry);
-	glDeleteShader(vertex);
-	glDeleteShader(fragment);
-	
-	for(int i=0; i<3; ++i)
-		if(code[i])
-			free(code[i]);
+	if(fragment)
+		glDeleteShader(fragment);
 	
 	return 0;
 }
 
-unsigned Shader::CompileProgram(const char* code, unsigned type,
-		const char* msg) {
+unsigned Shader::CompileShaderObject(const char* fileName, Type type) {
+	char* code = NULL;
+	
+	std::ifstream file(fileName, std::ios::binary);
+	if(!file.good())
+		return 0;
+	
+	size_t fileSize = file.tellg();
+	file.seekg(0, std::ios::end);
+	fileSize = (size_t)file.tellg() - fileSize;
+	file.seekg(0, std::ios::beg);
+	
+	code = (char*)malloc(fileSize+1);
+	file.read(code, fileSize);
+	code[fileSize] = 0;
+	
+	file.close();
+	
+	unsigned shaderId = Shader::CompileGLSL(code, type);
+	free(code);
+	return shaderId;
+}
+
+unsigned Shader::CompileGLSL(const char* code, Type type) {
 	if(code) {
 		int success;
 		char infoLog[5120];
-		unsigned program = glCreateShader(type);
+		unsigned program = glCreateShader(Shader::gl_types[type]);
 		glShaderSource(program, 1, &code, NULL);
 		glCompileShader(program);
 		glGetShaderiv(program, GL_COMPILE_STATUS, &success);
 		if(!success) {
 			GLsizei size;
 			glGetShaderInfoLog(program, 5120, &size, infoLog);
-			printf("\n ERROR::SHADER::%s::COMPILATION_FAILED\n %s", msg,
-					infoLog);
+			printf("\n ERROR::SHADER::%s::COMPILATION_FAILED\n %s",
+					Shader::gl_string_types[type], infoLog);
 			PrintCode(code);
 			glDeleteShader(program);
 			return 0;
@@ -114,9 +102,8 @@ unsigned Shader::CompileProgram(const char* code, unsigned type,
 void Shader::PrintCode(const char* code) {
 	printf("\n Code: \n    1: ");
 	int line = 1;
-	char const*i = code;
 	int x=0;
-	for(; *i; ++i) {
+	for(char const* i = code; *i; ++i) {
 		switch(*i) {
 			case '\n':
 				x = 0;
@@ -205,9 +192,19 @@ void Shader::SetVec3(int location, const glm::vec3 &value) {
 	glUniform3fv(location, 1, glm::value_ptr(value));
 }
 
+void Shader::SetVec2(int location, const std::vector<glm::vec2>& array) {
+	Use();
+	glUniform2fv(location, array.size(), (float*)&array.front());
+}
+
 void Shader::SetVec3(int location, const std::vector<glm::vec3>& array) {
 	Use();
 	glUniform3fv(location, array.size(), (float*)&array.front());
+}
+
+void Shader::SetVec4(int location, const std::vector<glm::vec4>& array) {
+	Use();
+	glUniform4fv(location, array.size(), (float*)&array.front());
 }
 
 void Shader::SetVec4(int location, const glm::vec4 &value) {
@@ -236,14 +233,21 @@ void Shader::SetMat4(int location, const std::vector<glm::mat4>& array) {
 			(float*)&array.front());
 }
 
-Shader::Shader() {
-	program = 0;
-}
-
-Shader::~Shader() {
+void Shader::Destroy() {
+	if(currentProgram == program)
+		currentProgram = 0;
 	if(program) {
 		glUseProgram(0);
 		glDeleteProgram(program);
 	}
 	program = 0;
 }
+
+Shader::Shader() {
+	program = 0;
+}
+
+Shader::~Shader() {
+	Destroy();
+}
+

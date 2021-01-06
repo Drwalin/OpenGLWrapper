@@ -8,6 +8,28 @@
 
 OpenGL openGL;
 
+void OpenGL::SetFullscreen(bool fullscreen) {
+	if(fullscreen == IsFullscreen())
+		return;
+	if(fullscreen) {
+		glfwGetWindowPos(window, &backupWinX, &backupWinY);
+		glfwGetWindowSize(window, &backupWidth, &backupHeight);
+		
+		auto monitor = glfwGetPrimaryMonitor();
+		const GLFWvidmode * mode = glfwGetVideoMode(monitor);
+		
+		glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height,
+				0);
+	} else {
+		glfwSetWindowMonitor(window, nullptr, backupWinX, backupWinY,
+				backupWidth, backupHeight, 0);
+	}
+}
+
+bool OpenGL::IsFullscreen() const {
+	return glfwGetWindowMonitor(window) != NULL;
+}
+
 void OpenGL::SwapInput() {
 	bKeys = keys;
 	for(auto it : keys)
