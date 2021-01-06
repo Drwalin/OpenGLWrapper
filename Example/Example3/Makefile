@@ -27,6 +27,3 @@ clean:
 	rm bin/*.o -f
 
 
-REGE:
-	rem g++ -IC:/Programs/mingw-w64/include -I../../thirdparty Main.cpp -o main.exe -std=c++17 -LC:/Programs/mingw-w64/lib -LC:/Programs/mingw-w64/shared
-

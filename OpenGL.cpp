@@ -1,3 +1,20 @@
+/*
+ *  This file is part of OpenGLWrapper.
+ *  Copyright (C) 2021 Marek Zalewski aka Drwalin
+ *
+ *  ICon3 is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  ICon3 is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
 
 #ifndef OPEN_GL_ENGINE_CPP
 #define OPEN_GL_ENGINE_CPP
@@ -103,6 +120,7 @@ int OpenGL::Init(const char* windowName, unsigned int width,
 	glfwSetCursorPosCallback(window, OpenGLMouseCallback);
 	glfwSetScrollCallback(window, OpenGLScrollCallback);
 	glfwSetWindowSizeCallback(window, OpenGLWindowResizeCallback);
+	glfwSetMouseButtonCallback(window, OpenGLMouseButtonCallback);
 	
 	
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -161,9 +179,7 @@ void OpenGLKeyCallback(GLFWwindow* window, int key, int scancode, int action,
     if(key >= 0 && key <= 1024) {
 		if(GLFW_PRESS == action) {
 			openGL.keys[key] = true;
-		}
-		else if(GLFW_RELEASE == action)
-		{
+		} else if(GLFW_RELEASE == action) {
 			openGL.keys[key] = false;
 		}
 	}
@@ -188,6 +204,12 @@ void OpenGLWindowResizeCallback(GLFWwindow* window, int width, int height) {
 	glViewport(0, 0, width, height);
 	openGL.width = width;
 	openGL.height = height;
+}
+
+void OpenGL::OpenGLMouseButtonCallback(GLFWwindow* window, int button,
+		int action, int mods) {
+	if(button==GLFW_MOUSE_BUTTON_RIGHT && action==GLFW_PRESS) {
+	}
 }
 
 #endif
