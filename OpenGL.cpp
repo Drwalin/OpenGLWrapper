@@ -60,14 +60,16 @@ unsigned int OpenGL::GetHeight() const {
 	return height;
 }
 
-int OpenGL::Init(const char* windowName, unsigned int width, unsigned int height, bool resizable, bool fullscreen) {
+int OpenGL::Init(const char* windowName, unsigned int width,
+		unsigned int height, bool resizable, bool fullscreen) {
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_RESIZABLE, resizable);
-	window = glfwCreateWindow(width, height, windowName, fullscreen ? glfwGetPrimaryMonitor() : NULL, NULL);
+	window = glfwCreateWindow(width, height, windowName,
+			fullscreen ? glfwGetPrimaryMonitor() : NULL, NULL);
 	if(window == NULL) {
 		printf("\n Failed to create GLFW window! ");
 		return 1;
@@ -78,6 +80,7 @@ int OpenGL::Init(const char* windowName, unsigned int width, unsigned int height
 	glfwSetKeyCallback(window, OpenGLKeyCallback);
 	glfwSetCursorPosCallback(window, OpenGLMouseCallback);
 	glfwSetScrollCallback(window, OpenGLScrollCallback);
+	glfwSetWindowSizeCallback(window, OpenGLWindowResizeCallback);
 	
 	
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -131,7 +134,8 @@ OpenGL::~OpenGL() {
 	glfwTerminate();
 }
 
-void OpenGLKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode) {
+void OpenGLKeyCallback(GLFWwindow* window, int key, int scancode, int action,
+		int mode) {
     if(key >= 0 && key <= 1024) {
 		if(GLFW_PRESS == action) {
 			openGL.keys[key] = true;
@@ -158,4 +162,11 @@ void OpenGLMouseCallback(GLFWwindow* window, double xPos, double yPos) {
 	openGL.mouseCurrentY = yPos;
 }
 
+void OpenGLWindowResizeCallback(GLFWwindow* window, int width, int height) {
+	glViewport(0, 0, width, height);
+	openGL.width = width;
+	openGL.height = height;
+}
+
 #endif
+

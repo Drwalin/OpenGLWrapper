@@ -14,7 +14,9 @@ public:
 	VAO(GLenum mode);
 	~VAO();
 	
-	void SetAttribPointer(VBO& vbo, int location, unsigned count, GLenum type, bool normalized, unsigned offset, unsigned divisor=0);		// offset in bytes
+	// offset in bytes
+	void SetAttribPointer(VBO& vbo, int location, unsigned count, GLenum type,
+			bool normalized, unsigned offset, unsigned divisor=0);
 	
 	void SetSize(unsigned count);
 	void SetInstances(unsigned instances);

@@ -11,9 +11,11 @@
 
 #include <vector>
 
-void OpenGLKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode);
+void OpenGLKeyCallback(GLFWwindow* window, int key, int scancode, int action,
+		int mode);
 void OpenGLScrollCallback(GLFWwindow* window, double xOffset, double yOffset);
 void OpenGLMouseCallback(GLFWwindow* window, double xPos, double yPos);
+void OpenGLWindowResizeCallback(GLFWwindow* window, int width, int height);
 
 class OpenGL {
 private:
@@ -41,7 +43,8 @@ public:
 	unsigned int GetWidth() const;
 	unsigned int GetHeight() const;
 	
-	int Init(const char* windowName, unsigned int width, unsigned int height, bool resizable, bool fullscreen);
+	int Init(const char* windowName, unsigned int width, unsigned int height,
+			bool resizable, bool fullscreen);
 	
 	void InitGraphic();
 	void InitFrame();

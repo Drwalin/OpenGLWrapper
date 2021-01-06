@@ -7,7 +7,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "Camera.cpp"
+#include "../../Camera.cpp"
 
 #define DEBUG(x) 
 //printf("\n %i",(int)x);
@@ -44,7 +44,7 @@ GLfloat lastFrame = 0.0f;
 #include <cstdio>
 
 int main() {
-    openGL.Init("Window test name 311", 800, 600, false, false);
+    openGL.Init("Window test name 311", 800, 600, true, false);
     openGL.InitGraphic();
     
     glfwSetKeyCallback(openGL.window, KeyCallback);
@@ -52,25 +52,32 @@ int main() {
     glfwSetScrollCallback(openGL.window, ScrollCallback);
     
     Shader ourShader;
-	ourShader.Load("../GeometryShader/core.vs", "../GeometryShader/core.gs", "../GeometryShader/core.fs");
+	ourShader.Load("../GeometryShader/core.vs", "../GeometryShader/core.gs",
+			"../GeometryShader/core.fs");
     
     
     VBO vbo(3*sizeof(float), GL_ARRAY_BUFFER, GL_STATIC_DRAW);
     auto buf = vbo.Buffer<Atr<glm::vec3, 1>>();
-    for(int i = 0; i < 36; ++i)
+    for(int i = 0; i < 8; ++i)
         buf.At<0>(i) = glm::vec3(i, i/2.f, i/3.f);
     vbo.Generate();
     
     VAO vao(GL_POINTS);
-	vao.SetAttribPointer(vbo, ourShader.GetAttributeLocation("position"), 3, GL_FLOAT, false, 0);
+	vao.SetAttribPointer(vbo, ourShader.GetAttributeLocation("position"), 3,
+			GL_FLOAT, false, 0);
     
     
     
 	Texture texture;
     texture.Load("image.jpg", GL_REPEAT, GL_NEAREST, false);
     
-    ourShader.SetTexture(ourShader.GetUniformLocation("ourTexture1"), &texture, 0);
+    ourShader.SetTexture(ourShader.GetUniformLocation("ourTexture1"), &texture,
+			0);
     
+	glPointSize(3.0f);
+	glLineWidth(3.0f);
+	glEnable(GL_DITHER);
+	
     while(!glfwWindowShouldClose(openGL.window)) {
         GLfloat currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
@@ -86,7 +93,9 @@ int main() {
         
         ourShader.Use();
         
-        glm::mat4 projection = glm::perspective(45.0f,(GLfloat)openGL.GetWidth()/(GLfloat)openGL.GetHeight(), 0.1f, 10000.0f);
+        glm::mat4 projection = glm::perspective(45.0f,
+				(float)openGL.GetWidth()/(float)openGL.GetHeight(), 0.1f,
+				10000.0f);
         
         // Create transformations
         glm::mat4 model;
@@ -105,9 +114,10 @@ int main() {
 	        for(GLuint i = 10; i < 11; ++i) {
 	            glm::mat4 model(1.0f);
                 model = glm::scale(model, glm::vec3(10));
-                model = glm::translate(model, glm::vec3(0.0f,0.0f,0.0f+float((j*i)<<1)));
+                model = glm::translate(model,
+						glm::vec3(0.0f,0.0f,0.0f+float((j*i)<<1)));
                 ourShader.SetMat4(modelLoc, model);
-                vao.SetInstances(220*220);
+                vao.SetInstances(1000*1000);
                 vao.Draw();//0, 36);
 	        }
 	    }

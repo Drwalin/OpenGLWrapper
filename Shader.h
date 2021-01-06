@@ -11,7 +11,8 @@
 class Shader {
 public:
 	
-    int Load(const char* vertexPath, const char* geometryPath, const char* fragmentPath);		// return 0 if no errors
+    int Load(const char* vertexPath, const char* geometryPath,
+			const char* fragmentPath);		// return 0 if no errors
     void Use();
     unsigned GetProgram();
 	
@@ -41,7 +42,8 @@ private:
 	
 	static unsigned currentProgram;
 	
-	static unsigned CompileProgram(const char* code, unsigned type, const char* msg);
+	static unsigned CompileProgram(const char* code, unsigned type,
+			const char* msg);
 	static void PrintCode(const char* code);
 	
     unsigned int program;

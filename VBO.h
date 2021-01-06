@@ -30,7 +30,9 @@ public:
 	template<unsigned id, typename tuple>
 	class GetOffset {
 	public:
-		const static unsigned offset = GetOffset<id-1, tuple>::offset + std::tuple_element<id-1, tuple>::type::size;
+		const static unsigned offset =
+			GetOffset<id-1, tuple>::offset +
+			std::tuple_element<id-1, tuple>::type::size;
 	};
 	
 	template<typename tuple>
@@ -52,11 +54,17 @@ public:
 		using TupleElement = typename std::tuple_element<id, Tuple>::type;
 		
 		template<unsigned attributeID>
-		inline typename TupleElement<attributeID>::type& At(unsigned vertId, unsigned vectorId=0) {
+		inline typename TupleElement<attributeID>::type& At(unsigned vertId,
+				unsigned vectorId=0) {
 			static float _S[16];
 			if(vbo) {
 				vbo->ReserveResizeVertices(vertId+1);
-				return ((typename TupleElement<attributeID>::type*)&(vbo->buffer[vertId*vbo->VertexSize() + GetOffset<attributeID, Tuple>::offset]))[vectorId];
+				size_t offset =  vertId*vbo->VertexSize() +
+					GetOffset<attributeID, Tuple>::offset;
+				using elem_type = typename TupleElement<attributeID>::type;
+				elem_type* elements =
+					reinterpret_cast<elem_type*>(&(vbo->buffer[offset]));
+				return elements[vectorId];
 			}
 			return *((typename TupleElement<attributeID>::type*)&(_S));
 		}
@@ -81,26 +89,23 @@ public:
 		}
 	}
 	
-	inline void SetType(unsigned vertexSize, GLenum target, GLenum usage) {
-		this->vertexSize = vertexSize;
-		this->target = target;
-		this->usage = usage;
-	}
+	void SetType(unsigned vertexSize, GLenum target, GLenum usage);
 	
 	// target: GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER
 	// usage: GL_STATIC_DRAW, GL_DYNAMIC_DRAW, GL_STREAM_DRAW
-	VBO(unsigned vertexSize, GLenum target=GL_ARRAY_BUFFER, GLenum usage=GL_STATIC_DRAW);
+	VBO(unsigned vertexSize, GLenum target=GL_ARRAY_BUFFER,
+			GLenum usage=GL_STATIC_DRAW);
 	~VBO();
 	
 	void Generate();
+	void Update(unsigned beg, unsigned end);
+	void ClearHostBuffer();
+	void FetchAllDataToHostFromGPU();
 	
-	inline std::vector<unsigned char>& Buffer() {
-		return buffer;
-	}
+	inline std::vector<unsigned char>& Buffer() { return buffer; }
+	inline const std::vector<unsigned char>& Buffer() const { return buffer; }
 	
-	inline unsigned VertexSize() const {
-		return vertexSize;
-	}
+	inline unsigned VertexSize() const { return vertexSize; }
 	
 private:
 	

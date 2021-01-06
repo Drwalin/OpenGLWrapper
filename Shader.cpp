@@ -7,7 +7,8 @@
 
 unsigned Shader::currentProgram = 0;
 
-int Shader::Load(const char * vertexPath, const char * geometryPath, const char * fragmentPath) {
+int Shader::Load(const char * vertexPath, const char * geometryPath,
+		const char * fragmentPath) {
 	if(this->program)
 		return 311;
 	
@@ -33,7 +34,8 @@ int Shader::Load(const char * vertexPath, const char * geometryPath, const char 
 	}
 	
 	if(!code[0] || !code[2] || (geometryPath && !code[1])) {
-		printf("\n ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ  v:%i - f:%i - g:%i ", (int)(bool)code[0], (int)(bool)code[2], (int)(bool)code[1]);
+		printf("\n ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ  v:%i - f:%i - g:%i ",
+				(int)(bool)code[0], (int)(bool)code[2], (int)(bool)code[1]);
 		for(int i=0; i<3; ++i)
 			if(code[i])
 				free(code[i]);
@@ -44,7 +46,8 @@ int Shader::Load(const char * vertexPath, const char * geometryPath, const char 
 	
 	vertex = Shader::CompileProgram(code[0], GL_VERTEX_SHADER, "VERTEX");
 	if(code[1])
-		geometry = Shader::CompileProgram(code[1], GL_GEOMETRY_SHADER, "GEOMETRY");
+		geometry = Shader::CompileProgram(code[1], GL_GEOMETRY_SHADER,
+				"GEOMETRY");
 	fragment = Shader::CompileProgram(code[2], GL_FRAGMENT_SHADER, "FRAGMENT");
 	
 	if(!vertex || !fragment || (geometryPath && !geometry)) {
@@ -64,8 +67,9 @@ int Shader::Load(const char * vertexPath, const char * geometryPath, const char 
 	glGetProgramiv(program, GL_LINK_STATUS, &success);
 	if(!success) {
 		char infoLog[512];
-		glGetProgramInfoLog(program, 512, NULL, infoLog);
-		printf("\n ERROR::SHADER::PROGRAM::LINKING_FAILED\n %c", infoLog);
+		int size;
+		glGetProgramInfoLog(program, 512, &size, infoLog);
+		printf("\n ERROR::SHADER::PROGRAM::LINKING_FAILED\n %s", infoLog);
 		for(int i=0; i<3; ++i)
 			if(code[i])
 				free(code[i]);
@@ -84,7 +88,8 @@ int Shader::Load(const char * vertexPath, const char * geometryPath, const char 
 	return 0;
 }
 
-unsigned Shader::CompileProgram(const char* code, unsigned type, const char* msg) {
+unsigned Shader::CompileProgram(const char* code, unsigned type,
+		const char* msg) {
 	if(code) {
 		int success;
 		char infoLog[5120];
@@ -95,7 +100,8 @@ unsigned Shader::CompileProgram(const char* code, unsigned type, const char* msg
 		if(!success) {
 			GLsizei size;
 			glGetShaderInfoLog(program, 5120, &size, infoLog);
-			printf("\n ERROR::SHADER::%s::COMPILATION_FAILED\n %s", msg, infoLog);
+			printf("\n ERROR::SHADER::%s::COMPILATION_FAILED\n %s", msg,
+					infoLog);
 			PrintCode(code);
 			glDeleteShader(program);
 			return 0;
@@ -152,7 +158,8 @@ int Shader::GetAttributeLocation(const char * name) const {
 	return glGetAttribLocation(program, name);
 }
 
-void Shader::SetTexture(int location, class Texture* texture, unsigned textureId) {
+void Shader::SetTexture(int location, class Texture* texture,
+		unsigned textureId) {
 	glActiveTexture(GL_TEXTURE0+textureId);
 	texture->Bind();
 	SetInt(location, textureId);
@@ -225,7 +232,8 @@ void Shader::SetMat4(int location, const glm::mat4 &mat) {
 
 void Shader::SetMat4(int location, const std::vector<glm::mat4>& array) {
 	Use();
-	glUniformMatrix4fv(location, array.size(), GL_FALSE, (float*)&array.front());
+	glUniformMatrix4fv(location, array.size(), GL_FALSE,
+			(float*)&array.front());
 }
 
 Shader::Shader() {
