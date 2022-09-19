@@ -21,7 +21,7 @@
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#include <SOIL2\SOIL2.h>
+#include "thirdparty/soil2/SOIL2.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -33,8 +33,35 @@ void OpenGLKeyCallback(GLFWwindow* window, int key, int scancode, int action,
 void OpenGLScrollCallback(GLFWwindow* window, double xOffset, double yOffset);
 void OpenGLMouseCallback(GLFWwindow* window, double xPos, double yPos);
 void OpenGLWindowResizeCallback(GLFWwindow* window, int width, int height);
-void OpenGLMouseButtonCallback(GLFWwindow* window, int button, int action,
-		int mods)
+void OpenGLMouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
+
+namespace gl {
+	enum DataType : GLenum {
+		Byte = GL_BYTE,
+		UByte = GL_UNSIGNED_BYTE,
+		Short = GL_SHORT,
+		UShort = GL_UNSIGNED_SHORT,
+		Int = GL_INT,
+		UInt = GL_UNSIGNED_INT,
+		
+		Half = GL_HALF_FLOAT,
+		Float = GL_FLOAT,
+		Double = GL_DOUBLE,
+		
+		UByte_3_3_2 = GL_UNSIGNED_BYTE_3_3_2,
+		UByte_2_3_3_REV = GL_UNSIGNED_BYTE_2_3_3_REV,
+		UShort_5_6_5 = GL_UNSIGNED_SHORT_5_6_5,
+		UShort_5_6_5_REV = GL_UNSIGNED_SHORT_5_6_5_REV,
+		UShort_4_4_4_4 = GL_UNSIGNED_SHORT_4_4_4_4,
+		UShort_4_4_4_REV = GL_UNSIGNED_SHORT_4_4_4_4_REV,
+		UShort_5_5_5_1 = GL_UNSIGNED_SHORT_5_5_5_1,
+		UShort_1_5_5_5_REV = GL_UNSIGNED_SHORT_1_5_5_5_REV,
+		UInt_8_8_8_8 = GL_UNSIGNED_INT_8_8_8_8,
+		UInt_8_8_8_8_REV = GL_UNSIGNED_INT_8_8_8_8_REV,
+		UInt_10_10_10_2 = GL_UNSIGNED_INT_10_10_10_2,
+		UInt_10_10_10_2_REV = GL_UNSIGNED_INT_2_10_10_10_REV
+	};
+}
 
 class OpenGL {
 private:

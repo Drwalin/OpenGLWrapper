@@ -102,7 +102,7 @@ unsigned int OpenGL::GetHeight() const {
 int OpenGL::Init(const char* windowName, unsigned int width,
 		unsigned int height, bool resizable, bool fullscreen) {
 	glfwInit();
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
@@ -206,9 +206,11 @@ void OpenGLWindowResizeCallback(GLFWwindow* window, int width, int height) {
 	openGL.height = height;
 }
 
-void OpenGL::OpenGLMouseButtonCallback(GLFWwindow* window, int button,
+void OpenGLMouseButtonCallback(GLFWwindow* window, int button,
 		int action, int mods) {
 	if(button==GLFW_MOUSE_BUTTON_RIGHT && action==GLFW_PRESS) {
+		int a = 0;
+		a *= 3;
 	}
 }
 

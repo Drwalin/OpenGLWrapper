@@ -24,6 +24,32 @@
 #include <vector>
 #include <tuple>
 
+#include "OpenGL.h"
+
+namespace gl {
+	enum BufferTarget : GLenum {
+		Array = GL_ARRAY_BUFFER,
+		AtomicCounter = GL_ATOMIC_COUNTER_BUFFER,
+		CopyRead = GL_COPY_READ_BUFFER,
+		CopyWrite = GL_COPY_WRITE_BUFFER,
+		DispatchIndirect = GL_DISPATCH_INDIRECT_BUFFER,
+		ElementArray = GL_ELEMENT_ARRAY_BUFFER,
+		PixelPack = GL_PIXEL_PACK_BUFFER,
+		PixelUnpack = GL_PIXEL_UNPACK_BUFFER,
+		Query = GL_QUERY_BUFFER,
+		ShaderStorage = GL_SHADER_STORAGE_BUFFER,
+		Texture = GL_TEXTURE_BUFFER,
+		TransformFeedback = GL_TRANSFORM_FEEDBACK_BUFFER,
+		Uniform = GL_UNIFORM_BUFFER
+	};
+	
+	enum BufferUsage {
+		StaticDraw = GL_STATIC_DRAW,
+		DynamicDraw = GL_DYNAMIC_DRAW,
+		StreamDraw = GL_STREAM_DRAW
+	};
+}
+
 template<typename T, unsigned C>
 class Atr {
 public:
@@ -106,12 +132,13 @@ public:
 		}
 	}
 	
-	void SetType(unsigned vertexSize, GLenum target, GLenum usage);
+	void SetType(unsigned vertexSize, gl::BufferTarget target,
+			gl::BufferUsage usage);
 	
 	// target: GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER
 	// usage: GL_STATIC_DRAW, GL_DYNAMIC_DRAW, GL_STREAM_DRAW
-	VBO(unsigned vertexSize, GLenum target=GL_ARRAY_BUFFER,
-			GLenum usage=GL_STATIC_DRAW);
+	VBO(unsigned vertexSize, gl::BufferTarget target,
+			gl::BufferUsage usage);
 	~VBO();
 	
 	void Generate();
@@ -126,7 +153,8 @@ public:
 	
 private:
 	
-	GLenum target, usage;
+	gl::BufferTarget target;
+	gl::BufferUsage usage;
 	unsigned vboID;
 	unsigned vertexSize, vertices;
 	std::vector<unsigned char> buffer;

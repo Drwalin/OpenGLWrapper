@@ -31,12 +31,9 @@ int Shader::Load(const char* vertexPath, const char* geometryPath,
 		const char* fragmentPath) {
 	Destroy();
 	
-	unsigned vertex = Shader::CompileShaderObject(vertexPath,
-			Shader::Type::Vertex);
-	unsigned geometry = Shader::CompileShaderObject(geometryPath,
-			Shader::Type::Geometry);
-	unsigned fragment = Shader::CompileShaderObject(fragmentPath,
-			Shader::Type::Fragment);
+	unsigned vertex = Shader::CompileShaderObject(vertexPath, gl::Vertex, "VERTEX");
+	unsigned geometry = Shader::CompileShaderObject(geometryPath, gl::Geometry, "GEOMETRY");
+	unsigned fragment = Shader::CompileShaderObject(fragmentPath, gl::Fragment, "FRAGMENT");
 	
 	program = glCreateProgram();
 	if(geometry)
@@ -45,22 +42,6 @@ int Shader::Load(const char* vertexPath, const char* geometryPath,
 	glAttachShader(program, fragment);
 	glLinkProgram(program);
 	
-	int success;
-	glGetProgramiv(program, GL_LINK_STATUS, &success);
-	if(!success) {
-		char infoLog[512];
-		int size;
-		glGetProgramInfoLog(program, 512, &size, infoLog);
-		printf("\n ERROR::SHADER::PROGRAM::LINKING_FAILED\n %s", infoLog);
-		if(vertex)
-			glDeleteShader(vertex);
-		if(geometry)
-			glDeleteShader(geometry);
-		if(fragment)
-			glDeleteShader(fragment);
-		return 3;
-	}
-	
 	if(vertex)
 		glDeleteShader(vertex);
 	if(geometry)
@@ -68,10 +49,43 @@ int Shader::Load(const char* vertexPath, const char* geometryPath,
 	if(fragment)
 		glDeleteShader(fragment);
 	
+	return CheckBuildStatus();
+}
+
+int Shader::Load(const char* computePath) {
+	Destroy();
+	
+	unsigned compute = Shader::CompileShaderObject(computePath, gl::Compute, "COMPUTE");
+	
+	program = glCreateProgram();
+	glAttachShader(program, compute);
+	glLinkProgram(program);
+	
+	if(compute)
+		glDeleteShader(compute);
+	
+	return CheckBuildStatus();
+}
+
+void Shader::Dispatch(uint32_t numGroupsX, uint32_t numGroupsY,
+		uint32_t numGroupsZ) {
+	glDispatchCompute(numGroupsX, numGroupsY, numGroupsZ);
+}
+
+unsigned Shader::CheckBuildStatus() {
+	int success;
+	glGetProgramiv(program, GL_LINK_STATUS, &success);
+	if(!success) {
+		char infoLog[512];
+		int size;
+		glGetProgramInfoLog(program, 512, &size, infoLog);
+		printf("\n ERROR::SHADER::PROGRAM::LINKING_FAILED\n %s", infoLog);
+		return 3;
+	}
 	return 0;
 }
 
-unsigned Shader::CompileShaderObject(const char* fileName, Type type) {
+unsigned Shader::CompileShaderObject(const char* fileName, gl::ShaderType type, const char* shaderStrType) {
 	char* code = NULL;
 	
 	std::ifstream file(fileName, std::ios::binary);
@@ -89,16 +103,16 @@ unsigned Shader::CompileShaderObject(const char* fileName, Type type) {
 	
 	file.close();
 	
-	unsigned shaderId = Shader::CompileGLSL(code, type);
+	unsigned shaderId = Shader::CompileGLSL(code, type, shaderStrType);
 	free(code);
 	return shaderId;
 }
 
-unsigned Shader::CompileGLSL(const char* code, Type type) {
+unsigned Shader::CompileGLSL(const char* code, gl::ShaderType type, const char* shaderStrType) {
 	if(code) {
 		int success;
 		char infoLog[5120];
-		unsigned program = glCreateShader(Shader::gl_types[type]);
+		unsigned program = glCreateShader(type);
 		glShaderSource(program, 1, &code, NULL);
 		glCompileShader(program);
 		glGetShaderiv(program, GL_COMPILE_STATUS, &success);

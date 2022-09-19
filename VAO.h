@@ -24,16 +24,35 @@
 #include <vector>
 
 #include "VBO.h"
+#include "OpenGL.h"
+
+namespace gl {
+	enum VertexMode : GLenum {
+		Points = GL_POINTS,
+		LineStrip = GL_LINE_STRIP,
+		LineLoop = GL_LINE_LOOP,
+		Lines = GL_LINES,
+		LineStripAdjacency = GL_LINE_STRIP_ADJACENCY,
+		LinesAdjacency = GL_LINES_ADJACENCY,
+		TriangleStrip = GL_TRIANGLE_STRIP,
+		TriangleFan = GL_TRIANGLE_FAN,
+		Triangles = GL_TRIANGLES,
+		TriangleStripAdjacency = GL_TRIANGLE_STRIP_ADJACENCY,
+		TrianglesAdjacency = GL_TRIANGLES_ADJACENCY,
+		Patches = GL_PATCHES
+	};
+}
 
 class VAO {
 public:
 	
-	VAO(GLenum mode);
+	VAO(gl::VertexMode mode);
 	~VAO();
 	
 	// offset in bytes
-	void SetAttribPointer(VBO& vbo, int location, unsigned count, GLenum type,
-			bool normalized, unsigned offset, unsigned divisor=0);
+	void SetAttribPointer(VBO& vbo, int location, unsigned count,
+			gl::DataType type, bool normalized, unsigned offset,
+			unsigned divisor=0);
 	
 	void SetSize(unsigned count);
 	void SetInstances(unsigned instances);
@@ -45,10 +64,10 @@ public:
 	
 private:
 	
-	GLenum typeElements;
+	gl::DataType typeElements;
 	unsigned sizeA, sizeI, instances;
 	unsigned vaoID;
-	GLenum mode;
+	gl::VertexMode mode;
 	bool drawArrays;
 };
 

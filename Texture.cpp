@@ -51,14 +51,15 @@ int Texture::Load(const char* fileName, int paramWrap, int paramFilter,
 	}
 	
 	UpdateTextureData(image, width, height, paramWrap, paramFilter,
-			generateMipMap, GL_TEXTURE_2D, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE);
+			generateMipMap, gl::Texture2D, gl::RGBA, gl::RGBA, gl::UByte);
 	SOIL_free_image_data(image);
 	return 0;
 }
 
 void Texture::UpdateTextureData(const void* data, unsigned w, unsigned h,
-		int paramWrap, int paramFilter, bool generateMipMap, GLenum target,
-		GLenum internalformat, GLenum dataformat, GLenum datatype) {
+		int paramWrap, int paramFilter, bool generateMipMap,
+		gl::TextureTarget target, gl::TextureDataFormat internalformat,
+		gl::TextureDataFormat dataformat, gl::DataType datatype) {
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	if(!textureID)

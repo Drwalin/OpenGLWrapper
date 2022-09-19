@@ -18,7 +18,7 @@
 
 #include "VAO.h"
 
-VAO::VAO(GLenum mode) : mode(mode) {
+VAO::VAO(gl::VertexMode mode) : mode(mode) {
 	sizeI = 0;
 	sizeA = 0;
 	vaoID = 0;
@@ -33,8 +33,8 @@ VAO::~VAO() {
 	glDeleteVertexArrays(1, &vaoID);
 }
 
-void VAO::SetAttribPointer(VBO& vbo, int location, unsigned count, GLenum type,
-		bool normalized, unsigned offset, unsigned divisor) {
+void VAO::SetAttribPointer(VBO& vbo, int location, unsigned count,
+		gl::DataType type, bool normalized, unsigned offset, unsigned divisor) {
 	glBindVertexArray(vaoID);
 	glBindBuffer(vbo.target, vbo.vboID);
 	glEnableVertexAttribArray(location);

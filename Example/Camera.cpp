@@ -52,8 +52,8 @@ public:
     void updateCameraVectors( )
     {
         glm::mat4 rot(1.0f);
-        rot = glm::rotate( rot, -yaw*M_PI/180.0f, glm::vec3(0.0f,1.0f,0.0f) );
-        rot = glm::rotate( rot, -pitch*M_PI/180.0f, glm::vec3(1.0f,0.0f,0.0f) );
+        rot = glm::rotate<float>( rot, -yaw*M_PI/180.0f, glm::vec3(0.0f,1.0f,0.0f) );
+        rot = glm::rotate<float>( rot, -pitch*M_PI/180.0f, glm::vec3(1.0f,0.0f,0.0f) );
         
         this->front = rot * glm::vec4(0.0f,0.0f,1.0f,0.0f);
         
