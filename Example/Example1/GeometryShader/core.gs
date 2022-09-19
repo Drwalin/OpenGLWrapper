@@ -1,7 +1,7 @@
-#version 330 core
+#version 430 core
 
 layout (points) in;
-layout (triangle_strip, max_vertices = 14) out;
+layout (triangle_strip, max_vertices = 28) out;
 
 out vec2 texCoord;
 out vec3 col;
@@ -39,5 +39,6 @@ void main() {
 	Vert(toview, vec3(1,1,0));
 	
 	EndPrimitive();
+	
 }
 

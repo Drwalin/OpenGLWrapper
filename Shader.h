@@ -25,32 +25,38 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 
+namespace gl {
+	enum ShaderType : GLenum {
+		Vertex = GL_VERTEX_SHADER,
+		Geometry = GL_GEOMETRY_SHADER,
+		Fragment = GL_FRAGMENT_SHADER,
+		Compute = GL_COMPUTE_SHADER
+	};
+}
+
 class Shader {
 public:
 	
-	enum Type {
-		Vertex = 0,
-		Geometry = 1,
-		Fragment = 2
-		//Tesselation = 3,
-		//Compute = 4
-	};
-	inline static const unsigned gl_types[] = {
-		GL_VERTEX_SHADER,
-		GL_GEOMETRY_SHADER,
-		GL_FRAGMENT_SHADER
+	inline static const gl::ShaderType gl_types[] = {
+		gl::Vertex,
+		gl::Geometry,
+		gl::Fragment,
+		gl::Compute
 	};
 	inline static const char* const gl_string_types[] = {
 		"VERTEX",
 		"GEOMETRY",
-		"FRAGMENT"
+		"FRAGMENT",
+		"COMPUTE"
 	};
 	
 	
 	int Load(const char* vertexPath, const char* geometryPath,
 			const char* fragmentPath);		// return 0 if no errors
+	int Load(const char* computePath);		// return 0 if no error
 	void Use();
 	unsigned GetProgram();
+	void Dispatch(uint32_t numGroupsX, uint32_t numGroupsY, uint32_t numGroupsZ);
 	
 	int GetUniformLocation(const char* name) const;
 	int GetAttributeLocation(const char* name) const;
@@ -80,10 +86,12 @@ public:
 	
 private:
 	
+	unsigned CheckBuildStatus();
+	
 	static unsigned currentProgram;
 	
-	static unsigned CompileShaderObject(const char* fileName, Type type);
-	static unsigned CompileGLSL(const char* code, Type type);
+	static unsigned CompileShaderObject(const char* fileName, gl::ShaderType type, const char* shaderStrType);
+	static unsigned CompileGLSL(const char* code, gl::ShaderType type, const char* shaderStrType);
 	static void PrintCode(const char* code);
 	
 	unsigned int program;

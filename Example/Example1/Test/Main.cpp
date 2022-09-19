@@ -22,11 +22,11 @@ void ScrollCallback(GLFWwindow * window, double xOffset, double yOffset);
 void MouseCallback(GLFWwindow * window, double xPos, double yPos);
 void DoMovement();
 
-#include <OpenGL.h>
-#include <Shader.h>
-#include <Texture.h>
-#include <VAO.h>
-#include <VBO.h>
+#include "../../../OpenGL.h"
+#include "../../../Shader.h"
+#include "../../../Texture.h"
+#include "../../../VAO.h"
+#include "../../../VBO.h"
 
 
 Camera camera(glm::vec3(0.0f,0.0f, 0.0f));
@@ -38,7 +38,6 @@ bool firstMouse = true;
 
 GLfloat deltaTime = 0.0f;
 GLfloat lastFrame = 0.0f;
-
 
 
 #include <cstdio>
@@ -56,15 +55,15 @@ int main() {
 			"../GeometryShader/core.fs");
     
     
-    VBO vbo(3*sizeof(float), GL_ARRAY_BUFFER, GL_STATIC_DRAW);
+    VBO vbo(3*sizeof(float), gl::Array, gl::StaticDraw);
     auto buf = vbo.Buffer<Atr<glm::vec3, 1>>();
     for(int i = 0; i < 8; ++i)
         buf.At<0>(i) = glm::vec3(i, i/2.f, i/3.f);
     vbo.Generate();
     
-    VAO vao(GL_POINTS);
+    VAO vao(gl::Points);
 	vao.SetAttribPointer(vbo, ourShader.GetAttributeLocation("position"), 3,
-			GL_FLOAT, false, 0);
+			gl::Float, false, 0);
     
     
     
@@ -77,6 +76,11 @@ int main() {
 	glPointSize(3.0f);
 	glLineWidth(3.0f);
 	glEnable(GL_DITHER);
+	
+	
+	GLint modelLoc = ourShader.GetUniformLocation("model");
+	GLint viewLoc = ourShader.GetUniformLocation("view");
+	GLint projLoc = ourShader.GetUniformLocation("projection");
 	
     while(!glfwWindowShouldClose(openGL.window)) {
         GLfloat currentFrame = glfwGetTime();
@@ -98,26 +102,22 @@ int main() {
 				10000.0f);
         
         // Create transformations
-        glm::mat4 model;
+//         glm::mat4 model;
         glm::mat4 view;
 
         view = camera.getViewMatrix();
         
-        GLint modelLoc = ourShader.GetUniformLocation("model");
-        GLint viewLoc = ourShader.GetUniformLocation("view");
-        GLint projLoc = ourShader.GetUniformLocation("projection");
-        
         ourShader.SetMat4(viewLoc, view);
         ourShader.SetMat4(projLoc, projection);
         
-        for(int j = 0; j < 1; ++j) {
-	        for(GLuint i = 10; i < 11; ++i) {
+        for(int j = 1; j < 101; ++j) {
+	        for(GLuint i = 1; i < 11; ++i) {
 	            glm::mat4 model(1.0f);
                 model = glm::scale(model, glm::vec3(10));
                 model = glm::translate(model,
 						glm::vec3(0.0f,0.0f,0.0f+float((j*i)<<1)));
                 ourShader.SetMat4(modelLoc, model);
-                vao.SetInstances(1000*1000);
+                vao.SetInstances(100*1);
                 vao.Draw();//0, 36);
 	        }
 	    }

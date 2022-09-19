@@ -18,8 +18,8 @@
 
 #include "VBO.h"
 
-VBO::VBO(unsigned vertexSize, GLenum target, GLenum usage) :
-	vertexSize(vertexSize), target(target), usage(usage) {
+VBO::VBO(unsigned vertexSize, gl::BufferTarget target, gl::BufferUsage usage) :
+	target(target), usage(usage), vertexSize(vertexSize) {
 	vboID = 0;
 	glGenBuffers(1, &vboID);
 }
@@ -51,7 +51,8 @@ void VBO::Update(unsigned beg, unsigned end) {
 	glBindBuffer(target, 0);
 }
 
-void VBO::SetType(unsigned vertexSize, GLenum target, GLenum usage) {
+void VBO::SetType(unsigned vertexSize, gl::BufferTarget target,
+		gl::BufferUsage usage) {
 	this->vertexSize = vertexSize;
 	this->target = target;
 	this->usage = usage;
