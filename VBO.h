@@ -135,8 +135,6 @@ public:
 	void SetType(unsigned vertexSize, gl::BufferTarget target,
 			gl::BufferUsage usage);
 	
-	// target: GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER
-	// usage: GL_STATIC_DRAW, GL_DYNAMIC_DRAW, GL_STREAM_DRAW
 	VBO(unsigned vertexSize, gl::BufferTarget target,
 			gl::BufferUsage usage);
 	~VBO();
