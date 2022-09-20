@@ -55,15 +55,15 @@ int main() {
 			"../GeometryShader/core.fs");
     
     
-    VBO vbo(3*sizeof(float), gl::Array, gl::StaticDraw);
+    VBO vbo(3*sizeof(float), gl::ARRAY_BUFFER, gl::STATIC_DRAW);
     auto buf = vbo.Buffer<Atr<glm::vec3, 1>>();
     for(int i = 0; i < 8; ++i)
         buf.At<0>(i) = glm::vec3(i, i/2.f, i/3.f);
     vbo.Generate();
     
-    VAO vao(gl::Points);
+    VAO vao(gl::POINTS);
 	vao.SetAttribPointer(vbo, ourShader.GetAttributeLocation("position"), 3,
-			gl::Float, false, 0);
+			gl::FLOAT, false, 0);
     
     
     
@@ -124,6 +124,11 @@ int main() {
         
         openGL.SwapBuffer();
     }
+	
+	openGL.Destroy();
+	glfwTerminate();
+	
+	
     
     return EXIT_SUCCESS;
 }

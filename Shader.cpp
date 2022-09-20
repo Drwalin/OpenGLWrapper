@@ -31,9 +31,9 @@ int Shader::Load(const char* vertexPath, const char* geometryPath,
 		const char* fragmentPath) {
 	Destroy();
 	
-	unsigned vertex = Shader::CompileShaderObject(vertexPath, gl::Vertex, "VERTEX");
-	unsigned geometry = Shader::CompileShaderObject(geometryPath, gl::Geometry, "GEOMETRY");
-	unsigned fragment = Shader::CompileShaderObject(fragmentPath, gl::Fragment, "FRAGMENT");
+	unsigned vertex = Shader::CompileShaderObject(vertexPath, gl::VERTEX_SHADER, "VERTEX");
+	unsigned geometry = Shader::CompileShaderObject(geometryPath, gl::GEOMETRY_SHADER, "GEOMETRY");
+	unsigned fragment = Shader::CompileShaderObject(fragmentPath, gl::FRAGMENT_SHADER, "FRAGMENT");
 	
 	program = glCreateProgram();
 	if(geometry)
@@ -55,7 +55,7 @@ int Shader::Load(const char* vertexPath, const char* geometryPath,
 int Shader::Load(const char* computePath) {
 	Destroy();
 	
-	unsigned compute = Shader::CompileShaderObject(computePath, gl::Compute, "COMPUTE");
+	unsigned compute = Shader::CompileShaderObject(computePath, gl::COMPUTE_SHADER, "COMPUTE");
 	
 	program = glCreateProgram();
 	glAttachShader(program, compute);
@@ -108,7 +108,8 @@ unsigned Shader::CompileShaderObject(const char* fileName, gl::ShaderType type, 
 	return shaderId;
 }
 
-unsigned Shader::CompileGLSL(const char* code, gl::ShaderType type, const char* shaderStrType) {
+unsigned Shader::CompileGLSL(const char* code, gl::ShaderType type,
+		const char* shaderStrType) {
 	if(code) {
 		int success;
 		char infoLog[5120];
@@ -120,7 +121,7 @@ unsigned Shader::CompileGLSL(const char* code, gl::ShaderType type, const char* 
 			GLsizei size;
 			glGetShaderInfoLog(program, 5120, &size, infoLog);
 			printf("\n ERROR::SHADER::%s::COMPILATION_FAILED\n %s",
-					Shader::gl_string_types[type], infoLog);
+					shaderStrType, infoLog);
 			PrintCode(code);
 			glDeleteShader(program);
 			return 0;

@@ -51,7 +51,7 @@ int Texture::Load(const char* fileName, int paramWrap, int paramFilter,
 	}
 	
 	UpdateTextureData(image, width, height, paramWrap, paramFilter,
-			generateMipMap, gl::Texture2D, gl::RGBA, gl::RGBA, gl::UByte);
+			generateMipMap, gl::TEXTURE_2D, gl::RGBA, gl::RGBA, gl::UNSIGNED_BYTE);
 	SOIL_free_image_data(image);
 	return 0;
 }

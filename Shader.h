@@ -27,29 +27,15 @@
 
 namespace gl {
 	enum ShaderType : GLenum {
-		Vertex = GL_VERTEX_SHADER,
-		Geometry = GL_GEOMETRY_SHADER,
-		Fragment = GL_FRAGMENT_SHADER,
-		Compute = GL_COMPUTE_SHADER
+		VERTEX_SHADER = GL_VERTEX_SHADER,
+		GEOMETRY_SHADER = GL_GEOMETRY_SHADER,
+		FRAGMENT_SHADER = GL_FRAGMENT_SHADER,
+		COMPUTE_SHADER = GL_COMPUTE_SHADER
 	};
 }
 
 class Shader {
 public:
-	
-	inline static const gl::ShaderType gl_types[] = {
-		gl::Vertex,
-		gl::Geometry,
-		gl::Fragment,
-		gl::Compute
-	};
-	inline static const char* const gl_string_types[] = {
-		"VERTEX",
-		"GEOMETRY",
-		"FRAGMENT",
-		"COMPUTE"
-	};
-	
 	
 	int Load(const char* vertexPath, const char* geometryPath,
 			const char* fragmentPath);		// return 0 if no errors

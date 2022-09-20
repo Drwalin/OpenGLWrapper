@@ -100,10 +100,11 @@ unsigned int OpenGL::GetHeight() const {
 }
 
 int OpenGL::Init(const char* windowName, unsigned int width,
-		unsigned int height, bool resizable, bool fullscreen) {
+		unsigned int height, bool resizable, bool fullscreen,
+		int majorOpenglVersion, int minorOpenglVersion) {
 	glfwInit();
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, majorOpenglVersion);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, minorOpenglVersion);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_RESIZABLE, resizable);

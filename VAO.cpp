@@ -82,13 +82,13 @@ void VAO::DrawElements(unsigned start, unsigned count) {
 	glBindVertexArray(vaoID);
 	void* offset = NULL;
 	switch(typeElements) {
-		case GL_UNSIGNED_BYTE:
+		case gl::UNSIGNED_BYTE:
 			offset = (void*)(size_t)(start*1);
 			break;
-		case GL_UNSIGNED_SHORT:
+		case gl::UNSIGNED_SHORT:
 			offset = (void*)(size_t)(start*2);
 			break;
-		case GL_UNSIGNED_INT:
+		case gl::UNSIGNED_INT:
 			offset = (void*)(size_t)(start*4);
 			break;
 	}

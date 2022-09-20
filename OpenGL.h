@@ -37,29 +37,29 @@ void OpenGLMouseButtonCallback(GLFWwindow* window, int button, int action, int m
 
 namespace gl {
 	enum DataType : GLenum {
-		Byte = GL_BYTE,
-		UByte = GL_UNSIGNED_BYTE,
-		Short = GL_SHORT,
-		UShort = GL_UNSIGNED_SHORT,
-		Int = GL_INT,
-		UInt = GL_UNSIGNED_INT,
+		BYTE = GL_BYTE,
+		UNSIGNED_BYTE = GL_UNSIGNED_BYTE,
+		SHORT = GL_SHORT,
+		UNSIGNED_SHORT = GL_UNSIGNED_SHORT,
+		INT = GL_INT,
+		UNSIGNED_INT = GL_UNSIGNED_INT,
 		
-		Half = GL_HALF_FLOAT,
-		Float = GL_FLOAT,
-		Double = GL_DOUBLE,
+		HALF_FLOAT = GL_HALF_FLOAT,
+		FLOAT = GL_FLOAT,
+		DOUBLE = GL_DOUBLE,
 		
-		UByte_3_3_2 = GL_UNSIGNED_BYTE_3_3_2,
-		UByte_2_3_3_REV = GL_UNSIGNED_BYTE_2_3_3_REV,
-		UShort_5_6_5 = GL_UNSIGNED_SHORT_5_6_5,
-		UShort_5_6_5_REV = GL_UNSIGNED_SHORT_5_6_5_REV,
-		UShort_4_4_4_4 = GL_UNSIGNED_SHORT_4_4_4_4,
-		UShort_4_4_4_REV = GL_UNSIGNED_SHORT_4_4_4_4_REV,
-		UShort_5_5_5_1 = GL_UNSIGNED_SHORT_5_5_5_1,
-		UShort_1_5_5_5_REV = GL_UNSIGNED_SHORT_1_5_5_5_REV,
-		UInt_8_8_8_8 = GL_UNSIGNED_INT_8_8_8_8,
-		UInt_8_8_8_8_REV = GL_UNSIGNED_INT_8_8_8_8_REV,
-		UInt_10_10_10_2 = GL_UNSIGNED_INT_10_10_10_2,
-		UInt_10_10_10_2_REV = GL_UNSIGNED_INT_2_10_10_10_REV
+		UNSIGNED_BYTE_3_3_2 = GL_UNSIGNED_BYTE_3_3_2,
+		UNSIGNED_BYTE_2_3_3_REV = GL_UNSIGNED_BYTE_2_3_3_REV,
+		UNSIGNED_SHORT_5_6_5 = GL_UNSIGNED_SHORT_5_6_5,
+		UNSIGNED_SHORT_5_6_5_REV = GL_UNSIGNED_SHORT_5_6_5_REV,
+		UNSIGNED_SHORT_4_4_4_4 = GL_UNSIGNED_SHORT_4_4_4_4,
+		UNSIGNED_SHORT_4_4_4_4_REV = GL_UNSIGNED_SHORT_4_4_4_4_REV,
+		UNSIGNED_SHORT_5_5_5_1 = GL_UNSIGNED_SHORT_5_5_5_1,
+		UNSIGNED_SHORT_1_5_5_5_REV = GL_UNSIGNED_SHORT_1_5_5_5_REV,
+		UNSIGNED_INT_8_8_8_8 = GL_UNSIGNED_INT_8_8_8_8,
+		UNSIGNED_INT_8_8_8_8_REV = GL_UNSIGNED_INT_8_8_8_8_REV,
+		UNSIGNED_INT_10_10_10_2 = GL_UNSIGNED_INT_10_10_10_2,
+		UNSIGNED_INT_2_10_10_10_REV = GL_UNSIGNED_INT_2_10_10_10_REV
 	};
 }
 
@@ -95,7 +95,8 @@ public:
 	unsigned int GetHeight() const;
 	
 	int Init(const char* windowName, unsigned int width, unsigned int height,
-			bool resizable, bool fullscreen);
+			bool resizable, bool fullscreen,
+			int majorOpenglVersion=4, int minorOpenglVersion=6);
 	
 	void InitGraphic();
 	void InitFrame();
