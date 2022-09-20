@@ -60,11 +60,11 @@ void Texture::UpdateTextureData(const void* data, unsigned w, unsigned h,
 		int paramWrap, int paramFilter, bool generateMipMap,
 		gl::TextureTarget target, gl::TextureDataFormat internalformat,
 		gl::TextureDataFormat dataformat, gl::DataType datatype) {
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, 0);
+	glEnable(gl::TEXTURE_2D);
+	glBindTexture(gl::TEXTURE_2D, 0);
 	if(!textureID)
 		glGenTextures(1, &textureID);
-	glBindTexture(GL_TEXTURE_2D, textureID);
+	glBindTexture(gl::TEXTURE_2D, textureID);
 	
 	width = w;
 	height = h;
@@ -78,13 +78,13 @@ void Texture::UpdateTextureData(const void* data, unsigned w, unsigned h,
 			datatype, data);
 	
 	if(generateMipMap)
-		glGenerateMipmap(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, 0);
+		glGenerateMipmap(gl::TEXTURE_2D);
+	glBindTexture(gl::TEXTURE_2D, 0);
 }
 
 void Texture::Bind() const {
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, textureID);
+	glEnable(gl::TEXTURE_2D);
+	glBindTexture(gl::TEXTURE_2D, textureID);
 }
 
 unsigned int Texture::GetTexture() const {
@@ -93,7 +93,7 @@ unsigned int Texture::GetTexture() const {
 
 void Texture::Destroy() {
 	if(textureID) {
-		glEnable(GL_TEXTURE_2D);
+		glEnable(gl::TEXTURE_2D);
 		glDeleteTextures(1, &textureID);
 		width = 0;
 		height = 0;

@@ -16,6 +16,8 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <cstdio>
+
 #include "VAO.h"
 
 VAO::VAO(gl::VertexMode mode) : mode(mode) {
@@ -45,7 +47,7 @@ void VAO::SetAttribPointer(VBO& vbo, int location, unsigned count,
 	glBindBuffer(vbo.target, 0);
 	if(divisor>0) {
 		instances = std::max(instances, divisor*vbo.vertices);
-	} else if(vbo.target == GL_ELEMENT_ARRAY_BUFFER) {
+	} else if(vbo.target == gl::ELEMENT_ARRAY_BUFFER) {
 		drawArrays = false;
 		sizeI = std::max(vbo.vertices, sizeI);
 		typeElements = type;
@@ -91,6 +93,9 @@ void VAO::DrawElements(unsigned start, unsigned count) {
 		case gl::UNSIGNED_INT:
 			offset = (void*)(size_t)(start*4);
 			break;
+		default:
+			// TODO: error
+			printf(" error in VAO::DrawElements: unusable element internal indexing type\n");
 	}
 	if(instances)
 		glDrawElementsInstanced(mode, count, typeElements, offset, instances);
