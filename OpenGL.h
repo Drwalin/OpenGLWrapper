@@ -98,6 +98,10 @@ public:
 			bool resizable, bool fullscreen,
 			int majorOpenglVersion=4, int minorOpenglVersion=6);
 	
+	void SetKeyCallback(void (GLFWwindow*, int, int, int, int));
+	void SetScrollCallback(void (GLFWwindow*, double, double));
+	void SetMouseCallback(void (GLFWwindow*, double, double));
+	
 	void InitGraphic();
 	void InitFrame();
 	void SwapBuffer();

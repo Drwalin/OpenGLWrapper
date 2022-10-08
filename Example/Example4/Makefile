@@ -3,19 +3,19 @@ LIBS = -lm -lpthread -lGL -lGLU -lglfw -lX11 -lXxf86vm -lXrandr -lXi -ldl -lGLEW
 
 
 CXXFLAGS = -Ofast -s -m64 -std=c++17 -Wint-to-pointer-cast -Wpointer-arith -DGLEW_STATIC
-INCLUDES = -I../../../thirdparty -I../../..
+INCLUDES = -I../../thirdparty -I../..
 CXX = g++
 
 main.exe: bin/Main.o bin/OpenGL.o bin/Shader.o bin/Texture.o bin/VBO.o bin/VAO.o bin/SOIL2.o bin/etc1_utils.o bin/image_helper.o bin/image_DXT.o
 	g++ $(CXXFLAGS $(INCLUDES)) $(LIBS) -o $@ $^ $(LIBS)
 
-bin/%.o: ../../../%.cpp
+bin/%.o: ../../%.cpp
 	g++ -c $(CXXFLAGS) $(INCLUDES) -o $@ $<
 bin/%.o: %.c
 	g++ -c $(CXXFLAGS) $(INCLUDES) -o $@ $<
 bin/%.o: %.cpp
 	g++ -c $(CXXFLAGS) $(INCLUDES) -o $@ $<
-bin/%.o: ../../../thirdparty/soil2/%.c
+bin/%.o: ../../thirdparty/soil2/%.c
 	gcc -c $(CXXFLAGS) $(INCLUDES) -o $@ $<
 
 

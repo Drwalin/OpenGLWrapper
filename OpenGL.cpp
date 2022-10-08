@@ -134,6 +134,22 @@ int OpenGL::Init(const char* windowName, unsigned int width,
 	return 0;
 }
 
+
+
+void OpenGL::SetKeyCallback(void (callback)(GLFWwindow*, int, int, int, int)) {
+    glfwSetKeyCallback(window, callback);
+}
+
+void OpenGL::SetScrollCallback(void (callback)(GLFWwindow*, double, double)) {
+    glfwSetScrollCallback(window, callback);
+}
+
+void OpenGL::SetMouseCallback(void (callback)(GLFWwindow*, double, double)) {
+    glfwSetCursorPosCallback(window, callback);
+}
+
+
+
 void OpenGL::InitGraphic() {
 	glViewport(0, 0, width, height);
 	glEnable(GL_DEPTH_TEST);
