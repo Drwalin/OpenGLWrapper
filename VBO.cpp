@@ -37,14 +37,18 @@ void VBO::Generate() {
 	glBindBuffer(target, 0);
 }
 
+#include <cstdio>
 void VBO::Update(unsigned beg, unsigned end) {
 	end = std::min<unsigned>(end, vertices);
 	if(beg >= end)
 		return;
 	unsigned offset = beg * vertexSize;
 	unsigned size = (end - beg) * vertexSize;
-	if(buffer.size() <= offset+size)
+	if(buffer.size() < offset+size) {
+		printf("VBO::Update Return: beg=%u, end=%u, vertexSize=%u, offset=%u, size=%u, vertices=%u, buffer.size()=%lu\n",
+				beg, end, vertexSize, offset, size, vertices, buffer.size());
 		return;
+	}
 	glBindVertexArray(0);
 	glBindBuffer(target, vboID);
 	glBufferSubData(target, offset, size, &(buffer[offset]));

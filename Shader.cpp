@@ -64,7 +64,11 @@ int Shader::Load(const char* computePath) {
 	if(compute)
 		glDeleteShader(compute);
 	
-	return CheckBuildStatus();
+	int ret = CheckBuildStatus();
+	if(ret == 0) {
+		glGetProgramiv(program, GL_COMPUTE_WORK_GROUP_SIZE, workgroupSize);
+	}
+	return ret;
 }
 
 void Shader::Dispatch(uint32_t numGroupsX, uint32_t numGroupsY,

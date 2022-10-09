@@ -150,6 +150,8 @@ public:
 	
 	inline unsigned VertexSize() const { return vertexSize; }
 	
+	inline unsigned GetIdGL() const { return vboID; }
+	
 private:
 	
 	gl::BufferTarget target;
