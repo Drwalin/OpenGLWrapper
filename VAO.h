@@ -61,8 +61,10 @@ public:
 	void Draw(unsigned start, unsigned count);
 	void DrawArrays(unsigned start, unsigned count);
 	void DrawElements(unsigned start, unsigned count);
+	void DrawMultiElementsIndirect(void* indirect, int drawCount, size_t stride);
 	
 private:
+public:
 	
 	gl::DataType typeElements;
 	unsigned sizeA, sizeI, instances;

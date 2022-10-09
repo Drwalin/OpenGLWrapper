@@ -1,5 +1,4 @@
 
-
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
@@ -9,9 +8,21 @@
 
 #include "../Camera.cpp"
 
-#define DEBUG(x) 
-//printf("\n %i",(int)x);
+#include <cstdio>
 
+GLenum errorCheck(int line, const char* file) {
+	GLenum code;
+	const GLubyte* string;
+	code = glGetError();
+	if(code != GL_NO_ERROR) {
+		string = gluErrorString(code);
+		fprintf(stderr, "%s:%i -> OpenGL error [%i]: %s\n", file, line, code, string);
+		exit(311);
+	}
+	return code;
+}
+
+#define PRINT_ERROR errorCheck(__LINE__, __FILE__);
 
 
 // Window dimensions
@@ -28,6 +39,7 @@ void DoMovement();
 #include "../../VAO.h"
 #include "../../VBO.h"
 
+int32_t LoadComponents(VBO& vertices, VBO& elements);
 
 Camera camera(glm::vec3(0.0f,0.0f, 0.0f));
 GLfloat lastX = 0.0;//WIDTH/2.0;
@@ -39,45 +51,275 @@ bool firstMouse = true;
 GLfloat deltaTime = 0.0f;
 GLfloat lastFrame = 0.0f;
 
-
 #include <cstdio>
+#include <ctime>
+#include <cstring>
+
 
 #pragma pack(push, 1)
 struct VertexStructure {
-	glm::vec3 pos, normal, tan;
-	glm::vec2 uv;
-	glm::vec4 colors;
-	
-	/*
-	float pX, pY, pZ;
-	int16_t nX, nY, nZ;
-	int16_t tX, tY, tZ;
-	int16_t U, V;
-	int8_t R, G, B, A;
-	uint8_t bones[4];
-	uint8_t weights[4];
-	*/
-};
-
-const uint32_t MAX_COMPONENTS_PER_OBJECT = 32;
-
-struct ObjectInfo {
-	glm::mat4 model;
-	glm::mat4 bones[64];
-	uint32_t texture[MAX_COMPONENTS_PER_OBJECT];
-	uint32_t componentsCount;
-};
-
-struct ObjectComponents {
-	uint32_t elementOffset[MAX_COMPONENTS_PER_OBJECT];
-	uint32_t indexCount[MAX_COMPONENTS_PER_OBJECT];
+	glm::vec3 pos;
+	glm::vec2 uv[2];
+	uint8_t color[4];
 };
 #pragma pack(pop, 1)
 
-const uint32_t OBJECTS_COUNT = 1024*16;
+struct PerInstance {
+	glm::mat4 model;
+	unsigned objectId;
+	unsigned componentId;
+	unsigned textureId;
+	uint8_t color[4];
+};
+
+const uint32_t OBJECTS_COUNT = 1024;
+
+
+VertexStructure VERTEEE;
+
+int main() {
+	camera.position = {50, 50, 50};
+
+	PRINT_ERROR;
+	srand(time(NULL));
+	printf("sizeof(VertexStructure) = %lu\n", sizeof(VertexStructure));
+	printf("sizeof(PerInstance) = %lu\n", sizeof(PerInstance));
+
+	openGL.Init("Window test name 311", 800, 600, true, false, 4, 5);
+	openGL.InitGraphic();
+
+	PRINT_ERROR;
+	openGL.SetKeyCallback(KeyCallback);
+	openGL.SetScrollCallback(ScrollCallback);
+	openGL.SetMouseCallback(MouseCallback);
+
+	PRINT_ERROR;
+	Shader renderShader;
+	renderShader.Load("vertex.glsl", NULL, "fragment.glsl");
+	PRINT_ERROR;
+
+	VBO vertexBuffer(32, gl::ARRAY_BUFFER, gl::STATIC_DRAW);
+	VBO elementsBuffer(sizeof(uint32_t), gl::ELEMENT_ARRAY_BUFFER, gl::STATIC_DRAW);
+	VBO indirectBuffer(20, gl::DRAW_INDIRECT_BUFFER, gl::STATIC_DRAW);
+	VBO perInstanceBuffer(sizeof(PerInstance), gl::ARRAY_BUFFER, gl::STATIC_DRAW);
+	
+	LoadComponents(vertexBuffer, elementsBuffer);
+
+	PRINT_ERROR;
+	vertexBuffer.Generate();
+	PRINT_ERROR;
+	vertexBuffer.Update(0, 1000000000);
+	PRINT_ERROR;
+	elementsBuffer.Generate();
+	PRINT_ERROR;
+	elementsBuffer.Update(0, 1000000000);
+	PRINT_ERROR;
+
+
+
+	auto indirect = indirectBuffer.Buffer<Atr<int, 5>>();
+	auto perInstance = perInstanceBuffer.Buffer<Atr<PerInstance, 1>>();
+	int I = 0;
+	for(int i=0; i<OBJECTS_COUNT; ++i) {
+		int components = (rand()%30) + 3;
+		for(int j=0; j<components; ++j, ++I) {
+			indirect.At<0>(I, 0) = 9;
+			indirect.At<0>(I, 1) = 1;
+			indirect.At<0>(I, 2) = (rand()%12)*3;
+			indirect.At<0>(I, 3) = 0;
+			indirect.At<0>(I, 4) = I;
+
+			perInstance.At<0>(I).model = glm::mat4(
+					0.3, 0  , 0  , rand() % 1000,
+					0  , 0.3, 0  , rand() % 1000,
+					0  , 0  , 0.3, rand() % 1000,
+					0  , 0  , 0  , 1);
+			perInstance.At<0>(I).componentId = j;
+			perInstance.At<0>(I).objectId = i;
+			perInstance.At<0>(I).textureId = rand()%256;
+			uint8_t arr[4];
+			arr[0] = rand()%256;
+			arr[1] = rand()%256;
+			arr[2] = rand()%256;
+			arr[0] = 255;
+			memcpy(perInstance.At<0>(I).color, arr, 4);
+		}
+	}
+	PRINT_ERROR;
+	indirectBuffer.Generate();
+	PRINT_ERROR;
+	indirectBuffer.Update(0,	1000000000);
+	PRINT_ERROR;
+	perInstanceBuffer.Generate();
+	PRINT_ERROR;
+	perInstanceBuffer.Update(0, 1000000000);
+	PRINT_ERROR;
+
+	VAO drawVao(gl::TRIANGLES);
+	PRINT_ERROR;
+
+	drawVao.SetAttribPointer(vertexBuffer,
+			renderShader.GetAttributeLocation("pos"),
+			3, gl::FLOAT, false, 0, 0);
+	PRINT_ERROR;
+	drawVao.SetAttribPointer(vertexBuffer,
+			1,//renderShader.GetAttributeLocation("uv"),
+			2, gl::SHORT, false, 12, 0);
+	PRINT_ERROR;
+	drawVao.SetAttribPointer(vertexBuffer,
+			renderShader.GetAttributeLocation("color"),
+			4, gl::UNSIGNED_BYTE, false, 20, 0);
+	PRINT_ERROR;
+
+	drawVao.SetAttribPointer(perInstanceBuffer,
+			renderShader.GetAttributeLocation("model"),
+			4, gl::FLOAT, false, 0, 1);
+	drawVao.SetAttribPointer(perInstanceBuffer,
+			renderShader.GetAttributeLocation("model")+1,
+			4, gl::FLOAT, false, 16, 1);
+	drawVao.SetAttribPointer(perInstanceBuffer,
+			renderShader.GetAttributeLocation("model")+2,
+			4, gl::FLOAT, false, 32, 1);
+	drawVao.SetAttribPointer(perInstanceBuffer,
+			renderShader.GetAttributeLocation("model")+3,
+			4, gl::FLOAT, false, 48, 1);
+	drawVao.SetAttribPointer(perInstanceBuffer,
+			7,//renderShader.GetAttributeLocation("objectId"),
+			1, gl::UNSIGNED_INT, false, 64, 1);
+	drawVao.SetAttribPointer(perInstanceBuffer,
+			8,//renderShader.GetAttributeLocation("componentId"),
+			1, gl::UNSIGNED_INT, false, 68, 1);
+	drawVao.SetAttribPointer(perInstanceBuffer,
+			9,//renderShader.GetAttributeLocation("textureId"),
+			1, gl::UNSIGNED_INT, false, 72, 1);
+	drawVao.SetAttribPointer(perInstanceBuffer,
+			10,//renderShader.GetAttributeLocation("objectColor"),
+			4, gl::UNSIGNED_BYTE, false, 76, 1);
+	PRINT_ERROR;
+
+	drawVao.SetAttribPointer(elementsBuffer, -1, -1, gl::UNSIGNED_INT, false, 0, 0);
+	PRINT_ERROR;
+
+// 	drawVao.SetAttribPointer(indirectBuffer, -1, -1, gl::UNSIGNED_INT, false, 0, 0);
+// 	PRINT_ERROR;
+	
+// 	drawVao.SetInstances(I);
+// 	drawVao.SetSize(36);
+
+// 	Texture texture;
+// 	texture.Load("image.jpg", GL_REPEAT, GL_NEAREST, false);
+	PRINT_ERROR;
+// 	renderShader.SetTexture(renderShader.GetUniformLocation("ourTexture1"), &texture, 0);
+	PRINT_ERROR;
+	GLint viewProjectionLoc = renderShader.GetUniformLocation("viewProjection");
+	PRINT_ERROR;
+
+	printf(" I = %i\n", I);
+	while(!glfwWindowShouldClose(openGL.window)) {
+	PRINT_ERROR;
+		GLfloat currentFrame = glfwGetTime();
+		deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
+
+	PRINT_ERROR;
+		glfwPollEvents();
+	PRINT_ERROR;
+		DoMovement();
+	PRINT_ERROR;
+
+		openGL.InitFrame();
+
+	PRINT_ERROR;
+		renderShader.Use();
+	PRINT_ERROR;
+
+		glm::mat4 projection = glm::perspective(45.0f,
+				(float)openGL.GetWidth()/(float)openGL.GetHeight(), 0.1f,
+				10000.0f);
+		glm::mat4 view = camera.getViewMatrix();
+
+	PRINT_ERROR;
+		renderShader.SetMat4(viewProjectionLoc, view*projection);
+	PRINT_ERROR;
+	
+// 		printf(" vao: sizeA = %i, sizeI = %i, instances = %i, drawArrays = %i\n",
+// 				drawVao.sizeA, drawVao.sizeI, drawVao.instances, drawVao.drawArrays?1:0);
+
+//		drawVao.DrawMultiElementsIndirect(&(indirectBuffer.Buffer()[0]), I, 0);
+// 		drawVao.DrawMultiElementsIndirect(NULL, 1, 0);
+	PRINT_ERROR;
+		drawVao.Draw();
+	PRINT_ERROR;
+
+		openGL.SwapBuffer();
+	PRINT_ERROR;
+	}
+	PRINT_ERROR;
+
+	openGL.Destroy();
+	glfwTerminate();
+
+
+
+	return EXIT_SUCCESS;
+}
+
+void DoMovement() {
+	if(keys[GLFW_KEY_W] || keys[GLFW_KEY_UP]) {
+		camera.ProcessKeyboard(FORWARD, deltaTime);
+	}
+	if(keys[GLFW_KEY_S] || keys[GLFW_KEY_DOWN]) {
+		camera.ProcessKeyboard(BACKWARD, deltaTime);
+	}
+	if(keys[GLFW_KEY_D] || keys[GLFW_KEY_RIGHT]) {
+		camera.ProcessKeyboard(RIGHT, deltaTime);
+	}
+	if(keys[GLFW_KEY_A] || keys[GLFW_KEY_LEFT]) {
+		camera.ProcessKeyboard(LEFT, deltaTime);
+	}
+	if(keys[GLFW_KEY_Q]) {
+		camera.Up(-1, deltaTime);
+	}
+	if(keys[GLFW_KEY_E]) {
+		camera.Up(1, deltaTime);
+	}
+}
+
+void KeyCallback(GLFWwindow * window, int key, int scancode, int action, int mode) {
+	if(GLFW_KEY_ESCAPE == key && action == GLFW_PRESS) {
+		glfwSetWindowShouldClose(window, GL_TRUE);
+	}
+	if(key >= 0 && key <= 1024) {
+		if(GLFW_PRESS == action) {
+			keys[key] = true;
+		} else if(GLFW_RELEASE == action) {
+			keys[key] = false;
+		}
+	}
+}
+
+void MouseCallback(GLFWwindow * window, double xPos, double yPos) {
+	if(firstMouse) {
+		lastX = xPos;
+		lastY = yPos;
+		firstMouse = false;
+	}
+
+	GLfloat xOfsset = xPos - lastX;
+	GLfloat yOfsset = lastY - yPos;
+
+	lastX = xPos;
+	lastY = yPos;
+
+	camera.ProcessMouseMovement(xOfsset, yOfsset);
+}
+
+void ScrollCallback(GLFWwindow * window, double xOffset, double yOffset) {
+	camera.ProcessMouseScroll(yOffset);
+}
 
 int32_t LoadComponents(VBO& vertices, VBO& elements) {
-    auto buf = vertices.Buffer<Atr<VertexStructure, 1>>();
+	auto buf = vertices.Buffer<Atr<VertexStructure, 1>>();
 	vertices.ReserveResizeVertices(8);
 	elements.ReserveResizeVertices(12*3);
 	buf.At<0>(0).pos = glm::vec3(-1, -1, 1);
@@ -88,11 +330,16 @@ int32_t LoadComponents(VBO& vertices, VBO& elements) {
 	buf.At<0>(5).pos = glm::vec3(1, 1, 1);
 	buf.At<0>(6).pos = glm::vec3(1, -1, -1);
 	buf.At<0>(7).pos = glm::vec3(1, 1, -1);
-	
+
 	for(int i=0; i<8; ++i) {
-		buf.At<0>(i).colors = {rand()/65000.0,rand()/65000.0,rand()/65000.0,0.5};
+		uint8_t arr[4];
+		arr[0] = rand()%256;
+		arr[1] = rand()%256;
+		arr[2] = rand()%256;
+		arr[3] = 255;
+		memcpy(((uint8_t*)&(buf.At<0>(i)))+20, arr, 4);
 	}
-	
+
 	uint32_t elems[] = {
 		2, 3, 1,
 		4, 7, 3,
@@ -107,226 +354,12 @@ int32_t LoadComponents(VBO& vertices, VBO& elements) {
 		7, 5, 1,
 		4, 2, 6
 	};
-	
+	for(int i=0; i<36; ++i)
+		elems[i]--;
+
 	memcpy(&(vertices.Buffer()[0]), elems, 4*3*12);
-	
+
 	return 1;
 }
-
-int main() {
-	printf("sizeof(VertexStructure) = %lu\n", sizeof(VertexStructure));
-	printf("&VertexStructure::colors = %lu\n", &VertexStructure::colors);
-	
-    openGL.Init("Window test name 311", 800, 600, true, false);
-    openGL.InitGraphic();
-    
-    openGL.SetKeyCallback(KeyCallback);
-    openGL.SetScrollCallback(ScrollCallback);
-    openGL.SetMouseCallback(MouseCallback);
-    
-    Shader renderShader;
-	renderShader.Load("vertex.glsl", "geometry.glsl", "fragment.glsl");
-	
-	Shader computeShader;
-	computeShader.Load("compute.glsl");
-	
-	VBO vertexBuffer(sizeof(VertexStructure), gl::ARRAY_BUFFER, gl::STATIC_DRAW);
-	VBO elementsBuffer(sizeof(uint32_t), gl::ELEMENT_ARRAY_BUFFER, gl::STATIC_DRAW);
-	VBO transformsBuffer(sizeof(ObjectInfo), gl::ARRAY_BUFFER, gl::STREAM_DRAW);
-	VBO componentsBuffer(sizeof(ObjectComponents), gl::ARRAY_BUFFER, gl::STREAM_DRAW);
-	VBO indirectBuffer(20, gl::DRAW_INDIRECT_BUFFER, gl::STREAM_DRAW);
-	VBO atomicBuffer(4, gl::ATOMIC_COUNTER_BUFFER, gl::DYNAMIC_DRAW);
-	
-	int32_t loadedComponents = LoadComponents(vertexBuffer, elementsBuffer);
-	transformsBuffer.ReserveResizeVertices(OBJECTS_COUNT);
-	transformsBuffer.Generate();
-	componentsBuffer.ReserveResizeVertices(OBJECTS_COUNT);
-	componentsBuffer.Generate();
-	indirectBuffer.ReserveResizeVertices(OBJECTS_COUNT*MAX_COMPONENTS_PER_OBJECT);
-	indirectBuffer.Generate();
-	atomicBuffer.ReserveResizeVertices(1);
-	atomicBuffer.Generate();
-	
-	VAO drawVao(gl::TRIANGLES);
-	drawVao.SetAttribPointer(vertexBuffer,
-			renderShader.GetAttributeLocation("pos"),
-			3, gl::FLOAT, false, 0, 0);
-	VertexStructure v;
-	drawVao.SetAttribPointer(vertexBuffer,
-			renderShader.GetAttributeLocation("color"),
-			4, gl::FLOAT, false, (size_t)&v.colors - (size_t)&v, 0);
-	drawVao.SetAttribPointer(transformsBuffer,
-			renderShader.GetAttributeLocation("model"),
-			16, gl::FLOAT, false, 0, 1);
-	
-    auto components = componentsBuffer.Buffer<Atr<ObjectComponents, 1>>();
-    auto obs = transformsBuffer.Buffer<Atr<ObjectInfo, 1>>();
-	for(int i=0; i<OBJECTS_COUNT; ++i) {
-		obs.At<0>(i).componentsCount = (rand()%20)+3;
-		obs.At<0>(i).model = glm::mat4(
-				0.3, 0  , 0  , rand(),
-				0  , 0.3, 0  , rand() % 100,
-				0  , 0  , 0.3, rand(),
-				0  , 0  , 0  , 1);
-		for(int j=0; j<obs.At<0>(i).componentsCount; ++j) {
-			components.At<0>(i).elementOffset[j] = 0;
-			components.At<0>(i).indexCount[j] = 36;
-		}
-	}
-	componentsBuffer.Update(0, OBJECTS_COUNT);
-	transformsBuffer.Update(0, OBJECTS_COUNT);
-	
-	
-    
-    
-	
-    VBO vbo(3*sizeof(float), gl::ARRAY_BUFFER, gl::STATIC_DRAW);
-    auto buf = vbo.Buffer<Atr<glm::vec3, 1>>();
-    for(int i = 0; i < 8; ++i)
-        buf.At<0>(i) = glm::vec3(i, i/2.f, i/3.f);
-    vbo.Generate();
-    
-    VAO vao(gl::POINTS);
-	vao.SetAttribPointer(vbo, renderShader.GetAttributeLocation("position"), 3,
-			gl::FLOAT, false, 0);
-    
-    
-    
-	Texture texture;
-    texture.Load("image.jpg", GL_REPEAT, GL_NEAREST, false);
-    
-    renderShader.SetTexture(renderShader.GetUniformLocation("ourTexture1"), &texture,
-			0);
-    
-	glPointSize(3.0f);
-	glLineWidth(3.0f);
-	glEnable(GL_DITHER);
-	
-	
-	GLint viewLoc = renderShader.GetUniformLocation("view");
-	GLint projLoc = renderShader.GetUniformLocation("projection");
-	
-    while(!glfwWindowShouldClose(openGL.window)) {
-        GLfloat currentFrame = glfwGetTime();
-        deltaTime = currentFrame - lastFrame;
-        lastFrame = currentFrame;
-        
-        glfwPollEvents();
-        DoMovement();
-        
-        openGL.InitFrame();
-        
-		
-		
-		
-		memset(&(atomicBuffer.Buffer()[0]), 0, 4);
-		atomicBuffer.Update(0, 1);
-		computeShader.Dispatch(1024, 16, 1);
-		glMemoryBarrier(-1);
-		atomicBuffer.FetchAllDataToHostFromGPU();
-		printf(" atomic = %u\n", *(unsigned*)&(atomicBuffer.Buffer()[0]));
-		
-		
-		
-        
-        
-        
-        renderShader.Use();
-        
-        glm::mat4 projection = glm::perspective(45.0f,
-				(float)openGL.GetWidth()/(float)openGL.GetHeight(), 0.1f,
-				10000.0f);
-        
-        // Create transformations
-//         glm::mat4 model;
-        glm::mat4 view;
-
-        view = camera.getViewMatrix();
-        
-        renderShader.SetMat4(viewLoc, view);
-        renderShader.SetMat4(projLoc, projection);
-        
-		/*
-        for(int j = 1; j < 101; ++j) {
-	        for(GLuint i = 1; i < 11; ++i) {
-	            glm::mat4 model(1.0f);
-                model = glm::scale(model, glm::vec3(10));
-                model = glm::translate(model,
-						glm::vec3(0.0f,0.0f,0.0f+float((j*i)<<1)));
-                renderShader.SetMat4(modelLoc, model);
-                vao.SetInstances(100*1);
-                vao.Draw();//0, 36);
-	        }
-	    }
-		*/
-        
-        openGL.SwapBuffer();
-    }
-	
-	openGL.Destroy();
-	glfwTerminate();
-	
-	
-    
-    return EXIT_SUCCESS;
-}
-
-void DoMovement() {
-    if(keys[GLFW_KEY_W] || keys[GLFW_KEY_UP]) {
-        camera.ProcessKeyboard(FORWARD, deltaTime);
-    }
-    if(keys[GLFW_KEY_S] || keys[GLFW_KEY_DOWN]) {
-        camera.ProcessKeyboard(BACKWARD, deltaTime);
-    }
-    if(keys[GLFW_KEY_D] || keys[GLFW_KEY_RIGHT]) {
-        camera.ProcessKeyboard(RIGHT, deltaTime);
-    }
-    if(keys[GLFW_KEY_A] || keys[GLFW_KEY_LEFT]) {
-        camera.ProcessKeyboard(LEFT, deltaTime);
-    }
-    if(keys[GLFW_KEY_Q]) {
-        camera.Up(-1, deltaTime);
-    }
-    if(keys[GLFW_KEY_E]) {
-        camera.Up(1, deltaTime);
-    }
-}
-
-void KeyCallback(GLFWwindow * window, int key, int scancode, int action, int mode) {
-    if(GLFW_KEY_ESCAPE == key && action == GLFW_PRESS) {
-        glfwSetWindowShouldClose(window, GL_TRUE);
-    }
-    if(key >= 0 && key <= 1024) {
-        if(GLFW_PRESS == action) {
-            keys[key] = true;
-        } else if(GLFW_RELEASE == action) {
-            keys[key] = false;
-        }
-    }
-}
-
-void MouseCallback(GLFWwindow * window, double xPos, double yPos) {
-    if(firstMouse) {
-        lastX = xPos;
-        lastY = yPos;
-        firstMouse = false;
-    }
-    
-    GLfloat xOfsset = xPos - lastX;
-    GLfloat yOfsset = lastY - yPos;
-    
-    lastX = xPos;
-    lastY = yPos;
-    
-    camera.ProcessMouseMovement(xOfsset, yOfsset);
-}
-
-void ScrollCallback(GLFWwindow * window, double xOffset, double yOffset) {
-
-    camera.ProcessMouseScroll(yOffset);
-    
-
-}
-
 
 

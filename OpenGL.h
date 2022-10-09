@@ -96,7 +96,7 @@ public:
 	
 	int Init(const char* windowName, unsigned int width, unsigned int height,
 			bool resizable, bool fullscreen,
-			int majorOpenglVersion=4, int minorOpenglVersion=6);
+			int majorOpenglVersion=4, int minorOpenglVersion=3);
 	
 	void SetKeyCallback(void (GLFWwindow*, int, int, int, int));
 	void SetScrollCallback(void (GLFWwindow*, double, double));

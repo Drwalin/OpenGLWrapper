@@ -27,6 +27,10 @@
 
 unsigned Shader::currentProgram = 0;
 
+
+GLenum errorCheck(int line, const char* file);
+#define PRINT_ERROR errorCheck(__LINE__, __FILE__);
+
 int Shader::Load(const char* vertexPath, const char* geometryPath,
 		const char* fragmentPath) {
 	Destroy();
@@ -178,7 +182,9 @@ int Shader::GetUniformLocation(const char * name) const {
 }
 
 int Shader::GetAttributeLocation(const char * name) const {
-	return glGetAttribLocation(program, name);
+	int v = glGetAttribLocation(program, name);
+	PRINT_ERROR;
+	return v;
 }
 
 void Shader::SetTexture(int location, class Texture* texture,
