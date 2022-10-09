@@ -70,6 +70,8 @@ public:
 	Shader();
 	~Shader();
 	
+	int32_t workgroupSize[3];
+	
 private:
 	
 	unsigned CheckBuildStatus();
