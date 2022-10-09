@@ -19,6 +19,10 @@
 #include <cstdio>
 
 #include "VAO.h"
+#include "VBO.h"
+
+GLenum errorCheck(int line, const char* file);
+#define PRINT_ERROR errorCheck(__LINE__, __FILE__);
 
 VAO::VAO(gl::VertexMode mode) : mode(mode) {
 	sizeI = 0;
@@ -38,20 +42,31 @@ VAO::~VAO() {
 void VAO::SetAttribPointer(VBO& vbo, int location, unsigned count,
 		gl::DataType type, bool normalized, unsigned offset, unsigned divisor) {
 	glBindVertexArray(vaoID);
+	PRINT_ERROR;
 	glBindBuffer(vbo.target, vbo.vboID);
-	glEnableVertexAttribArray(location);
-	glVertexAttribPointer(location, count, type, normalized, vbo.vertexSize,
-			(void*)(size_t)offset);
-	glVertexAttribDivisor(location, divisor);
+	PRINT_ERROR;
+	if(vbo.target != gl::ELEMENT_ARRAY_BUFFER && vbo.target != gl::DRAW_INDIRECT_BUFFER) {
+		glEnableVertexAttribArray(location);
+		fprintf(stderr, " vertex attrib array location = %i\n", location);
+	PRINT_ERROR;
+		glVertexAttribPointer(location, count, type, normalized, vbo.vertexSize,
+				(void*)(size_t)offset);
+	PRINT_ERROR;
+		glVertexAttribDivisor(location, divisor);
+	PRINT_ERROR;
+	}
+	PRINT_ERROR;
 	glBindVertexArray(0);
+	PRINT_ERROR;
 	glBindBuffer(vbo.target, 0);
+	PRINT_ERROR;
 	if(divisor>0) {
 		instances = std::max(instances, divisor*vbo.vertices);
 	} else if(vbo.target == gl::ELEMENT_ARRAY_BUFFER) {
 		drawArrays = false;
 		sizeI = std::max(vbo.vertices, sizeI);
 		typeElements = type;
-	} else {
+	} else if(vbo.target != gl::DRAW_INDIRECT_BUFFER) {
 		sizeA = std::max(vbo.vertices, sizeA);
 	}
 }
@@ -81,7 +96,9 @@ void VAO::DrawArrays(unsigned start, unsigned count) {
 }
 
 void VAO::DrawElements(unsigned start, unsigned count) {
+	PRINT_ERROR;
 	glBindVertexArray(vaoID);
+	PRINT_ERROR;
 	void* offset = NULL;
 	switch(typeElements) {
 		case gl::UNSIGNED_BYTE:
@@ -97,10 +114,32 @@ void VAO::DrawElements(unsigned start, unsigned count) {
 			// TODO: error
 			printf(" error in VAO::DrawElements: unusable element internal indexing type\n");
 	}
-	if(instances)
+	if(instances) {
+	PRINT_ERROR;
 		glDrawElementsInstanced(mode, count, typeElements, offset, instances);
-	else
+	PRINT_ERROR;
+	} else {
+	PRINT_ERROR;
 		glDrawElements(mode, count, typeElements, offset);
+	PRINT_ERROR;
+	}
+	PRINT_ERROR;
+	glBindVertexArray(0);
+	PRINT_ERROR;
+}
+
+void VAO::DrawMultiElementsIndirect(void* indirect, int drawCount, size_t stride) {
+	glBindVertexArray(vaoID);
+	switch(typeElements) {
+		case gl::UNSIGNED_BYTE:
+		case gl::UNSIGNED_SHORT:
+		case gl::UNSIGNED_INT:
+			break;
+		default:
+			// TODO: error
+			printf(" error in VAO::DrawElements: unusable element internal indexing type\n");
+	}
+	glMultiDrawElementsIndirect(mode, typeElements, indirect, drawCount, stride);
 	glBindVertexArray(0);
 }
 
