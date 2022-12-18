@@ -22,7 +22,7 @@ GLenum errorCheck(int line, const char* file) {
 	return code;
 }
 
-#define PRINT_ERROR errorCheck(__LINE__, __FILE__);
+#define 										PRINT_ERROR errorCheck(__LINE__, __FILE__);
 
 
 // Window dimensions
@@ -62,7 +62,6 @@ struct VertexStructure {
 	glm::vec2 uv[2];
 	uint8_t color[4];
 };
-#pragma pack(pop, 1)
 
 struct PerInstance {
 	glm::mat4 model;
@@ -71,6 +70,7 @@ struct PerInstance {
 	unsigned textureId;
 	uint8_t color[4];
 };
+#pragma pack(pop, 1)
 
 const uint32_t OBJECTS_COUNT = 1024;
 
@@ -80,7 +80,7 @@ VertexStructure VERTEEE;
 int main() {
 	camera.position = {50, 50, 50};
 
-	PRINT_ERROR;
+											PRINT_ERROR;
 	srand(time(NULL));
 	printf("sizeof(VertexStructure) = %lu\n", sizeof(VertexStructure));
 	printf("sizeof(PerInstance) = %lu\n", sizeof(PerInstance));
@@ -88,15 +88,15 @@ int main() {
 	openGL.Init("Window test name 311", 800, 600, true, false, 4, 5);
 	openGL.InitGraphic();
 
-	PRINT_ERROR;
+											PRINT_ERROR;
 	openGL.SetKeyCallback(KeyCallback);
 	openGL.SetScrollCallback(ScrollCallback);
 	openGL.SetMouseCallback(MouseCallback);
 
-	PRINT_ERROR;
+											PRINT_ERROR;
 	Shader renderShader;
 	renderShader.Load("vertex.glsl", NULL, "fragment.glsl");
-	PRINT_ERROR;
+											PRINT_ERROR;
 
 	VBO vertexBuffer(32, gl::ARRAY_BUFFER, gl::STATIC_DRAW);
 	VBO elementsBuffer(sizeof(uint32_t), gl::ELEMENT_ARRAY_BUFFER, gl::STATIC_DRAW);
@@ -105,15 +105,15 @@ int main() {
 	
 	LoadComponents(vertexBuffer, elementsBuffer);
 
-	PRINT_ERROR;
+											PRINT_ERROR;
 	vertexBuffer.Generate();
-	PRINT_ERROR;
+											PRINT_ERROR;
 	vertexBuffer.Update(0, 1000000000);
-	PRINT_ERROR;
+											PRINT_ERROR;
 	elementsBuffer.Generate();
-	PRINT_ERROR;
+											PRINT_ERROR;
 	elementsBuffer.Update(0, 1000000000);
-	PRINT_ERROR;
+											PRINT_ERROR;
 
 
 
@@ -145,31 +145,31 @@ int main() {
 			memcpy(perInstance.At<0>(I).color, arr, 4);
 		}
 	}
-	PRINT_ERROR;
+											PRINT_ERROR;
 	indirectBuffer.Generate();
-	PRINT_ERROR;
+											PRINT_ERROR;
 	indirectBuffer.Update(0,	1000000000);
-	PRINT_ERROR;
+											PRINT_ERROR;
 	perInstanceBuffer.Generate();
-	PRINT_ERROR;
+											PRINT_ERROR;
 	perInstanceBuffer.Update(0, 1000000000);
-	PRINT_ERROR;
+											PRINT_ERROR;
 
 	VAO drawVao(gl::TRIANGLES);
-	PRINT_ERROR;
-
+											PRINT_ERROR;
+											
 	drawVao.SetAttribPointer(vertexBuffer,
 			renderShader.GetAttributeLocation("pos"),
 			3, gl::FLOAT, false, 0, 0);
-	PRINT_ERROR;
+											PRINT_ERROR;
 	drawVao.SetAttribPointer(vertexBuffer,
 			1,//renderShader.GetAttributeLocation("uv"),
 			2, gl::SHORT, false, 12, 0);
-	PRINT_ERROR;
+											PRINT_ERROR;
 	drawVao.SetAttribPointer(vertexBuffer,
 			renderShader.GetAttributeLocation("color"),
 			4, gl::UNSIGNED_BYTE, false, 20, 0);
-	PRINT_ERROR;
+											PRINT_ERROR;
 
 	drawVao.SetAttribPointer(perInstanceBuffer,
 			renderShader.GetAttributeLocation("model"),
@@ -195,66 +195,66 @@ int main() {
 	drawVao.SetAttribPointer(perInstanceBuffer,
 			10,//renderShader.GetAttributeLocation("objectColor"),
 			4, gl::UNSIGNED_BYTE, false, 76, 1);
-	PRINT_ERROR;
+											PRINT_ERROR;
 
 	drawVao.SetAttribPointer(elementsBuffer, -1, -1, gl::UNSIGNED_INT, false, 0, 0);
-	PRINT_ERROR;
+											PRINT_ERROR;
 
 // 	drawVao.SetAttribPointer(indirectBuffer, -1, -1, gl::UNSIGNED_INT, false, 0, 0);
-// 	PRINT_ERROR;
+// 											PRINT_ERROR;
 	
 // 	drawVao.SetInstances(I);
 // 	drawVao.SetSize(36);
 
 // 	Texture texture;
 // 	texture.Load("image.jpg", GL_REPEAT, GL_NEAREST, false);
-	PRINT_ERROR;
+											PRINT_ERROR;
 // 	renderShader.SetTexture(renderShader.GetUniformLocation("ourTexture1"), &texture, 0);
-	PRINT_ERROR;
+											PRINT_ERROR;
 	GLint viewProjectionLoc = renderShader.GetUniformLocation("viewProjection");
-	PRINT_ERROR;
+											PRINT_ERROR;
 
 	printf(" I = %i\n", I);
 	while(!glfwWindowShouldClose(openGL.window)) {
-	PRINT_ERROR;
+											PRINT_ERROR;
 		GLfloat currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
-	PRINT_ERROR;
+											PRINT_ERROR;
 		glfwPollEvents();
-	PRINT_ERROR;
+											PRINT_ERROR;
 		DoMovement();
-	PRINT_ERROR;
+											PRINT_ERROR;
 
 		openGL.InitFrame();
 
-	PRINT_ERROR;
+											PRINT_ERROR;
 		renderShader.Use();
-	PRINT_ERROR;
+											PRINT_ERROR;
 
 		glm::mat4 projection = glm::perspective(45.0f,
 				(float)openGL.GetWidth()/(float)openGL.GetHeight(), 0.1f,
 				10000.0f);
 		glm::mat4 view = camera.getViewMatrix();
 
-	PRINT_ERROR;
+											PRINT_ERROR;
 		renderShader.SetMat4(viewProjectionLoc, view*projection);
-	PRINT_ERROR;
+											PRINT_ERROR;
 	
 // 		printf(" vao: sizeA = %i, sizeI = %i, instances = %i, drawArrays = %i\n",
 // 				drawVao.sizeA, drawVao.sizeI, drawVao.instances, drawVao.drawArrays?1:0);
 
 //		drawVao.DrawMultiElementsIndirect(&(indirectBuffer.Buffer()[0]), I, 0);
 // 		drawVao.DrawMultiElementsIndirect(NULL, 1, 0);
-	PRINT_ERROR;
+											PRINT_ERROR;
 		drawVao.Draw();
-	PRINT_ERROR;
+											PRINT_ERROR;
 
 		openGL.SwapBuffer();
-	PRINT_ERROR;
+											PRINT_ERROR;
 	}
-	PRINT_ERROR;
+											PRINT_ERROR;
 
 	openGL.Destroy();
 	glfwTerminate();

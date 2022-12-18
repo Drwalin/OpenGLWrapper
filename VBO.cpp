@@ -77,3 +77,7 @@ void VBO::FetchAllDataToHostFromGPU() {
 	}
 }
 
+void VBO::BindBufferBase(gl::BufferTarget target, int location) {
+	glBindBufferBase(target, location, vboID);
+}
+
