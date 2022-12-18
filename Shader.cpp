@@ -25,11 +25,9 @@
 #include <fstream>
 #include <cstdio>
 
+namespace gl {
+
 unsigned Shader::currentProgram = 0;
-
-
-GLenum errorCheck(int line, const char* file);
-#define PRINT_ERROR errorCheck(__LINE__, __FILE__);
 
 int Shader::Load(const char* vertexPath, const char* geometryPath,
 		const char* fragmentPath) {
@@ -192,7 +190,6 @@ int Shader::GetUniformLocation(const char * name) const {
 
 int Shader::GetAttributeLocation(const char * name) const {
 	int v = glGetAttribLocation(program, name);
-	PRINT_ERROR;
 	return v;
 }
 
@@ -300,5 +297,7 @@ Shader::Shader() {
 
 Shader::~Shader() {
 	Destroy();
+}
+
 }
 

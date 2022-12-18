@@ -18,6 +18,8 @@
 
 #include "Texture.h"
 
+namespace gl {
+
 Texture::Texture() {
 	textureID = 0;
 	width = 0;
@@ -99,5 +101,7 @@ void Texture::Destroy() {
 		height = 0;
 		textureID = 0;
 	}
+}
+
 }
 

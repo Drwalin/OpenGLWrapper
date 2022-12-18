@@ -16,31 +16,28 @@
 #include "../../VAO.h"
 #include "../../VBO.h"
 
-GLenum errorCheck(int line, const char* file);
-#define 										PRINT_ERROR errorCheck(__LINE__, __FILE__);
-
 const uint32_t OBJECTS_COUNT = 1024*32;
 
 int main() {
 	srand(time(NULL));
 	
 	// init open gl
-    openGL.Init("Window test name 311", 800, 600, true, false);
-    openGL.InitGraphic();
+    gl::openGL.Init("Window test name 311", 800, 600, true, false);
+    gl::openGL.InitGraphic();
 	
 	// init shaders
-	Shader computeShader, emptyShader;
+	gl::Shader computeShader, emptyShader;
 	computeShader.Load("compute.glsl");
 	
 	// init data storage objects
-	VBO sourceBuffer(sizeof(uint32_t), gl::ARRAY_BUFFER, gl::DYNAMIC_DRAW);
-	VBO destinyBuffer(sizeof(uint32_t), gl::ARRAY_BUFFER, gl::DYNAMIC_DRAW);
+	gl::VBO sourceBuffer(sizeof(uint32_t), gl::ARRAY_BUFFER, gl::DYNAMIC_DRAW);
+	gl::VBO destinyBuffer(sizeof(uint32_t), gl::ARRAY_BUFFER, gl::DYNAMIC_DRAW);
 	sourceBuffer.ReserveResizeVertices(OBJECTS_COUNT);
 	destinyBuffer.ReserveResizeVertices(OBJECTS_COUNT);
 	destinyBuffer.Generate();
 	
 	// init computational data values
-    auto src = sourceBuffer.Buffer<Atr<uint32_t, 1>>();
+    auto src = sourceBuffer.Buffer<gl::Atr<uint32_t, 1>>();
 	uint32_t sum = 0;
 	for(int i=0; i<OBJECTS_COUNT; ++i) {
 		src.At<0>(i) = i;
@@ -68,7 +65,7 @@ int main() {
 		
 		// validate data
 		int correct=0, wrong=0;
-		auto dst = destinyBuffer.Buffer<Atr<uint32_t, 1>>();
+		auto dst = destinyBuffer.Buffer<gl::Atr<uint32_t, 1>>();
 		for(int i=0; i<OBJECTS_COUNT; ++i) {
 			uint32_t a = src.At<0>(i);
 			uint32_t b = dst.At<0>(i);
@@ -81,20 +78,8 @@ int main() {
 	}
 		
 	// deinit opengl
-	openGL.Destroy();
+	gl::openGL.Destroy();
 	glfwTerminate();
     return 0;
-}
-
-GLenum errorCheck(int line, const char* file) {
-	GLenum code;
-	const GLubyte* string;
-	code = glGetError();
-	if(code != GL_NO_ERROR) {
-		string = gluErrorString(code);
-		fprintf(stderr, "%s:%i -> OpenGL error [%i]: %s\n", file, line, code, string);
-		exit(311);
-	}
-	return code;
 }
 

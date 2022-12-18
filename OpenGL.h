@@ -28,14 +28,14 @@
 
 #include <vector>
 
-void OpenGLKeyCallback(GLFWwindow* window, int key, int scancode, int action,
-		int mode);
-void OpenGLScrollCallback(GLFWwindow* window, double xOffset, double yOffset);
-void OpenGLMouseCallback(GLFWwindow* window, double xPos, double yPos);
-void OpenGLWindowResizeCallback(GLFWwindow* window, int width, int height);
-void OpenGLMouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
-
 namespace gl {
+	void OpenGLKeyCallback(GLFWwindow* window, int key, int scancode, int action,
+			int mode);
+	void OpenGLScrollCallback(GLFWwindow* window, double xOffset, double yOffset);
+	void OpenGLMouseCallback(GLFWwindow* window, double xPos, double yPos);
+	void OpenGLWindowResizeCallback(GLFWwindow* window, int width, int height);
+	void OpenGLMouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
+
 	enum DataType : GLenum {
 		BYTE = GL_BYTE,
 		UNSIGNED_BYTE = GL_UNSIGNED_BYTE,
@@ -61,58 +61,79 @@ namespace gl {
 		UNSIGNED_INT_10_10_10_2 = GL_UNSIGNED_INT_10_10_10_2,
 		UNSIGNED_INT_2_10_10_10_REV = GL_UNSIGNED_INT_2_10_10_10_REV
 	};
+
+	class OpenGL {
+	private:
+	public:
+		
+		std::vector<bool> keys;
+		std::vector<bool> bKeys;
+		double mouseLastX, mouseLastY;
+		double mouseCurrentX, mouseCurrentY;
+		double wheelDY;
+		int width, height;
+		int backupWinX, backupWinY;
+		int backupWidth, backupHeight;
+		GLFWwindow* window;
+		
+		struct ErrorStruct {
+			int code;
+			const char* msg;
+			const char* file;
+			int line;
+		};
+		std::vector<ErrorStruct> errors;
+		
+	public:
+		
+		int StackError(int line, const char* file);
+		void ClearErrors();
+		ErrorStruct PopError();
+		ErrorStruct GetLastError();
+		std::vector<ErrorStruct>& GetErrors();
+		
+		int PrintError(ErrorStruct err);
+		void PrintLastError();
+		void PrintErrors();
+		
+		void SetFullscreen(bool fullscreen);
+		bool IsFullscreen() const;
+		
+		void SwapInput();
+		bool IsKeyDown(const int id) const;
+		bool IsKeyUp(const int id) const;
+		bool WasKeyPressed(const int id) const;
+		bool WasKeyReleased(const int id) const;
+		double GetMouseDX() const;
+		double GetMouseDY() const;
+		double GetWheelDY() const;
+		
+		unsigned int GetWidth() const;
+		unsigned int GetHeight() const;
+		
+		int Init(const char* windowName, unsigned int width, unsigned int height,
+				bool resizable, bool fullscreen,
+				int majorOpenglVersion=4, int minorOpenglVersion=3);
+		
+		void SetKeyCallback(void (GLFWwindow*, int, int, int, int));
+		void SetScrollCallback(void (GLFWwindow*, double, double));
+		void SetMouseCallback(void (GLFWwindow*, double, double));
+		
+		void InitGraphic();
+		void InitFrame();
+		void SwapBuffer();
+		
+		void Destroy();
+		
+		OpenGL();
+		~OpenGL();
+	};
+
+	extern OpenGL openGL;
 }
 
-class OpenGL {
-private:
-public:
-	
-	std::vector<bool> keys;
-	std::vector<bool> bKeys;
-	double mouseLastX, mouseLastY;
-	double mouseCurrentX, mouseCurrentY;
-	double wheelDY;
-	int width, height;
-	int backupWinX, backupWinY;
-	int backupWidth, backupHeight;
-	GLFWwindow* window;
-	
-public:
-	
-	void SetFullscreen(bool fullscreen);
-	bool IsFullscreen() const;
-	
-	void SwapInput();
-	bool IsKeyDown(const int id) const;
-	bool IsKeyUp(const int id) const;
-	bool WasKeyPressed(const int id) const;
-	bool WasKeyReleased(const int id) const;
-	double GetMouseDX() const;
-	double GetMouseDY() const;
-	double GetWheelDY() const;
-	
-	unsigned int GetWidth() const;
-	unsigned int GetHeight() const;
-	
-	int Init(const char* windowName, unsigned int width, unsigned int height,
-			bool resizable, bool fullscreen,
-			int majorOpenglVersion=4, int minorOpenglVersion=3);
-	
-	void SetKeyCallback(void (GLFWwindow*, int, int, int, int));
-	void SetScrollCallback(void (GLFWwindow*, double, double));
-	void SetMouseCallback(void (GLFWwindow*, double, double));
-	
-	void InitGraphic();
-	void InitFrame();
-	void SwapBuffer();
-	
-	void Destroy();
-	
-	OpenGL();
-	~OpenGL();
-};
-
-extern "C" OpenGL openGL;
+#define GL_CHECK_PUSH_PRINT_ERROR {if(gl::openGL.StackError(__LINE__, __FILE__)){gl::openGL.PrintError(gl::openGL.GetLastError());}}
+#define GL_CHECK_PUSH_ERROR gl::openGL.StackError(__LINE__, __FILE__)
 
 #endif
 

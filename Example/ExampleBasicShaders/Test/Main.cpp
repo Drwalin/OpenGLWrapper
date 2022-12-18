@@ -43,31 +43,31 @@ GLfloat lastFrame = 0.0f;
 #include <cstdio>
 
 int main() {
-    openGL.Init("Window test name 311", 800, 600, true, false);
-    openGL.InitGraphic();
+	gl::openGL.Init("Window test name 311", 800, 600, true, false);
+    gl::openGL.InitGraphic();
     
-    glfwSetKeyCallback(openGL.window, KeyCallback);
-    glfwSetCursorPosCallback(openGL.window, MouseCallback);
-    glfwSetScrollCallback(openGL.window, ScrollCallback);
+    glfwSetKeyCallback(gl::openGL.window, KeyCallback);
+    glfwSetCursorPosCallback(gl::openGL.window, MouseCallback);
+    glfwSetScrollCallback(gl::openGL.window, ScrollCallback);
     
-    Shader ourShader;
+    gl::Shader ourShader;
 	ourShader.Load("../GeometryShader/core.vs", "../GeometryShader/core.gs",
 			"../GeometryShader/core.fs");
     
     
-    VBO vbo(3*sizeof(float), gl::ARRAY_BUFFER, gl::STATIC_DRAW);
-    auto buf = vbo.Buffer<Atr<glm::vec3, 1>>();
+    gl::VBO vbo(3*sizeof(float), gl::ARRAY_BUFFER, gl::STATIC_DRAW);
+    auto buf = vbo.Buffer<gl::Atr<glm::vec3, 1>>();
     for(int i = 0; i < 8; ++i)
         buf.At<0>(i) = glm::vec3(i, i/2.f, i/3.f);
     vbo.Generate();
     
-    VAO vao(gl::POINTS);
+    gl::VAO vao(gl::POINTS);
 	vao.SetAttribPointer(vbo, ourShader.GetAttributeLocation("position"), 3,
 			gl::FLOAT, false, 0);
     
     
     
-	Texture texture;
+	gl::Texture texture;
     texture.Load("image.jpg", GL_REPEAT, GL_NEAREST, false);
     
     ourShader.SetTexture(ourShader.GetUniformLocation("ourTexture1"), &texture,
@@ -82,7 +82,7 @@ int main() {
 	GLint viewLoc = ourShader.GetUniformLocation("view");
 	GLint projLoc = ourShader.GetUniformLocation("projection");
 	
-    while(!glfwWindowShouldClose(openGL.window)) {
+    while(!glfwWindowShouldClose(gl::openGL.window)) {
         GLfloat currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
@@ -90,7 +90,7 @@ int main() {
         glfwPollEvents();
         DoMovement();
         
-        openGL.InitFrame();
+        gl::openGL.InitFrame();
         
         
         
@@ -98,7 +98,7 @@ int main() {
         ourShader.Use();
         
         glm::mat4 projection = glm::perspective(45.0f,
-				(float)openGL.GetWidth()/(float)openGL.GetHeight(), 0.1f,
+				(float)gl::openGL.GetWidth()/(float)gl::openGL.GetHeight(), 0.1f,
 				10000.0f);
         
         // Create transformations
@@ -122,10 +122,10 @@ int main() {
 	        }
 	    }
         
-        openGL.SwapBuffer();
+        gl::openGL.SwapBuffer();
     }
 	
-	openGL.Destroy();
+	gl::openGL.Destroy();
 	glfwTerminate();
 	
 	
