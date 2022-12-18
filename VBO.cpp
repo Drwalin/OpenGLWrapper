@@ -16,7 +16,11 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <cstdio>
+
 #include "VBO.h"
+
+namespace gl {
 
 VBO::VBO(unsigned vertexSize, gl::BufferTarget target, gl::BufferUsage usage) :
 	target(target), usage(usage), vertexSize(vertexSize) {
@@ -37,7 +41,6 @@ void VBO::Generate() {
 	glBindBuffer(target, 0);
 }
 
-#include <cstdio>
 void VBO::Update(unsigned beg, unsigned end) {
 	end = std::min<unsigned>(end, vertices);
 	if(beg >= end)
@@ -80,4 +83,6 @@ void VBO::FetchAllDataToHostFromGPU() {
 void VBO::BindBufferBase(gl::BufferTarget target, int location) {
 	glBindBufferBase(target, location, vboID);
 }
+
+} // namespace gl
 

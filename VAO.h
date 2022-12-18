@@ -41,37 +41,37 @@ namespace gl {
 		TRIANGLES_ADJACENCY = GL_TRIANGLES_ADJACENCY,
 		PATCHES = GL_PATCHES
 	};
-}
 
-class VAO {
-public:
-	
-	VAO(gl::VertexMode mode);
-	~VAO();
-	
-	// offset in bytes
-	void SetAttribPointer(VBO& vbo, int location, unsigned count,
-			gl::DataType type, bool normalized, unsigned offset,
-			unsigned divisor=0);
-	
-	void SetSize(unsigned count);
-	void SetInstances(unsigned instances);
-	
-	void Draw();
-	void Draw(unsigned start, unsigned count);
-	void DrawArrays(unsigned start, unsigned count);
-	void DrawElements(unsigned start, unsigned count);
-	void DrawMultiElementsIndirect(void* indirect, int drawCount, size_t stride);
-	
-private:
-public:
-	
-	gl::DataType typeElements;
-	unsigned sizeA, sizeI, instances;
-	unsigned vaoID;
-	gl::VertexMode mode;
-	bool drawArrays;
-};
+	class VAO {
+	public:
+		
+		VAO(gl::VertexMode mode);
+		~VAO();
+		
+		// offset in bytes
+		void SetAttribPointer(VBO& vbo, int location, unsigned count,
+				gl::DataType type, bool normalized, unsigned offset,
+				unsigned divisor=0);
+		
+		void SetSize(unsigned count);
+		void SetInstances(unsigned instances);
+		
+		void Draw();
+		void Draw(unsigned start, unsigned count);
+		void DrawArrays(unsigned start, unsigned count);
+		void DrawElements(unsigned start, unsigned count);
+		void DrawMultiElementsIndirect(void* indirect, int drawCount, size_t stride);
+		
+	private:
+	public:
+		
+		gl::DataType typeElements;
+		unsigned sizeA, sizeI, instances;
+		unsigned vaoID;
+		gl::VertexMode mode;
+		bool drawArrays;
+	};
+}
 
 #endif
 

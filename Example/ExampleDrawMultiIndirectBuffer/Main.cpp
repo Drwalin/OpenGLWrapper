@@ -39,7 +39,7 @@ void DoMovement();
 #include "../../VAO.h"
 #include "../../VBO.h"
 
-int32_t LoadComponents(VBO& vertices, VBO& elements);
+int32_t LoadComponents(gl::VBO& vertices, gl::VBO& elements);
 
 Camera camera(glm::vec3(0.0f,0.0f, 0.0f));
 GLfloat lastX = 0.0;//WIDTH/2.0;
@@ -85,23 +85,23 @@ int main() {
 	printf("sizeof(VertexStructure) = %lu\n", sizeof(VertexStructure));
 	printf("sizeof(PerInstance) = %lu\n", sizeof(PerInstance));
 
-	openGL.Init("Window test name 311", 800, 600, true, false, 4, 5);
-	openGL.InitGraphic();
+	gl::openGL.Init("Window test name 311", 800, 600, true, false, 4, 5);
+	gl::openGL.InitGraphic();
 
 											PRINT_ERROR;
-	openGL.SetKeyCallback(KeyCallback);
-	openGL.SetScrollCallback(ScrollCallback);
-	openGL.SetMouseCallback(MouseCallback);
+	gl::openGL.SetKeyCallback(KeyCallback);
+	gl::openGL.SetScrollCallback(ScrollCallback);
+	gl::openGL.SetMouseCallback(MouseCallback);
 
 											PRINT_ERROR;
-	Shader renderShader;
+	gl::Shader renderShader;
 	renderShader.Load("vertex.glsl", NULL, "fragment.glsl");
 											PRINT_ERROR;
 
-	VBO vertexBuffer(32, gl::ARRAY_BUFFER, gl::STATIC_DRAW);
-	VBO elementsBuffer(sizeof(uint32_t), gl::ELEMENT_ARRAY_BUFFER, gl::STATIC_DRAW);
-	VBO indirectBuffer(20, gl::DRAW_INDIRECT_BUFFER, gl::STATIC_DRAW);
-	VBO perInstanceBuffer(sizeof(PerInstance), gl::ARRAY_BUFFER, gl::STATIC_DRAW);
+	gl::VBO vertexBuffer(32, gl::ARRAY_BUFFER, gl::STATIC_DRAW);
+	gl::VBO elementsBuffer(sizeof(uint32_t), gl::ELEMENT_ARRAY_BUFFER, gl::STATIC_DRAW);
+	gl::VBO indirectBuffer(20, gl::DRAW_INDIRECT_BUFFER, gl::STATIC_DRAW);
+	gl::VBO perInstanceBuffer(sizeof(PerInstance), gl::ARRAY_BUFFER, gl::STATIC_DRAW);
 	
 	LoadComponents(vertexBuffer, elementsBuffer);
 
@@ -117,8 +117,8 @@ int main() {
 
 
 
-	auto indirect = indirectBuffer.Buffer<Atr<int, 5>>();
-	auto perInstance = perInstanceBuffer.Buffer<Atr<PerInstance, 1>>();
+	auto indirect = indirectBuffer.Buffer<gl::Atr<int, 5>>();
+	auto perInstance = perInstanceBuffer.Buffer<gl::Atr<PerInstance, 1>>();
 	int I = 0;
 	for(int i=0; i<OBJECTS_COUNT; ++i) {
 		int components = (rand()%30) + 3;
@@ -155,7 +155,7 @@ int main() {
 	perInstanceBuffer.Update(0, 1000000000);
 											PRINT_ERROR;
 
-	VAO drawVao(gl::TRIANGLES);
+	gl::VAO drawVao(gl::TRIANGLES);
 											PRINT_ERROR;
 											
 	drawVao.SetAttribPointer(vertexBuffer,
@@ -215,7 +215,7 @@ int main() {
 											PRINT_ERROR;
 
 	printf(" I = %i\n", I);
-	while(!glfwWindowShouldClose(openGL.window)) {
+	while(!glfwWindowShouldClose(gl::openGL.window)) {
 											PRINT_ERROR;
 		GLfloat currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
@@ -227,14 +227,14 @@ int main() {
 		DoMovement();
 											PRINT_ERROR;
 
-		openGL.InitFrame();
+		gl::openGL.InitFrame();
 
 											PRINT_ERROR;
 		renderShader.Use();
 											PRINT_ERROR;
 
 		glm::mat4 projection = glm::perspective(45.0f,
-				(float)openGL.GetWidth()/(float)openGL.GetHeight(), 0.1f,
+				(float)gl::openGL.GetWidth()/(float)gl::openGL.GetHeight(), 0.1f,
 				10000.0f);
 		glm::mat4 view = camera.getViewMatrix();
 
@@ -251,12 +251,12 @@ int main() {
 		drawVao.Draw();
 											PRINT_ERROR;
 
-		openGL.SwapBuffer();
+		gl::openGL.SwapBuffer();
 											PRINT_ERROR;
 	}
 											PRINT_ERROR;
 
-	openGL.Destroy();
+	gl::openGL.Destroy();
 	glfwTerminate();
 
 
@@ -318,8 +318,8 @@ void ScrollCallback(GLFWwindow * window, double xOffset, double yOffset) {
 	camera.ProcessMouseScroll(yOffset);
 }
 
-int32_t LoadComponents(VBO& vertices, VBO& elements) {
-	auto buf = vertices.Buffer<Atr<VertexStructure, 1>>();
+int32_t LoadComponents(gl::VBO& vertices, gl::VBO& elements) {
+	auto buf = vertices.Buffer<gl::Atr<VertexStructure, 1>>();
 	vertices.ReserveResizeVertices(8);
 	elements.ReserveResizeVertices(12*3);
 	buf.At<0>(0).pos = glm::vec3(-1, -1, 1);

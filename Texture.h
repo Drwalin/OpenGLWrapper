@@ -130,35 +130,35 @@ namespace gl {
 		RGBA32I = GL_RGBA32I,
 		RGBA32UI = GL_RGBA32UI,
 	};
-}
 
-class Texture {
-private:
-	
-	unsigned int width, height;
-	unsigned int textureID;
-	
-public:
-	
-	bool Loaded() const;
-	unsigned int GetWidth() const;
-	unsigned int GetHeight() const;
-	
-	int Load(const char* fileName, int paramWrap, int paramFilter,
-			bool generateMipMap);		// return 0 if no errors
-	void UpdateTextureData(const void* data, unsigned w, unsigned h,
-			int paramWrap, int paramFilter, bool generateMipMap,
-			gl::TextureTarget target, gl::TextureDataFormat internalformat,
-			gl::TextureDataFormat dataformat, gl::DataType datatype);
-	
-	void Bind() const;
-	unsigned int GetTexture() const;
-	
-	void Destroy();
-	
-	Texture();
-	~Texture();
-};
+	class Texture {
+	private:
+		
+		unsigned int width, height;
+		unsigned int textureID;
+		
+	public:
+		
+		bool Loaded() const;
+		unsigned int GetWidth() const;
+		unsigned int GetHeight() const;
+		
+		int Load(const char* fileName, int paramWrap, int paramFilter,
+				bool generateMipMap);		// return 0 if no errors
+		void UpdateTextureData(const void* data, unsigned w, unsigned h,
+				int paramWrap, int paramFilter, bool generateMipMap,
+				gl::TextureTarget target, gl::TextureDataFormat internalformat,
+				gl::TextureDataFormat dataformat, gl::DataType datatype);
+		
+		void Bind() const;
+		unsigned int GetTexture() const;
+		
+		void Destroy();
+		
+		Texture();
+		~Texture();
+	};
+}
 
 #endif
 

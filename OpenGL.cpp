@@ -25,8 +25,7 @@
 
 #include <cstdio>
 
-GLenum errorCheck(int line, const char* file);
-#define PRINT_ERROR errorCheck(__LINE__, __FILE__);
+namespace gl {
 
 OpenGL openGL;
 
@@ -107,54 +106,54 @@ unsigned int OpenGL::GetHeight() const {
 int OpenGL::Init(const char* windowName, unsigned int width,
 		unsigned int height, bool resizable, bool fullscreen,
 		int majorOpenglVersion, int minorOpenglVersion) {
-	PRINT_ERROR;
+	GL_CHECK_PUSH_ERROR;
 	glfwInit();
-	PRINT_ERROR;
+	GL_CHECK_PUSH_ERROR;
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, majorOpenglVersion);
-	PRINT_ERROR;
+	GL_CHECK_PUSH_ERROR;
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, minorOpenglVersion);
-	PRINT_ERROR;
+	GL_CHECK_PUSH_ERROR;
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	PRINT_ERROR;
+	GL_CHECK_PUSH_ERROR;
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-	PRINT_ERROR;
+	GL_CHECK_PUSH_ERROR;
     glfwWindowHint(GLFW_RESIZABLE, resizable);
-	PRINT_ERROR;
+	GL_CHECK_PUSH_ERROR;
 	window = glfwCreateWindow(width, height, windowName,
 			fullscreen ? glfwGetPrimaryMonitor() : NULL, NULL);
-	PRINT_ERROR;
+	GL_CHECK_PUSH_ERROR;
 	if(window == NULL) {
 		printf("\n Failed to create GLFW window! ");
 		return 1;
 	}
-	PRINT_ERROR;
+	GL_CHECK_PUSH_ERROR;
 	glfwGetFramebufferSize(window, (int*)&(this->width), (int*)&(this->height));
-	PRINT_ERROR;
+	GL_CHECK_PUSH_ERROR;
 	
 	
 	glfwSetKeyCallback(window, OpenGLKeyCallback);
-	PRINT_ERROR;
+	GL_CHECK_PUSH_ERROR;
 	glfwSetCursorPosCallback(window, OpenGLMouseCallback);
-	PRINT_ERROR;
+	GL_CHECK_PUSH_ERROR;
 	glfwSetScrollCallback(window, OpenGLScrollCallback);
-	PRINT_ERROR;
+	GL_CHECK_PUSH_ERROR;
 	glfwSetWindowSizeCallback(window, OpenGLWindowResizeCallback);
-	PRINT_ERROR;
+	GL_CHECK_PUSH_ERROR;
 	glfwSetMouseButtonCallback(window, OpenGLMouseButtonCallback);
-	PRINT_ERROR;
+	GL_CHECK_PUSH_ERROR;
 	
 	
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	PRINT_ERROR;
+	GL_CHECK_PUSH_ERROR;
 	glfwMakeContextCurrent(window);
-	PRINT_ERROR;
+	GL_CHECK_PUSH_ERROR;
 	glewExperimental = GL_TRUE;
 	if(GLEW_OK != glewInit()) {
-	PRINT_ERROR;
+	GL_CHECK_PUSH_ERROR;
 	    printf("\n Failed to initialize GLEW! ");
 	    return 2;
 	}
-	PRINT_ERROR;
+	GL_CHECK_PUSH_ERROR;
 	return 0;
 }
 
@@ -175,23 +174,23 @@ void OpenGL::SetMouseCallback(void (callback)(GLFWwindow*, double, double)) {
 
 
 void OpenGL::InitGraphic() {
-	PRINT_ERROR;
+	GL_CHECK_PUSH_ERROR;
 	glViewport(0, 0, width, height);
-	PRINT_ERROR;
+	GL_CHECK_PUSH_ERROR;
 	glEnable(GL_DEPTH_TEST);
-	PRINT_ERROR;
+	GL_CHECK_PUSH_ERROR;
 	glEnable(GL_BLEND);
-	PRINT_ERROR;
+	GL_CHECK_PUSH_ERROR;
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	PRINT_ERROR;
+	GL_CHECK_PUSH_ERROR;
 	glDepthFunc(GL_LESS);
-	PRINT_ERROR;
+	GL_CHECK_PUSH_ERROR;
 	
-// 	PRINT_ERROR;
+// 	GL_CHECK_PUSH_ERROR;
 // 	glEnable(GL_ALPHA_TEST);
-// 	PRINT_ERROR;
+// 	GL_CHECK_PUSH_ERROR;
 // 	glAlphaFunc(GL_GREATER, 0.5);
-// 	PRINT_ERROR;
+// 	GL_CHECK_PUSH_ERROR;
 }
 
 void OpenGL::InitFrame() {
@@ -262,6 +261,73 @@ void OpenGLMouseButtonCallback(GLFWwindow* window, int button,
 		int a = 0;
 		a *= 3;
 	}
+}
+
+
+
+int OpenGL::StackError(int line, const char* file) {
+	ErrorStruct err;
+	err.code = glGetError();
+	if(err.code != GL_NO_ERROR) {
+		err.msg = (const char*)gluErrorString(err.code);
+		err.line = line;
+		err.file = file;
+		errors.emplace_back(err);
+	}
+	return err.code;
+}
+
+int OpenGL::PrintError(ErrorStruct err) {
+	fprintf(stderr, "%s:%i -> OpenGL error [%i]: %s\n", err.file, err.line,
+			err.code, err.msg);
+	fflush(stderr);
+}
+
+void OpenGL::PrintErrors() {
+	for(int i=0; i<errors.size(); ++i) {
+		PrintError(errors[i]);
+	}
+}
+
+void OpenGL::PrintLastError() {
+	PrintError(errors.back());
+}
+
+OpenGL::ErrorStruct OpenGL::GetLastError() {
+	if(errors.size() > 0) {
+		return errors.back();
+	}
+	return ErrorStruct{GL_NO_ERROR};
+}
+
+OpenGL::ErrorStruct OpenGL::PopError() {
+	auto err = GetLastError();
+	if(errors.size() > 0)
+		errors.pop_back();
+	return err;
+}
+
+std::vector<OpenGL::ErrorStruct>& OpenGL::GetErrors() {
+	return errors;
+}
+
+void OpenGL::ClearErrors() {
+	errors.clear();
+}
+
+
+
+GLenum errorCheck(int line, const char* file) {
+	GLenum code = glGetError();
+	const GLubyte* string;
+	if(code != GL_NO_ERROR) {
+		string = gluErrorString(code);
+		fprintf(stderr, "%s:%i -> OpenGL error [%i]: %s\n", file, line, code, string);
+		exit(311);
+	}
+	return code;
+}
+
 }
 
 #endif

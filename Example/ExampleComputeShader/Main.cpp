@@ -22,20 +22,6 @@ GLfloat lastFrame = 0.0f;
 
 
 
-GLenum errorCheck(int line, const char* file) {
-	GLenum code;
-	const GLubyte* string;
-	code = glGetError();
-	if(code != GL_NO_ERROR) {
-		string = gluErrorString(code);
-		fprintf(stderr, "%s:%i -> OpenGL error [%i]: %s\n", file, line, code, string);
-		exit(311);
-	}
-	return code;
-}
-
-#define 										PRINT_ERROR errorCheck(__LINE__, __FILE__);
-
 
 #include <cstdio>
 
@@ -62,23 +48,23 @@ int main() {
 	srand(time(NULL));
 	map1.reserve(1024*1024);
 	map2.reserve(1024*1024);
-    openGL.Init("Window test name 311", 800, 600, true, false);
-    openGL.InitGraphic();
-    openGL.SetKeyCallback(KeyCallback);
+	gl::openGL.Init("Window test name 311", 800, 600, true, false);
+    gl::openGL.InitGraphic();
+    gl::openGL.SetKeyCallback(KeyCallback);
 	
-	Shader computeShader, emptyShader;
+	gl::Shader computeShader, emptyShader;
 	computeShader.Load("compute.glsl");
 	
-	VBO indirectBuffer(32, gl::DRAW_INDIRECT_BUFFER, gl::STREAM_DRAW);
-	VBO atomicBuffer(4, gl::SHADER_STORAGE_BUFFER, gl::DYNAMIC_DRAW);
-	VBO infosBuffer(sizeof(Object), gl::ARRAY_BUFFER, gl::STREAM_DRAW);
+	gl::VBO indirectBuffer(32, gl::DRAW_INDIRECT_BUFFER, gl::STREAM_DRAW);
+	gl::VBO atomicBuffer(4, gl::SHADER_STORAGE_BUFFER, gl::DYNAMIC_DRAW);
+	gl::VBO infosBuffer(sizeof(Object), gl::ARRAY_BUFFER, gl::STREAM_DRAW);
 	
 	indirectBuffer.ReserveResizeVertices(OBJECTS_COUNT*32);
 	indirectBuffer.Generate();
 	atomicBuffer.ReserveResizeVertices(640);
 	atomicBuffer.Generate();
 	infosBuffer.ReserveResizeVertices(OBJECTS_COUNT);
-    auto buf = infosBuffer.Buffer<Atr<Object, 1>>();
+    auto buf = infosBuffer.Buffer<gl::Atr<Object, 1>>();
 	int sum = 0;
 	for(int i=0; i<OBJECTS_COUNT; ++i) {
 		buf.At<0>(i).pos = {rand(), rand()};
@@ -98,13 +84,13 @@ int main() {
 	
 	int FRAME = 0;
 	
-    while(!glfwWindowShouldClose(openGL.window) && FRAME<4) {
+    while(!glfwWindowShouldClose(gl::openGL.window) && FRAME<4) {
 		++FRAME;
         GLfloat currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
         glfwPollEvents();
-        openGL.InitFrame();
+        gl::openGL.InitFrame();
         
 		
 		
@@ -139,7 +125,7 @@ int main() {
 		
 // 		int components = *(unsigned*)&(atomicBuffer.Buffer()[0]);
 		int components = sum;
-		auto buf = indirectBuffer.Buffer<Atr<uint32_t, 5>>();
+		auto buf = indirectBuffer.Buffer<gl::Atr<uint32_t, 5>>();
 		for(int i=0; i<components; ++i) {
 			if(buf.At<0>(i, 2)) {
 				map2[buf.At<0>(i, 2)]++;
@@ -196,7 +182,7 @@ int main() {
 		
 		printf("\n");
     }
-	openGL.Destroy();
+	gl::openGL.Destroy();
 	glfwTerminate();
     return EXIT_SUCCESS;
 }

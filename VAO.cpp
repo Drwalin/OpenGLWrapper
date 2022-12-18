@@ -18,11 +18,11 @@
 
 #include <cstdio>
 
+#include "OpenGL.h"
 #include "VAO.h"
 #include "VBO.h"
 
-GLenum errorCheck(int line, const char* file);
-#define PRINT_ERROR errorCheck(__LINE__, __FILE__);
+namespace gl {
 
 VAO::VAO(gl::VertexMode mode) : mode(mode) {
 	sizeI = 0;
@@ -42,24 +42,24 @@ VAO::~VAO() {
 void VAO::SetAttribPointer(VBO& vbo, int location, unsigned count,
 		gl::DataType type, bool normalized, unsigned offset, unsigned divisor) {
 	glBindVertexArray(vaoID);
-	PRINT_ERROR;
+	GL_CHECK_PUSH_ERROR;
 	glBindBuffer(vbo.target, vbo.vboID);
-	PRINT_ERROR;
+	GL_CHECK_PUSH_ERROR;
 	if(vbo.target != gl::ELEMENT_ARRAY_BUFFER && vbo.target != gl::DRAW_INDIRECT_BUFFER) {
 		glEnableVertexAttribArray(location);
 		fprintf(stderr, " vertex attrib array location = %i\n", location);
-	PRINT_ERROR;
+	GL_CHECK_PUSH_ERROR;
 		glVertexAttribPointer(location, count, type, normalized, vbo.vertexSize,
 				(void*)(size_t)offset);
-	PRINT_ERROR;
+	GL_CHECK_PUSH_ERROR;
 		glVertexAttribDivisor(location, divisor);
-	PRINT_ERROR;
+	GL_CHECK_PUSH_ERROR;
 	}
-	PRINT_ERROR;
+	GL_CHECK_PUSH_ERROR;
 	glBindVertexArray(0);
-	PRINT_ERROR;
+	GL_CHECK_PUSH_ERROR;
 	glBindBuffer(vbo.target, 0);
-	PRINT_ERROR;
+	GL_CHECK_PUSH_ERROR;
 	if(divisor>0) {
 		instances = std::max(instances, divisor*vbo.vertices);
 	} else if(vbo.target == gl::ELEMENT_ARRAY_BUFFER) {
@@ -96,9 +96,9 @@ void VAO::DrawArrays(unsigned start, unsigned count) {
 }
 
 void VAO::DrawElements(unsigned start, unsigned count) {
-	PRINT_ERROR;
+	GL_CHECK_PUSH_ERROR;
 	glBindVertexArray(vaoID);
-	PRINT_ERROR;
+	GL_CHECK_PUSH_ERROR;
 	void* offset = NULL;
 	switch(typeElements) {
 		case gl::UNSIGNED_BYTE:
@@ -115,17 +115,17 @@ void VAO::DrawElements(unsigned start, unsigned count) {
 			printf(" error in VAO::DrawElements: unusable element internal indexing type\n");
 	}
 	if(instances) {
-	PRINT_ERROR;
+	GL_CHECK_PUSH_ERROR;
 		glDrawElementsInstanced(mode, count, typeElements, offset, instances);
-	PRINT_ERROR;
+	GL_CHECK_PUSH_ERROR;
 	} else {
-	PRINT_ERROR;
+	GL_CHECK_PUSH_ERROR;
 		glDrawElements(mode, count, typeElements, offset);
-	PRINT_ERROR;
+	GL_CHECK_PUSH_ERROR;
 	}
-	PRINT_ERROR;
+	GL_CHECK_PUSH_ERROR;
 	glBindVertexArray(0);
-	PRINT_ERROR;
+	GL_CHECK_PUSH_ERROR;
 }
 
 void VAO::DrawMultiElementsIndirect(void* indirect, int drawCount, size_t stride) {
@@ -148,5 +148,7 @@ void VAO::SetSize(unsigned count) {
 		sizeA = count;
 	else
 		sizeI = count;
+}
+
 }
 
