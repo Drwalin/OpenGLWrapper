@@ -80,6 +80,15 @@ void Shader::Dispatch(uint32_t numGroupsX, uint32_t numGroupsY,
 	glDispatchCompute(numGroupsX, numGroupsY, numGroupsZ);
 }
 
+void Shader::DispatchRoundGroupNumbers(uint32_t numGroupsX, uint32_t numGroupsY,
+		uint32_t numGroupsZ) {
+	glDispatchCompute(
+			this->workgroupSize[0]*((numGroupsX-1+this->workgroupSize[0])/this->workgroupSize[0]),
+			this->workgroupSize[1]*((numGroupsY-1+this->workgroupSize[1])/this->workgroupSize[1]),
+			this->workgroupSize[2]*((numGroupsZ-1+this->workgroupSize[2])/this->workgroupSize[2])
+			);
+}
+
 unsigned Shader::CheckBuildStatus() {
 	int success;
 	glGetProgramiv(program, GL_LINK_STATUS, &success);

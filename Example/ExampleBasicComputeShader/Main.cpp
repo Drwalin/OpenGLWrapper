@@ -1,0 +1,100 @@
+
+#include <cstdio>
+#include <ctime>
+
+#include <algorithm>
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+#include "../../OpenGL.h"
+#include "../../Shader.h"
+#include "../../Texture.h"
+#include "../../VAO.h"
+#include "../../VBO.h"
+
+GLenum errorCheck(int line, const char* file);
+#define 										PRINT_ERROR errorCheck(__LINE__, __FILE__);
+
+const uint32_t OBJECTS_COUNT = 1024*32;
+
+int main() {
+	srand(time(NULL));
+	
+	// init open gl
+    openGL.Init("Window test name 311", 800, 600, true, false);
+    openGL.InitGraphic();
+	
+	// init shaders
+	Shader computeShader, emptyShader;
+	computeShader.Load("compute.glsl");
+	
+	// init data storage objects
+	VBO sourceBuffer(sizeof(uint32_t), gl::ARRAY_BUFFER, gl::DYNAMIC_DRAW);
+	VBO destinyBuffer(sizeof(uint32_t), gl::ARRAY_BUFFER, gl::DYNAMIC_DRAW);
+	sourceBuffer.ReserveResizeVertices(OBJECTS_COUNT);
+	destinyBuffer.ReserveResizeVertices(OBJECTS_COUNT);
+	destinyBuffer.Generate();
+	
+	// init computational data values
+    auto src = sourceBuffer.Buffer<Atr<uint32_t, 1>>();
+	uint32_t sum = 0;
+	for(int i=0; i<OBJECTS_COUNT; ++i) {
+		src.At<0>(i) = i;
+		sum += src.At<0>(i);
+	}
+	// generate data and upload to gpu
+	sourceBuffer.Generate();
+	
+	{
+		// set shader uniform data
+		computeShader.SetInt(computeShader.GetUniformLocation("objectsCount"), OBJECTS_COUNT);
+		
+		// set shader buffer data
+		sourceBuffer.BindBufferBase(gl::SHADER_STORAGE_BUFFER, 4);
+		destinyBuffer.BindBufferBase(gl::SHADER_STORAGE_BUFFER, 5);
+		
+		// call compute shader
+		computeShader.Use();
+		computeShader.DispatchRoundGroupNumbers(1024, 1, 1);
+		emptyShader.Use();
+				
+		// fetch data
+		glMemoryBarrier(GL_ALL_BARRIER_BITS);
+		destinyBuffer.FetchAllDataToHostFromGPU();
+		
+		// validate data
+		int correct=0, wrong=0;
+		auto dst = destinyBuffer.Buffer<Atr<uint32_t, 1>>();
+		for(int i=0; i<OBJECTS_COUNT; ++i) {
+			uint32_t a = src.At<0>(i);
+			uint32_t b = dst.At<0>(i);
+			if(a*sum == b)
+				correct++;
+			else
+				wrong++;
+		}
+		printf(" Correct = %i\n   Wrong = %i\n", correct, wrong);
+	}
+		
+	// deinit opengl
+	openGL.Destroy();
+	glfwTerminate();
+    return 0;
+}
+
+GLenum errorCheck(int line, const char* file) {
+	GLenum code;
+	const GLubyte* string;
+	code = glGetError();
+	if(code != GL_NO_ERROR) {
+		string = gluErrorString(code);
+		fprintf(stderr, "%s:%i -> OpenGL error [%i]: %s\n", file, line, code, string);
+		exit(311);
+	}
+	return code;
+}
+

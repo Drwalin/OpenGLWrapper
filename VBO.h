@@ -152,6 +152,8 @@ public:
 	
 	inline unsigned GetIdGL() const { return vboID; }
 	
+	void BindBufferBase(gl::BufferTarget target, int location);
+	
 private:
 	
 	gl::BufferTarget target;

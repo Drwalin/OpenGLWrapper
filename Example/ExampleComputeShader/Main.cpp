@@ -21,6 +21,22 @@ GLfloat deltaTime = 0.0f;
 GLfloat lastFrame = 0.0f;
 
 
+
+GLenum errorCheck(int line, const char* file) {
+	GLenum code;
+	const GLubyte* string;
+	code = glGetError();
+	if(code != GL_NO_ERROR) {
+		string = gluErrorString(code);
+		fprintf(stderr, "%s:%i -> OpenGL error [%i]: %s\n", file, line, code, string);
+		exit(311);
+	}
+	return code;
+}
+
+#define 										PRINT_ERROR errorCheck(__LINE__, __FILE__);
+
+
 #include <cstdio>
 
 #pragma pack(push, 1)
