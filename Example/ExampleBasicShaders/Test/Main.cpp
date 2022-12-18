@@ -1,18 +1,14 @@
 
-
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
-#include "../../Camera.cpp"
-
 #define DEBUG(x) 
 //printf("\n %i",(int)x);
 
+#include "../../../OpenGL.h"
+#include "../../../Shader.h"
+#include "../../../Texture.h"
+#include "../../../VAO.h"
+#include "../../../VBO.h"
 
+#include "../../Camera.cpp"
 
 // Window dimensions
 //const GLuint WIDTH = 800, HEIGHT = 600;
@@ -21,12 +17,6 @@ void KeyCallback(GLFWwindow * window, int key, int scancode, int action, int mod
 void ScrollCallback(GLFWwindow * window, double xOffset, double yOffset);
 void MouseCallback(GLFWwindow * window, double xPos, double yPos);
 void DoMovement();
-
-#include "../../../OpenGL.h"
-#include "../../../Shader.h"
-#include "../../../Texture.h"
-#include "../../../VAO.h"
-#include "../../../VBO.h"
 
 
 Camera camera(glm::vec3(0.0f,0.0f, 0.0f));

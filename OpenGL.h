@@ -19,14 +19,13 @@
 #ifndef OPEN_GL_ENGINE_H
 #define OPEN_GL_ENGINE_H
 
+#include <vector>
+
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#include "thirdparty/soil2/SOIL2.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-
-#include <vector>
 
 namespace gl {
 	void OpenGLKeyCallback(GLFWwindow* window, int key, int scancode, int action,

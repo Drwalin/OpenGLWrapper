@@ -18,6 +18,8 @@
 
 #include "Texture.h"
 
+#include "thirdparty/soil2/SOIL2.h"
+
 namespace gl {
 
 Texture::Texture() {

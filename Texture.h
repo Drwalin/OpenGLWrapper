@@ -20,7 +20,6 @@
 #define TEXTURE_H
 
 #include <GL/glew.h>
-#include "thirdparty/soil2/SOIL2.h"
 
 #include "OpenGL.h"
 
