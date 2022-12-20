@@ -66,6 +66,28 @@ namespace gl {
 		PROXY_TEXTURE_CUBE_MAP = GL_PROXY_TEXTURE_CUBE_MAP
 	};
 	
+	enum TextureWrapParam : GLenum {
+		REPEAT = GL_REPEAT,
+		CLAMP_TO_EDGE = GL_CLAMP_TO_EDGE,
+		CLAMP_TO_BORDER = GL_CLAMP_TO_BORDER,
+		MIRRORED_REPEAT = GL_MIRRORED_REPEAT,
+		MIRROR_CLAMP_TO_EDGE = GL_MIRROR_CLAMP_TO_EDGE
+	};
+	
+	enum TextureMinFilter : GLenum {
+		NEAREST = GL_NEAREST,
+		LINEAR = GL_LINEAR,
+		NEAREST_MIPMAP_NEAREST = GL_NEAREST_MIPMAP_NEAREST,
+		NEAREST_MIPMAP_LINEAR = GL_NEAREST_MIPMAP_LINEAR,
+		LINEAR_MIPMAP_NEAREST = GL_LINEAR_MIPMAP_NEAREST,
+		LINEAR_MIPMAP_LINEAR = GL_LINEAR_MIPMAP_LINEAR
+	};
+	
+	enum TextureMagFilter : GLenum {
+		MAG_LINEAR = GL_LINEAR,
+		MAG_NEAREST = GL_NEAREST
+	};
+	
 	enum TextureSizedInternalFormat : GLenum {
 		R8 = GL_R8,
 		R8_SNORM = GL_R8_SNORM,
@@ -133,26 +155,38 @@ namespace gl {
 	class Texture {
 	private:
 		
-		unsigned int width, height;
+		int width, height;
 		unsigned int textureID;
+		gl::TextureTarget target;
 		
 	public:
 		
 		bool Loaded() const;
-		unsigned int GetWidth() const;
-		unsigned int GetHeight() const;
+		int GetWidth() const;
+		int GetHeight() const;
 		
-		int Load(const char* fileName, int paramWrap, int paramFilter,
-				bool generateMipMap);		// return 0 if no errors
+		bool Load(const char* fileName, bool generateMipMap,
+				int forceChannelsCount=0);		// return 0 if no errors
 		void UpdateTextureData(const void* data, unsigned w, unsigned h,
-				int paramWrap, int paramFilter, bool generateMipMap,
+				bool generateMipMap,
 				gl::TextureTarget target, gl::TextureDataFormat internalformat,
 				gl::TextureDataFormat dataformat, gl::DataType datatype);
 		
+		void MinFilter(TextureMinFilter filter);
+		void MagFilter(TextureMagFilter filter);
+		void WrapX(TextureWrapParam param);
+		void WrapY(TextureWrapParam param);
+		void WrapZ(TextureWrapParam param);
+		
 		void Bind() const;
 		unsigned int GetTexture() const;
+		void Unbind();
 		
 		void Destroy();
+		
+		static uint8_t* LoadImageData(const char* fileName, int* width,
+				int* height, int* channels, int forceChannelsCount=0);
+		static void FreeImageData(uint8_t* imageData);
 		
 		Texture();
 		~Texture();

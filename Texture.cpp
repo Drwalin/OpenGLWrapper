@@ -36,73 +36,117 @@ bool Texture::Loaded() const {
 	return (bool)textureID;
 }
 
-unsigned int Texture::GetWidth() const {
+int Texture::GetWidth() const {
 	return width;
 }
 
-unsigned int Texture::GetHeight() const {
+int Texture::GetHeight() const {
 	return height;
 }
 
-int Texture::Load(const char* fileName, int paramWrap, int paramFilter,
-		bool generateMipMap) {
-	unsigned char * image = SOIL_load_image(fileName, (int*)&width,
-			(int*)&height, 0, SOIL_LOAD_RGBA);
+bool Texture::Load(const char* fileName,
+		bool generateMipMap, int forceChannelsCount) {
+	int channels = 0;
+	unsigned char * image = LoadImageData(fileName, &width, &height, &channels,
+			forceChannelsCount);
 	if(image==NULL && textureID) {
 		glDeleteTextures(1, &textureID);
 		textureID = width = height = 0;
-		return 1;
+		return false;
 	}
 	
-	UpdateTextureData(image, width, height, paramWrap, paramFilter,
+	TextureDataFormat format = RGBA;
+	switch(forceChannelsCount ? forceChannelsCount : channels) {
+		case 1: format = RED; break;
+		case 2: format = RG; break;
+		case 3: format = RGB; break;
+		case 4: format = RGBA; break;
+		default:
+			glDeleteTextures(1, &textureID);
+			textureID = width = height = 0;
+			return false;
+	}
+	
+	UpdateTextureData(image, width, height,
 			generateMipMap, gl::TEXTURE_2D, gl::RGBA, gl::RGBA, gl::UNSIGNED_BYTE);
-	SOIL_free_image_data(image);
-	return 0;
+	FreeImageData(image);
+	return true;
 }
 
 void Texture::UpdateTextureData(const void* data, unsigned w, unsigned h,
-		int paramWrap, int paramFilter, bool generateMipMap,
+		bool generateMipMap,
 		gl::TextureTarget target, gl::TextureDataFormat internalformat,
 		gl::TextureDataFormat dataformat, gl::DataType datatype) {
-	glEnable(gl::TEXTURE_2D);
-	glBindTexture(gl::TEXTURE_2D, 0);
+	this->target = target;
+	glEnable(target);
+	glBindTexture(target, 0);
 	if(!textureID)
 		glGenTextures(1, &textureID);
-	glBindTexture(gl::TEXTURE_2D, textureID);
+	glBindTexture(target, textureID);
 	
 	width = w;
 	height = h;
-	
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, paramWrap);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, paramWrap);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, paramFilter);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, paramFilter);
 	
 	glTexImage2D(target, 0, internalformat, width, height, 0, dataformat,
 			datatype, data);
 	
 	if(generateMipMap)
-		glGenerateMipmap(gl::TEXTURE_2D);
-	glBindTexture(gl::TEXTURE_2D, 0);
+		glGenerateMipmap(target);
+	
+	glBindTexture(target, 0);
+}
+
+void Texture::MinFilter(TextureMinFilter filter) {
+	glTexParameteri(target, GL_TEXTURE_MIN_FILTER, filter);
+}
+
+void Texture::MagFilter(TextureMagFilter filter) {
+	glTexParameteri(target, GL_TEXTURE_MAG_FILTER, filter);
+}
+
+void Texture::WrapX(TextureWrapParam param) {
+	glTexParameteri(target, GL_TEXTURE_WRAP_S, param);
+}
+
+void Texture::WrapY(TextureWrapParam param) {
+	glTexParameteri(target, GL_TEXTURE_WRAP_T, param);
+}
+
+void Texture::WrapZ(TextureWrapParam param) {
+	glTexParameteri(target, GL_TEXTURE_WRAP_R, param);
 }
 
 void Texture::Bind() const {
-	glEnable(gl::TEXTURE_2D);
-	glBindTexture(gl::TEXTURE_2D, textureID);
+	glEnable(target);
+	glBindTexture(target, textureID);
 }
 
 unsigned int Texture::GetTexture() const {
 	return textureID;
 }
 
+void Texture::Unbind() {
+	glBindTexture(target, 0);
+}
+
 void Texture::Destroy() {
 	if(textureID) {
-		glEnable(gl::TEXTURE_2D);
+		glEnable(target);
 		glDeleteTextures(1, &textureID);
 		width = 0;
 		height = 0;
 		textureID = 0;
 	}
+}
+
+uint8_t* Texture::LoadImageData(const char* fileName, int* width, int* channels,
+		int* height, int forceChannelsCount) {
+	return SOIL_load_image(fileName, width, height, channels,
+			forceChannelsCount);
+}
+
+void Texture::FreeImageData(uint8_t* imageData) {
+	SOIL_free_image_data(imageData);
 }
 
 }

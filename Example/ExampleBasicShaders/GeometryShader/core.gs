@@ -21,7 +21,7 @@ void main() {
 	vec3 grow  = vec3( 3.0, 0.0, 1.0 );
 	float bup  = 4.0;
 	
-	mat4 toview = projection * view;// * model;
+	mat4 toview = projection * view * model;
 	
 	Vert(toview, vec3(0,1,1));
 	Vert(toview, vec3(1,1,1));
