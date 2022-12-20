@@ -25,6 +25,9 @@ namespace Particles_1 {
 	int main();
 }
 
+namespace CircleLine {
+	int main();
+}
 
 
 
@@ -53,6 +56,10 @@ const Entry entries[] = {
 	{
 		"particles_1",
 		Particles_1::main
+	},
+	{
+		"cirlce_line",
+		CircleLine::main
 	}
 };
 

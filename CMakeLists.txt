@@ -33,6 +33,7 @@ if(BUILD_EXAMPLES)
 		samples/ComplexCompute/Main
 		samples/DrawMultiIndirectBuffer/Main
 		samples/Particles_1/Main
+		samples/CircleLine/Main
 	)
 	target_link_libraries(samples OpenGLWrapper)
 endif()
