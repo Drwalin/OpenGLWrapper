@@ -1,14 +1,15 @@
 
 #include <cstring>
 #include <cstdio>
+#include <cerrno>
 
 #include "Camera.hpp"
 
-namespace BasicCompute {
+namespace SimpleCompute {
 	int main();
 }
 
-namespace Basic {
+namespace Simple {
 	int main();
 }
 
@@ -30,12 +31,12 @@ struct Entry {
 
 const Entry entries[] = {
 	{
-		"basic_compute",
-		BasicCompute::main
+		"simple_compute",
+		SimpleCompute::main
 	},
 	{
-		"basic",
-		Basic::main
+		"simple",
+		Simple::main
 	},
 	{
 		"complex_compute",
@@ -48,18 +49,29 @@ const Entry entries[] = {
 };
 
 int main(int argc, char** argv) {
+	int elems_count = sizeof(entries)/sizeof(Entry);
+	
 	if(argc > 1) {
-		for(int i=0; i<sizeof(entries)/sizeof(Entry); ++i) {
+		for(int i=0; i<elems_count; ++i) {
 			if(strcmp(entries[i].name, argv[1]) == 0) {
 				return entries[i].entry();
 			}
 		}
+		
+		char* end;
+		int id = strtol(argv[1], &end, 10);
+		if(!errno) {
+			if(id >= 1 && id <= elems_count) {
+				return entries[id-1].entry();
+			}
+		}
+		
 		printf("There is no sample with name: %s\n", argv[1]);
 	}
 	
 	printf("Available samples:\n");
 	for(int i=0; i<sizeof(entries)/sizeof(Entry); ++i) {
-		printf("    %s\n", entries[i].name);
+		printf("    [%3i] %s\n", i+1, entries[i].name);
 	}
 	printf("\nUsage:\n");
 	printf("%s SAMPLE_NAME\n", argv[0]);

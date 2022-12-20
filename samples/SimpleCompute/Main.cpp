@@ -10,7 +10,7 @@
 #include <openglwrapper/VAO.h>
 #include <openglwrapper/VBO.h>
 
-namespace BasicCompute {
+namespace SimpleCompute {
 	
 const uint32_t OBJECTS_COUNT = 1024*32;
 
@@ -23,7 +23,7 @@ int main() {
 	
 	// init shaders
 	gl::Shader computeShader, emptyShader;
-	computeShader.Load("../Example/ExampleBasicComputeShader/compute.glsl");
+	computeShader.Load("../samples/SimpleCompute/compute.glsl");
 	
 	// init data storage objects
 	gl::VBO sourceBuffer(sizeof(uint32_t), gl::ARRAY_BUFFER, gl::DYNAMIC_DRAW);

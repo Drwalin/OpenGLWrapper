@@ -25,7 +25,7 @@ add_library(OpenGLWrapper SHARED
 
 
 if(BUILD_EXAMPLES)
-	add_executable(samples Example/Example.cpp Example/ExampleBasicShaders/Main Example/ExampleBasicComputeShader/Main Example/ExampleComputeShader/Main Example/ExampleDrawMultiIndirectBuffer/Main Example/Camera.hpp)
+	add_executable(samples samples/Samples.cpp samples/Simple/Main samples/SimpleCompute/Main samples/ComplexCompute/Main samples/DrawMultiIndirectBuffer/Main samples/Camera.hpp)
 	target_link_libraries(samples OpenGLWrapper)
 endif()
 
