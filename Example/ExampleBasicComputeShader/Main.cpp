@@ -10,6 +10,8 @@
 #include <openglwrapper/VAO.h>
 #include <openglwrapper/VBO.h>
 
+namespace BasicCompute {
+	
 const uint32_t OBJECTS_COUNT = 1024*32;
 
 int main() {
@@ -75,5 +77,7 @@ int main() {
 	gl::openGL.Destroy();
 	glfwTerminate();
     return 0;
+}
+
 }
 
