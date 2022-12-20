@@ -19,7 +19,7 @@
 #ifndef OPEN_GL_ENGINE_CPP
 #define OPEN_GL_ENGINE_CPP
 
-#include "OpenGL.h"
+#include <openglwrapper/OpenGL.h>
 
 #include <cstdio>
 

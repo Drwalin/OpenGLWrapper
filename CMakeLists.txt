@@ -6,15 +6,16 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 option(BUILD_EXAMPLES "Build examples" ON)
 
-include_directories(./)
-
+include_directories(./include/)
+aux_source_directory(./include/openglwrapper/ header_files)
 
 add_library(OpenGLWrapper SHARED
-	OpenGL.cpp OpenGL.h
-	Texture.cpp Texture.h
-	Shader.cpp Shader.h
-	VAO.cpp VAO.h
-	VBO.cpp VBO.h
+	${header_files}
+	src/OpenGL.cpp
+	src/Texture.cpp
+	src/Shader.cpp
+	src/VAO.cpp
+	src/VBO.cpp
 	thirdparty/soil2/SOIL2.c
 	thirdparty/soil2/etc1_utils.c
 	thirdparty/soil2/image_helper.c
