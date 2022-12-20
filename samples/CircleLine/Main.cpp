@@ -13,25 +13,24 @@
 
 #include "../Camera.hpp"
 
+#include <openglwrapper/OpenGL.h>
+#include <openglwrapper/Shader.h>
+#include <openglwrapper/Texture.h>
+#include <openglwrapper/VAO.h>
+#include <openglwrapper/VBO.h>
+
+namespace CircleLine {
 
 void KeyCallback(GLFWwindow * window, int key, int scancode, int action, int mode);
 void ScrollCallback(GLFWwindow * window, double xOffset, double yOffset);
 void MouseCallback(GLFWwindow * window, double xPos, double yPos);
 void DoMovement();
 
-#include <OpenGL.h>
-#include <Shader.h>
-#include <Texture.h>
-#include <VAO.h>
-#include <VBO.h>
-
-
 Camera camera(glm::vec3(0.0f,0.0f, 0.0f));
 GLfloat lastX = 0.0;//WIDTH/2.0;
 GLfloat lastY = 0.0;//WIDTH/2.0;
 bool keys[1024];
 bool firstMouse = true;
-
 
 GLfloat deltaTime = 0.0f;
 GLfloat lastFrame = 0.0f;
@@ -40,24 +39,25 @@ float randf(float min, float max) {
 	return (max-min)*(rand()) / (float)RAND_MAX + min;
 }
 
-#include <cstdio>
-
 glm::vec2 scale(1,1), offset(0,0);
 
 int main() {
-	openGL.Init("Window test name 311", 800, 600, true, false);
-	openGL.InitGraphic();
+	gl::openGL.Init("Window test name 311", 800, 600, true, false);
+	gl::openGL.InitGraphic();
 	
-	glfwSetKeyCallback(openGL.window, KeyCallback);
-	glfwSetCursorPosCallback(openGL.window, MouseCallback);
-	glfwSetScrollCallback(openGL.window, ScrollCallback);
+	glfwSetKeyCallback(gl::openGL.window, KeyCallback);
+	glfwSetCursorPosCallback(gl::openGL.window, MouseCallback);
+	glfwSetScrollCallback(gl::openGL.window, ScrollCallback);
 	
-	Shader shaderLine;
-	shaderLine.Load("vert.line.c", NULL, "frag.line.c");
+	gl::Shader shaderLine;
+	shaderLine.Load(
+			"../samples/CircleLine/vertex.glsl",
+			NULL,
+			"../samples/CircleLine/fragment.glsl");
 	
-	VBO vbo(2*sizeof(float), GL_ARRAY_BUFFER, GL_STATIC_DRAW);
+	gl::VBO vbo(2*sizeof(float), gl::ARRAY_BUFFER, gl::STATIC_DRAW);
 	
-	auto buf = vbo.Buffer<Atr<glm::vec2, 1>>();
+	auto buf = vbo.Buffer<gl::Atr<glm::vec2, 1>>();
 	int i=0;
 	float t=0;
 	for(; t<(2.0*3.141592f); t+=0.01, ++i) {
@@ -67,16 +67,16 @@ int main() {
 	}
 	vbo.Generate();
 	
-	VAO vao(GL_LINE_LOOP);
+	gl::VAO vao(gl::LINE_LOOP);
 	vao.SetAttribPointer(vbo, shaderLine.GetAttributeLocation("position"),
-			2, GL_FLOAT, false, 0);
+			2, gl::FLOAT, false, 0);
 	
 	unsigned scaleLoc =    shaderLine.GetUniformLocation("scale");
 	unsigned offsetLoc =   shaderLine.GetUniformLocation("offset");
 	unsigned colorLoc =    shaderLine.GetUniformLocation("color");
 	unsigned viewportloc = shaderLine.GetUniformLocation("viewport_size");
 	
-	while(!glfwWindowShouldClose(openGL.window)) {
+	while(!glfwWindowShouldClose(gl::openGL.window)) {
 		/*
 		GLfloat currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
@@ -84,7 +84,7 @@ int main() {
 		*/
 		glfwPollEvents();
 		
-		openGL.InitFrame();
+		gl::openGL.InitFrame();
 		
 		shaderLine.Use();
 		glm::vec4 color(0.9, 0.4, 0.1, 1.0);
@@ -93,11 +93,11 @@ int main() {
 		shaderLine.SetVec2(scaleLoc, scale);
 		shaderLine.SetVec2(offsetLoc, offset);
 		shaderLine.SetVec4(colorLoc, color);
-		shaderLine.SetVec2(viewportloc, glm::vec2(openGL.width, openGL.height));
+		shaderLine.SetVec2(viewportloc, glm::vec2(gl::openGL.width, gl::openGL.height));
 		
 		vao.Draw();
 		
-		openGL.SwapBuffer();
+		gl::openGL.SwapBuffer();
 	}
 	
 	return EXIT_SUCCESS;
@@ -106,12 +106,12 @@ int main() {
 void KeyCallback(GLFWwindow * window, int key, int scancode, int action,
 		int mode) {
 	if(GLFW_KEY_ESCAPE == key && action == GLFW_PRESS) {
-		glfwSetWindowShouldClose(window, GL_TRUE);
+		glfwSetWindowShouldClose(window, true);
 	}
 	if(key >= 0 && key <= 1024) {
 		if(GLFW_PRESS == action) {
 			if(key == GLFW_KEY_P)
-				openGL.SetFullscreen(!openGL.IsFullscreen());
+				gl::openGL.SetFullscreen(!gl::openGL.IsFullscreen());
 			keys[key] = true;
 		} else if(GLFW_RELEASE == action) {
 			keys[key] = false;
@@ -144,5 +144,5 @@ void ScrollCallback(GLFWwindow * window, double xOffset, double yOffset) {
 	offset *= scale;
 }
 
-
+}
 
