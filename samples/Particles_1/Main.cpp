@@ -4,19 +4,18 @@
 #include <cstdlib>
 #include <functional>
 
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
 #include "../Camera.hpp"
 
 #define DEBUG(x) 
 //printf("\n %i",(int)x);
 
+#include <openglwrapper/OpenGL.h>
+#include <openglwrapper/Shader.h>
+#include <openglwrapper/Texture.h>
+#include <openglwrapper/VAO.h>
+#include <openglwrapper/VBO.h>
 
+namespace Particles_1 {
 
 // Window dimensions
 //const GLuint WIDTH = 800, HEIGHT = 600;
@@ -25,12 +24,6 @@ void KeyCallback(GLFWwindow * window, int key, int scancode, int action, int mod
 void ScrollCallback(GLFWwindow * window, double xOffset, double yOffset);
 void MouseCallback(GLFWwindow * window, double xPos, double yPos);
 void DoMovement();
-
-#include <OpenGL.h>
-#include <Shader.h>
-#include <Texture.h>
-#include <VAO.h>
-#include <VBO.h>
 
 
 Camera camera(glm::vec3(0.0f,0.0f, 0.0f));
@@ -47,22 +40,23 @@ float randf(float min, float max) {
 	return (max-min)*(rand()) / (float)RAND_MAX + min;
 }
 
-#include <cstdio>
-
 int main() {
-	openGL.Init("Window test name 311", 800, 600, true, false);
-	openGL.InitGraphic();
+	gl::openGL.Init("Window test name 311", 800, 600, true, false);
+	gl::openGL.InitGraphic();
 	
-	glfwSetKeyCallback(openGL.window, KeyCallback);
-	glfwSetCursorPosCallback(openGL.window, MouseCallback);
-	glfwSetScrollCallback(openGL.window, ScrollCallback);
+	glfwSetKeyCallback(gl::openGL.window, KeyCallback);
+	glfwSetCursorPosCallback(gl::openGL.window, MouseCallback);
+	glfwSetScrollCallback(gl::openGL.window, ScrollCallback);
 	
-	Shader ourShader;
-	ourShader.Load("vs.core.c", "gs.core.c", "fs.core.c");
+	gl::Shader ourShader;
+	ourShader.Load(
+			"../samples/Particles_1/vertex.glsl",
+			"../samples/Particles_1/geometry.glsl",
+			"../samples/Particles_1/fragment.glsl");
 	
-	VBO vbo(11*sizeof(float), GL_ARRAY_BUFFER, GL_STATIC_DRAW);
-	auto buf = vbo.Buffer<Atr<glm::vec3, 2>, Atr<float, 1>, Atr<glm::vec4, 1>>();
-	for(int i = 1000; i >= 0; --i) {
+	gl::VBO vbo(11*sizeof(float), gl::ARRAY_BUFFER, gl::STATIC_DRAW);
+	auto buf = vbo.Buffer<gl::Atr<glm::vec3, 2>, gl::Atr<float, 1>, gl::Atr<glm::vec4, 1>>();
+	for(int i = 10000; i >= 0; --i) {
 		auto rnd = std::bind(randf, -0.1, 0.1);
 		buf.At<0>(i, 0) = glm::vec3(rnd(), rnd(), rnd())*0.4f;
 		buf.At<0>(i, 1) = glm::vec3(rnd()*10, 20*rnd()+25, 3+rnd()*10);
@@ -77,26 +71,31 @@ int main() {
 	}
 	vbo.Generate();
 	
-	VAO vao(GL_POINTS);
+	gl::VAO vao(gl::POINTS);
 	vao.SetAttribPointer(vbo, ourShader.GetAttributeLocation("position"), 3,
-			GL_FLOAT, false, 0);
+			gl::FLOAT, false, 0);
 	vao.SetAttribPointer(vbo, ourShader.GetAttributeLocation("startVelocity"), 3,
-			GL_FLOAT, false, 12);
+			gl::FLOAT, false, 12);
 	vao.SetAttribPointer(vbo, ourShader.GetAttributeLocation("lifeTime"), 1,
-			GL_FLOAT, false, 24);
+			gl::FLOAT, false, 24);
 	vao.SetAttribPointer(vbo, ourShader.GetAttributeLocation("color"), 4,
-			GL_FLOAT, false, 28);
+			gl::FLOAT, false, 28);
 	
 	unsigned timeUniformLocation = ourShader.GetUniformLocation("time");
 	unsigned accelerationLoc = ourShader.GetUniformLocation("acceleration");
 	
-	Texture texture;
-	texture.Load("image.jpg", GL_REPEAT, GL_NEAREST, false);
+	gl::Texture texture;
+	texture.Load("../samples/Simple/image.jpg", false);
+	
+	texture.MinFilter(gl::NEAREST);
+	texture.MagFilter(gl::MAG_NEAREST);
+	texture.WrapX(gl::REPEAT);
+	texture.WrapY(gl::REPEAT);
 	
 	ourShader.SetTexture(ourShader.GetUniformLocation("ourTexture1"), &texture,
 			0);
 	
-	while(!glfwWindowShouldClose(openGL.window)) {
+	while(!glfwWindowShouldClose(gl::openGL.window)) {
 		GLfloat currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
@@ -104,7 +103,7 @@ int main() {
 		glfwPollEvents();
 		DoMovement();
 		
-		openGL.InitFrame();
+		gl::openGL.InitFrame();
 		
 		
 		
@@ -112,7 +111,7 @@ int main() {
 		ourShader.Use();
 		
 		glm::mat4 projection = glm::perspective(45.0f,
-				(float)openGL.GetWidth()/(float)openGL.GetHeight(), 0.1f,
+				(float)gl::openGL.GetWidth()/(float)gl::openGL.GetHeight(), 0.1f,
 				10000.0f);
 		
 		// Create transformations
@@ -144,7 +143,7 @@ int main() {
 			}
 		}
 		
-		openGL.SwapBuffer();
+		gl::openGL.SwapBuffer();
 	}
 	
 	return EXIT_SUCCESS;
@@ -174,12 +173,12 @@ void DoMovement() {
 void KeyCallback(GLFWwindow * window, int key, int scancode, int action,
 		int mode) {
 	if(GLFW_KEY_ESCAPE == key && action == GLFW_PRESS) {
-		glfwSetWindowShouldClose(window, GL_TRUE);
+		glfwSetWindowShouldClose(window, true);
 	}
 	if(key >= 0 && key <= 1024) {
 		if(GLFW_PRESS == action) {
 			if(key == GLFW_KEY_P)
-				openGL.SetFullscreen(!openGL.IsFullscreen());
+				gl::openGL.SetFullscreen(!gl::openGL.IsFullscreen());
 			keys[key] = true;
 		} else if(GLFW_RELEASE == action) {
 			keys[key] = false;
@@ -207,5 +206,5 @@ void ScrollCallback(GLFWwindow * window, double xOffset, double yOffset) {
 	camera.ProcessMouseScroll(yOffset);
 }
 
-
+}
 
