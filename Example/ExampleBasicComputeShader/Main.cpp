@@ -4,11 +4,11 @@
 
 #include <algorithm>
 
-#include "../../OpenGL.h"
-#include "../../Shader.h"
-#include "../../Texture.h"
-#include "../../VAO.h"
-#include "../../VBO.h"
+#include <openglwrapper/OpenGL.h>
+#include <openglwrapper/Shader.h>
+#include <openglwrapper/Texture.h>
+#include <openglwrapper/VAO.h>
+#include <openglwrapper/VBO.h>
 
 const uint32_t OBJECTS_COUNT = 1024*32;
 

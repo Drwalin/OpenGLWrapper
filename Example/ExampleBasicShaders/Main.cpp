@@ -2,11 +2,11 @@
 #define DEBUG(x) 
 //printf("\n %i",(int)x);
 
-#include "../../OpenGL.h"
-#include "../../Shader.h"
-#include "../../Texture.h"
-#include "../../VAO.h"
-#include "../../VBO.h"
+#include <openglwrapper/OpenGL.h>
+#include <openglwrapper/Shader.h>
+#include <openglwrapper/Texture.h>
+#include <openglwrapper/VAO.h>
+#include <openglwrapper/VBO.h>
 
 #include "../Camera.hpp"
 

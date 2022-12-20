@@ -18,9 +18,9 @@
 
 #include <cstdio>
 
-#include "OpenGL.h"
-#include "VAO.h"
-#include "VBO.h"
+#include <openglwrapper/OpenGL.h>
+#include <openglwrapper/VAO.h>
+#include <openglwrapper/VBO.h>
 
 namespace gl {
 
