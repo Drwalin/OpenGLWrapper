@@ -1,5 +1,5 @@
 
-#include "../Camera.cpp"
+#include "../Camera.hpp"
 
 #include <cstdio>
 

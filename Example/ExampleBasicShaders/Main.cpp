@@ -8,7 +8,7 @@
 #include "../../VAO.h"
 #include "../../VBO.h"
 
-#include "../Camera.cpp"
+#include "../Camera.hpp"
 
 // Window dimensions
 //const GLuint WIDTH = 800, HEIGHT = 600;

@@ -11,7 +11,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "../Camera.cpp"
+#include "../Camera.hpp"
 
 #define DEBUG(x) 
 //printf("\n %i",(int)x);
