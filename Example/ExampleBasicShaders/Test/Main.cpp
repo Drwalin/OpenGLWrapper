@@ -58,7 +58,7 @@ int main() {
     
     
 	gl::Texture texture;
-    texture.Load("image.jpg", GL_REPEAT, GL_NEAREST, false);
+    texture.Load("image.jpg", false, 4);
     
     ourShader.SetTexture(ourShader.GetUniformLocation("ourTexture1"), &texture,
 			0);
