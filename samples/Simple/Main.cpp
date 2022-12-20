@@ -11,7 +11,7 @@
 
 #include "../Camera.hpp"
 
-namespace Basic {
+namespace Simple {
 
 // Window dimensions
 //const GLuint WIDTH = 800, HEIGHT = 600;
@@ -40,9 +40,9 @@ int main() {
     
     gl::Shader ourShader;
 	ourShader.Load(
-			"../Example/ExampleBasicShaders/vertex.glsl",
-			"../Example/ExampleBasicShaders/geometry.glsl",
-			"../Example/ExampleBasicShaders/fragment.glsl");
+			"../samples/Simple/vertex.glsl",
+			"../samples/Simple/geometry.glsl",
+			"../samples/Simple/fragment.glsl");
     
     
     gl::VBO vbo(3*sizeof(float), gl::ARRAY_BUFFER, gl::STATIC_DRAW);
@@ -58,7 +58,7 @@ int main() {
     
     
 	gl::Texture texture;
-    texture.Load("../Example/ExampleBasicShaders/image.jpg", false, 4);
+    texture.Load("../samples/Simple/image.jpg", false, 4);
     
     ourShader.SetTexture(ourShader.GetUniformLocation("ourTexture1"), &texture,
 			0);
