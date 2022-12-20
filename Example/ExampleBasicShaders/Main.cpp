@@ -1,4 +1,5 @@
 
+#include <cstdio>
 #define DEBUG(x) 
 //printf("\n %i",(int)x);
 
@@ -10,6 +11,8 @@
 
 #include "../Camera.hpp"
 
+namespace Basic {
+
 // Window dimensions
 //const GLuint WIDTH = 800, HEIGHT = 600;
 //int SCREEN_WIDTH, SCREEN_HEIGHT;
@@ -18,19 +21,14 @@ void ScrollCallback(GLFWwindow * window, double xOffset, double yOffset);
 void MouseCallback(GLFWwindow * window, double xPos, double yPos);
 void DoMovement();
 
-
 Camera camera(glm::vec3(0.0f,0.0f, 0.0f));
 GLfloat lastX = 0.0;//WIDTH/2.0;
 GLfloat lastY = 0.0;//WIDTH/2.0;
 bool keys[1024];
 bool firstMouse = true;
 
-
 GLfloat deltaTime = 0.0f;
 GLfloat lastFrame = 0.0f;
-
-
-#include <cstdio>
 
 int main() {
 	gl::openGL.Init("Window test name 311", 800, 600, true, false);
@@ -176,11 +174,8 @@ void MouseCallback(GLFWwindow * window, double xPos, double yPos) {
 }
 
 void ScrollCallback(GLFWwindow * window, double xOffset, double yOffset) {
-
     camera.ProcessMouseScroll(yOffset);
-    
-
 }
 
-
+}
 

@@ -1,5 +1,9 @@
 
 #include <algorithm>
+#include <cstdio>
+#include <map>
+#include <unordered_map>
+#include <ctime>
 
 #include <openglwrapper/OpenGL.h>
 #include <openglwrapper/Shader.h>
@@ -7,15 +11,14 @@
 #include <openglwrapper/VAO.h>
 #include <openglwrapper/VBO.h>
 
+namespace ComplexCompute {
+
 bool keys[1024];
 
 void KeyCallback(GLFWwindow * window, int key, int scancode, int action, int mode);
 
 GLfloat deltaTime = 0.0f;
 GLfloat lastFrame = 0.0f;
-
-
-#include <cstdio>
 
 #pragma pack(push, 1)
 struct Object {
@@ -31,11 +34,8 @@ struct Object {
 const uint32_t OBJECTS_COUNT = 1024*512*2;
 const uint32_t COMPS = 32;
 
-#include <map>
-#include <unordered_map>
 std::unordered_map<int, int> map1, map2;
 
-#include <ctime>
 int main() {
 	srand(time(NULL));
 	map1.reserve(1024*1024);
@@ -190,5 +190,7 @@ void KeyCallback(GLFWwindow * window, int key, int scancode, int action, int mod
             keys[key] = false;
         }
     }
+}
+
 }
 

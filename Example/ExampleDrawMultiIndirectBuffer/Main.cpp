@@ -1,6 +1,8 @@
 
 #include "../Camera.hpp"
 
+#include <ctime>
+#include <cstring>
 #include <cstdio>
 
 #include <openglwrapper/OpenGL.h>
@@ -8,6 +10,8 @@
 #include <openglwrapper/Texture.h>
 #include <openglwrapper/VAO.h>
 #include <openglwrapper/VBO.h>
+
+namespace DrawMultiIndirectBuffer {
 
 // Window dimensions
 //const GLuint WIDTH = 800, HEIGHT = 600;
@@ -29,11 +33,6 @@ bool firstMouse = true;
 GLfloat deltaTime = 0.0f;
 GLfloat lastFrame = 0.0f;
 
-#include <cstdio>
-#include <ctime>
-#include <cstring>
-
-
 #pragma pack(push, 1)
 struct VertexStructure {
 	glm::vec3 pos;
@@ -51,7 +50,6 @@ struct PerInstance {
 #pragma pack(pop, 1)
 
 const uint32_t OBJECTS_COUNT = 1024;
-
 
 VertexStructure VERTEEE;
 
@@ -340,4 +338,5 @@ int32_t LoadComponents(gl::VBO& vertices, gl::VBO& elements) {
 	return 1;
 }
 
+}
 
