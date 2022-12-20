@@ -11,7 +11,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "../Camera.cpp"
+#include "../Camera.hpp"
 
 
 void KeyCallback(GLFWwindow * window, int key, int scancode, int action, int mode);
