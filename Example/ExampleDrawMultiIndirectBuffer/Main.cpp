@@ -73,7 +73,7 @@ int main() {
 
 											GL_CHECK_PUSH_PRINT_ERROR;
 	gl::Shader renderShader;
-	renderShader.Load("vertex.glsl", NULL, "fragment.glsl");
+	renderShader.Load("../Example/ExampleDrawMultiIndirectBuffer/vertex.glsl", NULL, "fragment.glsl");
 											GL_CHECK_PUSH_PRINT_ERROR;
 
 	gl::VBO vertexBuffer(32, gl::ARRAY_BUFFER, gl::STATIC_DRAW);

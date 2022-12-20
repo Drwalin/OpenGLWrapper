@@ -2,13 +2,13 @@
 #define DEBUG(x) 
 //printf("\n %i",(int)x);
 
-#include "../../../OpenGL.h"
-#include "../../../Shader.h"
-#include "../../../Texture.h"
-#include "../../../VAO.h"
-#include "../../../VBO.h"
+#include "../../OpenGL.h"
+#include "../../Shader.h"
+#include "../../Texture.h"
+#include "../../VAO.h"
+#include "../../VBO.h"
 
-#include "../../Camera.cpp"
+#include "../Camera.cpp"
 
 // Window dimensions
 //const GLuint WIDTH = 800, HEIGHT = 600;
@@ -41,8 +41,10 @@ int main() {
     glfwSetScrollCallback(gl::openGL.window, ScrollCallback);
     
     gl::Shader ourShader;
-	ourShader.Load("../GeometryShader/core.vs", "../GeometryShader/core.gs",
-			"../GeometryShader/core.fs");
+	ourShader.Load(
+			"../Example/ExampleBasicShaders/vertex.glsl",
+			"../Example/ExampleBasicShaders/geometry.glsl",
+			"../Example/ExampleBasicShaders/fragment.glsl");
     
     
     gl::VBO vbo(3*sizeof(float), gl::ARRAY_BUFFER, gl::STATIC_DRAW);
@@ -58,7 +60,7 @@ int main() {
     
     
 	gl::Texture texture;
-    texture.Load("image.jpg", false, 4);
+    texture.Load("../Example/ExampleBasicShaders/image.jpg", false, 4);
     
     ourShader.SetTexture(ourShader.GetUniformLocation("ourTexture1"), &texture,
 			0);

@@ -21,7 +21,7 @@ int main() {
 	
 	// init shaders
 	gl::Shader computeShader, emptyShader;
-	computeShader.Load("compute.glsl");
+	computeShader.Load("../Example/ExampleBasicComputeShader/compute.glsl");
 	
 	// init data storage objects
 	gl::VBO sourceBuffer(sizeof(uint32_t), gl::ARRAY_BUFFER, gl::DYNAMIC_DRAW);

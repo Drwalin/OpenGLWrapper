@@ -45,7 +45,7 @@ int main() {
     gl::openGL.SetKeyCallback(KeyCallback);
 	
 	gl::Shader computeShader, emptyShader;
-	computeShader.Load("compute.glsl");
+	computeShader.Load("../Example/ExampleComputeShader/compute.glsl");
 	
 	gl::VBO indirectBuffer(32, gl::DRAW_INDIRECT_BUFFER, gl::STREAM_DRAW);
 	gl::VBO atomicBuffer(4, gl::SHADER_STORAGE_BUFFER, gl::DYNAMIC_DRAW);
