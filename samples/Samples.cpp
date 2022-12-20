@@ -21,6 +21,10 @@ namespace DrawMultiIndirectBuffer {
 	int main();
 }
 
+namespace Particles_1 {
+	int main();
+}
+
 
 
 
@@ -45,6 +49,10 @@ const Entry entries[] = {
 	{
 		"draw_multi_indirect_buffer",
 		DrawMultiIndirectBuffer::main
+	},
+	{
+		"particles_1",
+		Particles_1::main
 	}
 };
 
