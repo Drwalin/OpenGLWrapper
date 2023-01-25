@@ -75,23 +75,24 @@ namespace gl {
 		int backupWidth, backupHeight;
 		GLFWwindow* window;
 		
+		
+	public:
+		
 		struct ErrorStruct {
 			int code;
 			const char* msg;
 			const char* file;
 			int line;
 		};
-		std::vector<ErrorStruct> errors;
 		
-	public:
-		
+		void PushCustomError(ErrorStruct err);
 		int StackError(int line, const char* file);
 		void ClearErrors();
 		ErrorStruct PopError();
 		ErrorStruct GetLastError();
 		std::vector<ErrorStruct>& GetErrors();
 		
-		int PrintError(ErrorStruct err);
+		void PrintError(ErrorStruct err);
 		void PrintLastError();
 		void PrintErrors();
 		
@@ -112,7 +113,7 @@ namespace gl {
 		
 		int Init(const char* windowName, unsigned int width, unsigned int height,
 				bool resizable, bool fullscreen,
-				int majorOpenglVersion=3, int minorOpenglVersion=3);
+				int majorOpenglVersion=4, int minorOpenglVersion=3);
 		
 		void SetKeyCallback(void (GLFWwindow*, int, int, int, int));
 		void SetScrollCallback(void (GLFWwindow*, double, double));
@@ -126,6 +127,10 @@ namespace gl {
 		
 		OpenGL();
 		~OpenGL();
+		
+	private:
+		
+		std::vector<ErrorStruct> errors;
 	};
 
 	extern OpenGL openGL;
@@ -133,6 +138,7 @@ namespace gl {
 
 #define GL_CHECK_PUSH_PRINT_ERROR {if(gl::openGL.StackError(__LINE__, __FILE__)){gl::openGL.PrintError(gl::openGL.GetLastError());}}
 #define GL_CHECK_PUSH_ERROR gl::openGL.StackError(__LINE__, __FILE__)
+#define GL_PUSH_CUSTOM_ERROR(code, msg) gl::openGL.PushCustomError({code, msg, __FILE__, __LINE__})
 
 #endif
 
