@@ -34,6 +34,7 @@ if(BUILD_EXAMPLES)
 		samples/DrawMultiIndirectBuffer/Main
 		samples/Particles_1/Main
 		samples/CircleLine/Main
+		samples/Texture/Main
 	)
 	target_link_libraries(samples OpenGLWrapper)
 endif()

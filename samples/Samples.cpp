@@ -9,6 +9,10 @@ namespace SimpleCompute {
 	int main();
 }
 
+namespace Texture {
+	int main();
+}
+
 namespace Simple {
 	int main();
 }
@@ -38,12 +42,16 @@ struct Entry {
 
 const Entry entries[] = {
 	{
-		"simple_compute",
-		SimpleCompute::main
-	},
-	{
 		"simple",
 		Simple::main
+	},
+	{
+		"texture",
+		Texture::main
+	},
+	{
+		"simple_compute",
+		SimpleCompute::main
 	},
 	{
 		"complex_compute",

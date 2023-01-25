@@ -206,8 +206,9 @@ void Shader::SetBool(int location, bool value) {
 }
 
 void Shader::SetInt(int location, int value) {
-	Use();
-	glUniform1i(location, value); 
+	glProgramUniform1i(program, location, value);
+// 	Use();
+// 	glUniform1i(location, value); 
 }
 
 void Shader::SetInt(int location, const std::vector<int>& array) {

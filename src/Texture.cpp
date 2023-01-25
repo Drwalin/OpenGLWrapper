@@ -77,9 +77,8 @@ void Texture::UpdateTextureData(const void* data, unsigned w, unsigned h,
 		bool generateMipMap,
 		gl::TextureTarget target, gl::TextureDataFormat internalformat,
 		gl::TextureDataFormat dataformat, gl::DataType datatype) {
+	
 	this->target = target;
-	glEnable(target);
-	glBindTexture(target, 0);
 	if(!textureID)
 		glGenTextures(1, &textureID);
 	glBindTexture(target, textureID);
@@ -92,8 +91,9 @@ void Texture::UpdateTextureData(const void* data, unsigned w, unsigned h,
 	
 	if(generateMipMap)
 		glGenerateMipmap(target);
-	
-	glBindTexture(target, 0);
+	else {
+		MinFilter(gl::NEAREST);
+	}
 }
 
 void Texture::MinFilter(TextureMinFilter filter) {
@@ -117,7 +117,6 @@ void Texture::WrapZ(TextureWrapParam param) {
 }
 
 void Texture::Bind() const {
-	glEnable(target);
 	glBindTexture(target, textureID);
 }
 
@@ -131,7 +130,6 @@ void Texture::Unbind() {
 
 void Texture::Destroy() {
 	if(textureID) {
-		glEnable(target);
 		glDeleteTextures(1, &textureID);
 		width = 0;
 		height = 0;

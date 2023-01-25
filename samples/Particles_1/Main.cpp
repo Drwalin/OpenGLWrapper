@@ -126,7 +126,7 @@ int main() {
 		
 		ourShader.SetMat4(viewLoc, view);
 		ourShader.SetMat4(projLoc, projection);
-		ourShader.SetFloat(timeUniformLocation, (float)(clock()) * 0.00041f);
+		ourShader.SetFloat(timeUniformLocation, (float)(clock()) * 0.00041f*0.01f);
 		ourShader.SetVec3(accelerationLoc, glm::vec3(0, -10, 0));
 		
 		for(int j = 0; j < 1; ++j) {
