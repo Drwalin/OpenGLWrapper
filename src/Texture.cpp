@@ -18,7 +18,7 @@
 
 #include <openglwrapper/Texture.h>
 
-#include "../thirdparty/soil2/SOIL2.h"
+#include "../thirdparty/SOIL2/src/SOIL2/SOIL2.h"
 
 namespace gl {
 

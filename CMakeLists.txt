@@ -7,6 +7,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 option(BUILD_EXAMPLES "Build examples" ON)
 
+add_subdirectory(thirdparty/SOIL2)
+
 include_directories(./include/)
 aux_source_directory(./include/openglwrapper/ header_files)
 
@@ -17,11 +19,8 @@ add_library(OpenGLWrapper SHARED
 	src/Shader.cpp
 	src/VAO.cpp
 	src/VBO.cpp
-	thirdparty/soil2/SOIL2.c
-	thirdparty/soil2/etc1_utils.c
-	thirdparty/soil2/image_helper.c
-	thirdparty/soil2/image_DXT.c
 )
+target_link_libraries(OpenGLWrapper soil2)
 
 
 
