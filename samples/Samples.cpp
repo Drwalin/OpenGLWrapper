@@ -25,10 +25,6 @@ namespace ComplexCompute {
 	int main();
 }
 
-namespace DrawMultiIndirectBuffer {
-	int main();
-}
-
 namespace Particles_1 {
 	int main();
 }
@@ -65,10 +61,6 @@ const Entry entries[] = {
 	{
 		"complex_compute",
 		ComplexCompute::main,
-	},
-	{
-		"draw_multi_indirect_buffer",
-		DrawMultiIndirectBuffer::main
 	},
 	{
 		"particles_1",
