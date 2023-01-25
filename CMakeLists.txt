@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.8)
 project(OpenGLWrapper)
+cmake_policy(SET CMP0115 OLD)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
@@ -26,8 +27,10 @@ add_library(OpenGLWrapper SHARED
 
 if(BUILD_EXAMPLES)
 	add_executable(samples
-		samples/Samples
+		samples/DefaultCameraAndOtherConfig
 		samples/Camera
+		
+		samples/Samples
 		samples/Simple/Main
 		samples/SimpleCompute/Main
 		samples/ComplexCompute/Main
