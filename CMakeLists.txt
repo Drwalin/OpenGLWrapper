@@ -34,7 +34,6 @@ if(BUILD_EXAMPLES)
 		samples/Simple/Main
 		samples/SimpleCompute/Main
 		samples/ComplexCompute/Main
-		samples/DrawMultiIndirectBuffer/Main
 		samples/SimpleDrawMultiIndirectBuffer/Main
 		samples/Particles_1/Main
 		samples/CircleLine/Main
