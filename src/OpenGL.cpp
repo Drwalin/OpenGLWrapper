@@ -106,51 +106,35 @@ unsigned int OpenGL::GetHeight() const {
 int OpenGL::Init(const char* windowName, unsigned int width,
 		unsigned int height, bool resizable, bool fullscreen,
 		int majorOpenglVersion, int minorOpenglVersion) {
-	GL_CHECK_PUSH_ERROR;
 	glfwInit();
-	GL_CHECK_PUSH_ERROR;
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, majorOpenglVersion);
-	GL_CHECK_PUSH_ERROR;
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, minorOpenglVersion);
-	GL_CHECK_PUSH_ERROR;
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	GL_CHECK_PUSH_ERROR;
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-	GL_CHECK_PUSH_ERROR;
     glfwWindowHint(GLFW_RESIZABLE, resizable);
-	GL_CHECK_PUSH_ERROR;
 	window = glfwCreateWindow(width, height, windowName,
 			fullscreen ? glfwGetPrimaryMonitor() : NULL, NULL);
-	GL_CHECK_PUSH_ERROR;
 	if(window == NULL) {
 		printf("\n Failed to create GLFW window! ");
+	GL_CHECK_PUSH_ERROR;
 		return 1;
 	}
-	GL_CHECK_PUSH_ERROR;
 	glfwGetFramebufferSize(window, (int*)&(this->width), (int*)&(this->height));
-	GL_CHECK_PUSH_ERROR;
 	
 	
 	glfwSetKeyCallback(window, OpenGLKeyCallback);
-	GL_CHECK_PUSH_ERROR;
 	glfwSetCursorPosCallback(window, OpenGLMouseCallback);
-	GL_CHECK_PUSH_ERROR;
 	glfwSetScrollCallback(window, OpenGLScrollCallback);
-	GL_CHECK_PUSH_ERROR;
 	glfwSetWindowSizeCallback(window, OpenGLWindowResizeCallback);
-	GL_CHECK_PUSH_ERROR;
 	glfwSetMouseButtonCallback(window, OpenGLMouseButtonCallback);
-	GL_CHECK_PUSH_ERROR;
 	
 	
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	GL_CHECK_PUSH_ERROR;
 	glfwMakeContextCurrent(window);
-	GL_CHECK_PUSH_ERROR;
 	glewExperimental = GL_TRUE;
 	if(GLEW_OK != glewInit()) {
-	GL_CHECK_PUSH_ERROR;
 	    printf("\n Failed to initialize GLEW! ");
+	GL_CHECK_PUSH_ERROR;
 	    return 2;
 	}
 	GL_CHECK_PUSH_ERROR;
@@ -174,23 +158,11 @@ void OpenGL::SetMouseCallback(void (callback)(GLFWwindow*, double, double)) {
 
 
 void OpenGL::InitGraphic() {
-	GL_CHECK_PUSH_ERROR;
 	glViewport(0, 0, width, height);
-	GL_CHECK_PUSH_ERROR;
 	glEnable(GL_DEPTH_TEST);
-	GL_CHECK_PUSH_ERROR;
 	glEnable(GL_BLEND);
-	GL_CHECK_PUSH_ERROR;
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	GL_CHECK_PUSH_ERROR;
 	glDepthFunc(GL_LESS);
-	GL_CHECK_PUSH_ERROR;
-	
-// 	GL_CHECK_PUSH_ERROR;
-// 	glEnable(GL_ALPHA_TEST);
-// 	GL_CHECK_PUSH_ERROR;
-// 	glAlphaFunc(GL_GREATER, 0.5);
-// 	GL_CHECK_PUSH_ERROR;
 }
 
 void OpenGL::InitFrame() {
