@@ -42,24 +42,44 @@ VAO::~VAO() {
 void VAO::SetAttribPointer(VBO& vbo, int location, unsigned count,
 		gl::DataType type, bool normalized, unsigned offset, unsigned divisor) {
 	glBindVertexArray(vaoID);
+	GL_CHECK_PUSH_ERROR;
 	glBindBuffer(vbo.target, vbo.vboID);
-	if(vbo.target != gl::ELEMENT_ARRAY_BUFFER && vbo.target != gl::DRAW_INDIRECT_BUFFER) {
-		glEnableVertexAttribArray(location);
-		glVertexAttribPointer(location, count, type, normalized, vbo.vertexSize,
-				(void*)(size_t)offset);
-		glVertexAttribDivisor(location, divisor);
-	}
+	GL_CHECK_PUSH_ERROR;
+	GL_CHECK_PUSH_ERROR;
+	glEnableVertexAttribArray(location);
+	GL_CHECK_PUSH_ERROR;
+	glVertexAttribPointer(location, count, type, normalized, vbo.vertexSize,
+			(void*)(size_t)offset);
+	GL_CHECK_PUSH_ERROR;
+	glVertexAttribDivisor(location, divisor);
+	GL_CHECK_PUSH_ERROR;
 	glBindVertexArray(0);
+	GL_CHECK_PUSH_ERROR;
 	glBindBuffer(vbo.target, 0);
+	GL_CHECK_PUSH_ERROR;
 	if(divisor>0) {
 		instances = std::max(instances, divisor*vbo.vertices);
-	} else if(vbo.target == gl::ELEMENT_ARRAY_BUFFER) {
-		drawArrays = false;
-		sizeI = std::max(vbo.vertices, sizeI);
-		typeElements = type;
-	} else if(vbo.target != gl::DRAW_INDIRECT_BUFFER) {
+	} else if(vbo.target == gl::ELEMENT_ARRAY_BUFFER || vbo.target == gl::DRAW_INDIRECT_BUFFER) {
+		GL_PUSH_CUSTOM_ERROR(-666, "Cannot bind buffer of target GL_ELEMENT_ARRAY_BUFFER nor GL_DRAW_INDIRECT_BUFFER with VAO::SetAttribPointer");
+	} else {
 		sizeA = std::max(vbo.vertices, sizeA);
 	}
+}
+
+void VAO::BindElementBuffer(VBO& elementBO, gl::DataType type) {
+	glBindVertexArray(vaoID);
+	GL_CHECK_PUSH_ERROR;
+	glBindBuffer(gl::ELEMENT_ARRAY_BUFFER, elementBO.vboID);
+	GL_CHECK_PUSH_ERROR;
+	glBindVertexArray(0);
+	glBindBuffer(gl::ELEMENT_ARRAY_BUFFER, 0);
+	drawArrays = false;
+	sizeI = std::max(elementBO.vertices, sizeI);
+	typeElements = type;
+}
+
+void VAO::BindIndirectBuffer(VBO& indirectBO) {
+	indirectDrawBuffer = &indirectBO;
 }
 
 void VAO::SetInstances(unsigned instances) {
@@ -111,8 +131,12 @@ void VAO::DrawElements(unsigned start, unsigned count) {
 	glBindVertexArray(0);
 }
 
-void VAO::DrawMultiElementsIndirect(void* indirect, int drawCount, size_t stride) {
+void VAO::DrawMultiElementsIndirect(void* indirect, int drawCount) {
+	if(indirectDrawBuffer == NULL) {
+		printf(" error in VAO::DrawMultiElementsIndirect: indirect draw buffer is not bound to VAO\n");
+	}
 	glBindVertexArray(vaoID);
+	GL_CHECK_PUSH_ERROR;
 	switch(typeElements) {
 		case gl::UNSIGNED_BYTE:
 		case gl::UNSIGNED_SHORT:
@@ -120,10 +144,15 @@ void VAO::DrawMultiElementsIndirect(void* indirect, int drawCount, size_t stride
 			break;
 		default:
 			// TODO: error
-			printf(" error in VAO::DrawElements: unusable element internal indexing type\n");
+			printf(" error in VAO::DrawMultiElementsIndirect: unusable element internal indexing type\n");
 	}
-	glMultiDrawElementsIndirect(mode, typeElements, indirect, drawCount, stride);
+	if(indirectDrawBuffer)
+		glBindBuffer(gl::DRAW_INDIRECT_BUFFER, indirectDrawBuffer->vboID);
+	GL_CHECK_PUSH_ERROR;
+	glMultiDrawElementsIndirect(mode, typeElements, indirect, drawCount, 0);
+	GL_CHECK_PUSH_ERROR;
 	glBindVertexArray(0);
+	GL_CHECK_PUSH_ERROR;
 }
 
 void VAO::SetSize(unsigned count) {

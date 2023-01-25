@@ -52,6 +52,9 @@ namespace gl {
 		void SetAttribPointer(VBO& vbo, int location, unsigned count,
 				gl::DataType type, bool normalized, unsigned offset,
 				unsigned divisor=0);
+		void BindElementBuffer(VBO& elementBO, gl::DataType type);
+		void BindIndirectBuffer(VBO& indirectBO);
+		
 		
 		void SetSize(unsigned count);
 		void SetInstances(unsigned instances);
@@ -60,7 +63,7 @@ namespace gl {
 		void Draw(unsigned start, unsigned count);
 		void DrawArrays(unsigned start, unsigned count);
 		void DrawElements(unsigned start, unsigned count);
-		void DrawMultiElementsIndirect(void* indirect, int drawCount, size_t stride);
+		void DrawMultiElementsIndirect(void* indirect, int drawCount);
 		
 	private:
 	public:
@@ -70,6 +73,7 @@ namespace gl {
 		unsigned vaoID;
 		gl::VertexMode mode;
 		bool drawArrays;
+		VBO* indirectDrawBuffer;
 	};
 }
 

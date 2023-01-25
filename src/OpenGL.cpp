@@ -236,6 +236,9 @@ void OpenGLMouseButtonCallback(GLFWwindow* window, int button,
 }
 
 
+void OpenGL::PushCustomError(ErrorStruct err) {
+	errors.emplace_back(err);
+}
 
 int OpenGL::StackError(int line, const char* file) {
 	ErrorStruct err;
@@ -249,7 +252,7 @@ int OpenGL::StackError(int line, const char* file) {
 	return err.code;
 }
 
-int OpenGL::PrintError(ErrorStruct err) {
+void OpenGL::PrintError(ErrorStruct err) {
 	fprintf(stderr, "%s:%i -> OpenGL error [%i]: %s\n", err.file, err.line,
 			err.code, err.msg);
 	fflush(stderr);

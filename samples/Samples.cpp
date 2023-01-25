@@ -9,6 +9,10 @@ namespace SimpleCompute {
 	int main();
 }
 
+namespace SimpleDrawMultiIndirectBuffer {
+	int main();
+}
+
 namespace Texture {
 	int main();
 }
@@ -53,6 +57,11 @@ const Entry entries[] = {
 		"simple_compute",
 		SimpleCompute::main
 	},
+	{
+		"simple_draw_multi_indirect_buffer",
+		SimpleDrawMultiIndirectBuffer::main
+	},
+	
 	{
 		"complex_compute",
 		ComplexCompute::main,
