@@ -6,6 +6,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 option(BUILD_EXAMPLES "Build examples" ON)
+option(BUILD_DEBUG "Build debug" ON)
+option(BUILD_RELEASE "Build release" OFF)
 
 add_subdirectory(thirdparty/SOIL2)
 add_subdirectory(thirdparty/assimp)
@@ -97,7 +99,29 @@ else()
 	# print error message: not tested platform
 endif()
 
+add_compile_options(-ggdb3)
+add_compile_options(-ggdb)
+add_compile_options(-pg)
 
+set(CMAKE_CXX_FLAGS_DEBUG_INIT "-Wall -ggdb3 -ggdb -pedantic")
+set(CMAKE_CXX_FLAGS_RELEASE_INIT "-Wall -Ofast -s -pedantic")	
+	
+# if(BUILD_DEBUG)
+# 	add_compile_options(-ggdb3)
+# 	add_compile_options(-ggdb)
+# 	add_compile_options(-pg)
+# 	add_compile_options(--coverage)
+# 	# gcov file.cpp
+# 	# geninfo ./ -b ./ -o ./coverage.info
+# 	# genhtml ./coverage.info -o /tmp/html
+# else()
+# endif()
+
+# if(BUILD_RELEASE)
+# 	add_compile_options(-Ofast)
+# 	add_compile_options(-s)
+# else()
+# endif()
 
 
 
