@@ -1,13 +1,13 @@
 /*
  *  This file is part of OpenGLWrapper.
- *  Copyright (C) 2021 Marek Zalewski aka Drwalin
+ *  Copyright (C) 2021-2023 Marek Zalewski aka Drwalin
  *
- *  ICon3 is free software: you can redistribute it and/or modify
+ *  OpenGLWrapper is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  (at your option) any later version.
  *
- *  ICon3 is distributed in the hope that it will be useful,
+ *  OpenGLWrapper is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
@@ -41,6 +41,9 @@ VAO::~VAO() {
 
 void VAO::SetAttribPointer(VBO& vbo, int location, unsigned count,
 		gl::DataType type, bool normalized, unsigned offset, unsigned divisor) {
+	
+	printf("vao: loc: %i  \n", location);
+	
 	glBindVertexArray(vaoID);
 	GL_CHECK_PUSH_ERROR;
 	glBindBuffer(vbo.target, vbo.vboID);

@@ -33,6 +33,10 @@ namespace CircleLine {
 	int main();
 }
 
+namespace AssimpModelWithShading {
+	int main();
+}
+
 
 
 struct Entry {
@@ -57,7 +61,10 @@ const Entry entries[] = {
 		"simple_draw_multi_indirect_buffer",
 		SimpleDrawMultiIndirectBuffer::main
 	},
-	
+	{
+		"assimp_model_with_shading",
+		AssimpModelWithShading::main
+	},
 	{
 		"complex_compute",
 		ComplexCompute::main,

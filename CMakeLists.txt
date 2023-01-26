@@ -8,6 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 option(BUILD_EXAMPLES "Build examples" ON)
 
 add_subdirectory(thirdparty/SOIL2)
+add_subdirectory(thirdparty/assimp)
 
 include_directories(./include/)
 aux_source_directory(./include/openglwrapper/ header_files)
@@ -19,8 +20,9 @@ add_library(OpenGLWrapper SHARED
 	src/Shader.cpp
 	src/VAO.cpp
 	src/VBO.cpp
+	src/AssimpLoader.cpp
 )
-target_link_libraries(OpenGLWrapper soil2)
+target_link_libraries(OpenGLWrapper soil2 assimp)
 
 
 
@@ -29,6 +31,7 @@ if(BUILD_EXAMPLES)
 		samples/DefaultCameraAndOtherConfig
 		samples/Camera
 		
+		samples/AssimpModelWithShading/Main
 		samples/Samples
 		samples/Simple/Main
 		samples/SimpleCompute/Main
