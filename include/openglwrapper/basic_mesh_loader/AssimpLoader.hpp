@@ -18,8 +18,8 @@
 
 #pragma once
 
-#ifndef OPEN_GL_ASSIMP_LOADER_HPP
-#define OPEN_GL_ASSIMP_LOADER_HPP
+#ifndef OPEN_GL_BASIC_MESH_LOADER_ASSIMP_LOADER_HPP
+#define OPEN_GL_BASIC_MESH_LOADER_ASSIMP_LOADER_HPP
 
 #include <cinttypes>
 #include <cmath>
@@ -28,55 +28,25 @@
 #include <unordered_map>
 #include <type_traits>
 #include <string>
+#include <memory>
 
 #include <glm/glm.hpp>
+
+#include "Mesh.hpp"
 
 class aiScene;
 class aiMesh;
 
 namespace gl {
+namespace BasicMeshLoader {
+	
 	class AssimpLoader {
 	public:
 		
-		template<uint32_t dim>
-		struct Value {
-			float v[dim];
-		};
 		
-		class Mesh {
-		public:
-			
-			std::string name;
-			
-			std::vector<std::vector<Value<3>>> pos;			// always size == 1 ; for attributes compatibility reason with other attributes
-			std::vector<std::vector<Value<2>>> uv;
-			std::vector<std::vector<Value<4>>> color;
-			std::vector<std::vector<Value<3>>> normal;		// always size == 1 ; for attributes compatibility reason with other attributes
-			std::vector<std::vector<Value<1>>> weightBone;
-			std::vector<std::vector<Value<1>>> weight;
-			
-			std::vector<uint32_t> indices;
-			
-			template<typename T>
-			void AppendIndices(
-					uint32_t vertexBaseOffsetWithData,
-					std::vector<uint8_t>& elementBuffer);
-					
-			template<typename T, bool normalize, uint32_t dim>
-			void ExtractAttribute(
-					std::vector<std::vector<Value<dim>>> Mesh::* attribute,
-					uint32_t baseOffset,
-					std::vector<uint8_t>& buffer,
-					uint32_t offset,
-					uint32_t stride,
-					uint32_t channelId = 0, // optional for uv/color/weights
-					uint32_t subsequentChannels = 1
-					) const;
-			
-			void LoadMesh(const aiMesh* mesh);
-		};
-		
-		std::vector<Mesh> meshes;
+		std::vector<std::shared_ptr<Mesh>> meshes;
+// 		std::vector<std::shared_ptr<Skeleton>> skeletons;
+// 		std::vector<std::shared_ptr<Animation>> animations;
 		
 		std::vector<glm::vec3> pos;
 		std::vector<glm::vec3> norm;
@@ -89,6 +59,7 @@ namespace gl {
 		
 		
 		
+		/*
 		inline const static std::vector<std::vector<Value<3>>> Mesh::* ATTR_POS = &Mesh::pos;
 		inline const static std::vector<std::vector<Value<2>>> Mesh::* ATTR_UV = &Mesh::uv;
 		inline const static std::vector<std::vector<Value<4>>> Mesh::* ATTR_COLOR = &Mesh::color;
@@ -101,6 +72,7 @@ namespace gl {
 		
 		template<typename T, bool normalize, bool negative, uint32_t dim>
 		inline static void Convert(T* dst, Value<dim> value);
+		*/
 		
 		
 		template<typename T, uint32_t dim>
@@ -131,9 +103,10 @@ namespace gl {
 		static void ConverterUnsignedNormalized(T* dst, Value<dim> value);
 		
 		template<uint32_t dim>
-		inline static AssimpLoader::Value<dim> Normalize(Value<dim> value);
+		inline static Value<dim> Normalize(Value<dim> value);
 	};
 	
+} // namespace BasicMeshLoader
 } // namespace gl
 
 #endif

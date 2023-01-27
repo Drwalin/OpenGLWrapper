@@ -1,6 +1,6 @@
 
 #include "../DefaultCameraAndOtherConfig.hpp"
-#include "openglwrapper/AssimpLoader.hpp"
+#include "openglwrapper/basic_mesh_loader/AssimpLoader.hpp"
 #include "openglwrapper/VAO.h"
 #include "openglwrapper/VBO.h"
 
@@ -26,7 +26,7 @@ int main() {
 			"../samples/AssimpModelWithShading/fragment.glsl");
 	
 	// Load model
-	gl::AssimpLoader l;
+	gl::BasicMeshLoader::AssimpLoader l;
 	l.Load("../samples/Monkey.fbx");
 	
 	// Prepare VBOs
