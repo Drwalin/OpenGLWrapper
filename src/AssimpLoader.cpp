@@ -18,7 +18,7 @@
 
 #include <cstdio>
 
-#include <openglwrapper/AssimpLoader.h>
+#include <openglwrapper/AssimpLoader.hpp>
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>

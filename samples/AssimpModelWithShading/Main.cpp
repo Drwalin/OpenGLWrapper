@@ -1,6 +1,6 @@
 
 #include "../DefaultCameraAndOtherConfig.hpp"
-#include "openglwrapper/AssimpLoader.h"
+#include "openglwrapper/AssimpLoader.hpp"
 #include "openglwrapper/VAO.h"
 #include "openglwrapper/VBO.h"
 

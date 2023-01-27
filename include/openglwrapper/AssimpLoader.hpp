@@ -16,8 +16,10 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef OPEN_GL_ASSIMP_LOADER_H
-#define OPEN_GL_ASSIMP_LOADER_H
+#pragma once
+
+#ifndef OPEN_GL_ASSIMP_LOADER_HPP
+#define OPEN_GL_ASSIMP_LOADER_HPP
 
 #include <cinttypes>
 #include <cmath>
@@ -99,95 +101,42 @@ namespace gl {
 		
 		template<typename T, bool normalize, bool negative, uint32_t dim>
 		inline static void Convert(T* dst, Value<dim> value);
+		
+		
+		template<typename T, uint32_t dim>
+		inline static void Copy(
+				uint32_t dstOffset,
+				std::vector<uint8_t>& dst,
+				uint32_t offset,
+				uint32_t stride,
+				const std::vector<Value<dim>>& src,
+				void(*converter)(T* dst, Value<dim> value));
+		
+		template<typename T, uint32_t dim>
+		static void ConverterFloatPlain(T* dst, Value<dim> value);
+		
+		template<typename T, uint32_t dim>
+		static void ConverterFloatNormalized(T* dst, Value<dim> value);
+		
+		template<typename T, uint32_t dim>
+		static void ConverterIntPlain(T* dst, Value<dim> value);
+		
+		template<typename T, T min, T max, uint32_t dim>
+		static void ConverterIntPlainClamp(T* dst, Value<dim> value);
+		
+		template<typename T, T len, uint32_t dim>
+		static void ConverterIntNormalized(T* dst, Value<dim> value);
+		
+		template<typename T, T mid, T max_len, uint32_t dim>
+		static void ConverterUnsignedNormalized(T* dst, Value<dim> value);
+		
+		template<uint32_t dim>
+		inline static AssimpLoader::Value<dim> Normalize(Value<dim> value);
 	};
-	
-	
-	
-	
-	
-	template<typename T>
-	void AssimpLoader::Mesh::AppendIndices(
-			uint32_t vertexBaseOffsetWithData,
-			std::vector<uint8_t>& elementBuffer
-			) {
-		uint32_t offset = elementBuffer.size();
-		elementBuffer.resize(offset + indices.size()*sizeof(T));
-		T* inds = (T*)&(indices[offset]);
-		for(int32_t i=0; i<indices.size(); ++i, ++inds) {
-			*inds = vertexBaseOffsetWithData+indices[i];
-		}
-	}
-	
-	template<typename T, bool normalize, uint32_t dim>
-	void AssimpLoader::Mesh::ExtractAttribute(
-			std::vector<std::vector<Value<dim>>> Mesh::* attribute,
-			uint32_t baseOffset,
-			std::vector<uint8_t>& buffer,
-			uint32_t offset,
-			uint32_t stride,
-			uint32_t channelId,
-			uint32_t subsequentChannels
-			) const {
-		
-		if(buffer.size() < baseOffset + pos.size()*stride)
-			buffer.resize(baseOffset + pos.size()*stride);
-		for(uint32_t i=0; i<this->*attribute.size(); ++i) {
-			for(uint32_t j=0; j<subsequentChannels; ++j) {
-				T* dst = (T*)(buffer[baseOffset + i*stride + offset + j*dim*sizeof(T)]);
-				Convert<T>(dst, this->*attribute[channelId+j][i], normalize);
-			}
-		}
-	}
-	
-	template<uint32_t dim>
-	constexpr inline uint32_t AssimpLoader::GetBasicElementsOfAttribute(std::vector<std::vector<AssimpLoader::Value<dim>>> Mesh::* attribute) {
-		return dim;
-	}
-	
-	template<typename T, bool normalize, bool negative, uint32_t dim>
-	inline void AssimpLoader::Convert(T* dst, AssimpLoader::Value<dim> value) {
-		if constexpr (normalize && dim > 1) {
-			float sum = 0;
-			for(int i=0; i<dim; ++i) {
-				sum += value.v[i];
-			}
-			sum = sqrt(sum);
-			for(int i=0; i<dim; ++i) {
-				value.v[i] /= sum;
-			}
-		}
-		
-		if constexpr (std::is_same<T, float>() || std::is_same<T, double>() || std::is_same<T, long double>()) {
-			for(int i=0; i<dim; ++i) {
-				dst[i] = value.v[i];
-			}
-		} else {
-			if constexpr ((((T)(0))-((T)(1)))  < 0) {
-				if constexpr (normalize) {
-					const T max = (((T)1)<<(sizeof(T)*8-1))-(T)1;
-					for(int i=0; i<dim; ++i) {
-						dst[i] = (value.v[i]*((float)max))+0.4999999f;
-					}
-				} else {
-					for(int i=0; i<dim; ++i) {
-						dst[i] = value.v[i]+0.4999999f;
-					}
-				}
-			} else {
-				if constexpr (normalize) {
-					for(int i=0; i<dim; ++i) {
-						dst[i] = (value.v[i]*((float)(((T)(0))-((T)(1)))))+0.4999999f;
-					}
-				} else {
-					for(int i=0; i<dim; ++i) {
-						dst[i] = value.v[i]+0.4999999f;
-					}
-				}
-			}
-		}
-	}
 	
 } // namespace gl
 
 #endif
+
+#include "AssimpLoader.inl.hpp"
 
