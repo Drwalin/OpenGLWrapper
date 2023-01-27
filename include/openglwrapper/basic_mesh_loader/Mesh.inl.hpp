@@ -32,14 +32,129 @@ namespace BasicMeshLoader {
 	void Mesh::AppendIndices(
 			uint32_t vertexBaseOffsetWithData,
 			std::vector<uint8_t>& elementBuffer
-			) {
+			) const {
 		uint32_t offset = elementBuffer.size();
 		elementBuffer.resize(offset + indices.size()*sizeof(T));
-		T* inds = (T*)&(indices[offset]);
-		for(int32_t i=0; i<indices.size(); ++i, ++inds) {
-			*inds = vertexBaseOffsetWithData+indices[i];
+		T* inds = (T*)&(elementBuffer[offset]);
+		for(int32_t i=0; i<indices.size(); ++i) {
+			inds[i] = indices[i] + vertexBaseOffsetWithData;
 		}
 	}
+	
+	template<typename T>
+	void Mesh::ExtractPos(
+			uint32_t baseOffset, // bytes
+			std::vector<uint8_t>& buffer,
+			uint32_t offset,
+			uint32_t stride,
+			void(*converter)(T* dst, Value<3> value)
+			) const {
+		Copy(
+				baseOffset,
+				buffer,
+				offset,
+				stride,
+				pos,
+				converter);
+	}
+	
+
+	template<typename T>
+	void Mesh::ExtractNormal(
+			uint32_t baseOffset, // bytes
+			std::vector<uint8_t>& buffer,
+			uint32_t offset,
+			uint32_t stride,
+			void(*converter)(T* dst, Value<3> value)
+			) const {
+		Copy(
+				baseOffset,
+				buffer,
+				offset,
+				stride,
+				normal,
+				converter);
+	}
+			
+	template<typename T>
+	void Mesh::ExtractUV(
+			uint32_t baseOffset,
+			std::vector<uint8_t>& buffer,
+			uint32_t offset,
+			uint32_t stride,
+			void(*converter)(T* dst, Value<2> value),
+			uint32_t channelId,
+			uint32_t subsequentChannels 
+			) const {
+		if(uv.size() <= channelId+subsequentChannels) {
+			// only informational warning
+		}
+		for(uint32_t i=0; i<subsequentChannels; ++i) {
+			if(i+channelId >= uv.size())
+				break;
+			Copy(
+					baseOffset,
+					buffer,
+					offset+sizeof(T)*2*i,
+					stride,
+					uv[i+channelId],
+					converter);
+		}
+	}
+			
+	template<typename T>
+	void Mesh::ExtractColor(
+			uint32_t baseOffset,
+			std::vector<uint8_t>& buffer,
+			uint32_t offset,
+			uint32_t stride,
+			void(*converter)(T* dst, Value<4> value),
+			uint32_t channelId,
+			uint32_t subsequentChannels
+			) const {
+		if(color.size() <= channelId+subsequentChannels) {
+			// only informational warning
+		}
+		for(uint32_t i=0; i<subsequentChannels; ++i) {
+			if(i+channelId >= color.size())
+				break;
+			Copy(
+					baseOffset,
+					buffer,
+					offset+sizeof(T)*4*i,
+					stride,
+					color[i+channelId],
+					converter);
+		}
+	}
+			
+	template<typename Tweight, typename Tbone>
+	void Mesh::ExtractWeightsWithBones(
+			uint32_t baseOffset,
+			std::vector<uint8_t>& buffer,
+			uint32_t weightsOffset,
+			uint32_t boneIdsOffset,
+			uint32_t stride,
+			void(*converterWeight)(Tweight* dst, Value<4> value),
+			void(*converterBone)(Tbone* dst, Value<4> value),
+			uint32_t weightsCount
+			) const {
+		std::vector<VertexBoneWeight> w;
+		for(uint32_t i=0; i<weight.size(); ++i) {
+			w = weight[i];
+			if(w.size() > weightsCount)
+				w.resize(weightsCount);
+			if(w.size() < weightsCount)
+				w.resize(weightsCount, VertexBoneWeight(0, 0));
+			float sum = 0;
+			for(auto v : w)
+				sum += v.weight;
+			if(sum > 0)
+				for(auto v : w)
+					v.weight /= sum;
+		}
+	}
+	
 } // namespace BasicMeshLoader
 } // namespace gl
 

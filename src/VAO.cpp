@@ -41,9 +41,6 @@ VAO::~VAO() {
 
 void VAO::SetAttribPointer(VBO& vbo, int location, unsigned count,
 		gl::DataType type, bool normalized, unsigned offset, unsigned divisor) {
-	
-	printf("vao: loc: %i  \n", location);
-	
 	glBindVertexArray(vaoID);
 	GL_CHECK_PUSH_ERROR;
 	glBindBuffer(vbo.target, vbo.vboID);

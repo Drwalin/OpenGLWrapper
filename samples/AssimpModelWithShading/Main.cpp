@@ -1,8 +1,10 @@
 
 #include "../DefaultCameraAndOtherConfig.hpp"
+#include "openglwrapper/OpenGL.h"
 #include "openglwrapper/basic_mesh_loader/AssimpLoader.hpp"
 #include "openglwrapper/VAO.h"
 #include "openglwrapper/VBO.h"
+#include "openglwrapper/basic_mesh_loader/Value.hpp"
 
 #include <cstring>
 
@@ -29,33 +31,41 @@ int main() {
 	gl::BasicMeshLoader::AssimpLoader l;
 	l.Load("../samples/Monkey.fbx");
 	
-	// Prepare VBOs
-	gl::VBO pos(sizeof(glm::vec3), gl::ARRAY_BUFFER, gl::STATIC_DRAW);
-	gl::VBO uv(sizeof(glm::vec2), gl::ARRAY_BUFFER, gl::STATIC_DRAW);
-	gl::VBO color(sizeof(glm::vec4), gl::ARRAY_BUFFER, gl::STATIC_DRAW);
-	gl::VBO normal(sizeof(glm::vec3), gl::ARRAY_BUFFER, gl::STATIC_DRAW);
+	std::shared_ptr<gl::BasicMeshLoader::Mesh> mesh = l.meshes[0];
+	
+	uint32_t stride
+		= 3*sizeof(float)
+		+ 2*sizeof(float)
+		+ 4*sizeof(uint8_t)
+		+ 4*sizeof(uint8_t);
+	gl::VBO vbo(stride, gl::ARRAY_BUFFER, gl::STATIC_DRAW);
 	gl::VBO indices(4, gl::ELEMENT_ARRAY_BUFFER, gl::STATIC_DRAW);
 	
-	// Copy data from model loader do VBOs
-	Copy(pos, l.pos);
-	Copy(uv, l.uv);
-	Copy(color, l.color);
-	Copy(normal, l.norm);
-	Copy(indices, l.indices);
+	// Extract all desired attributes from mesh
+	mesh->ExtractPos<float>(0, vbo.Buffer(), 0, stride,
+			gl::BasicMeshLoader::ConverterFloatPlain<float, 3>);
 	
-	// Generate VBOs
-	pos.Generate();
-	uv.Generate();
-	color.Generate();
-	normal.Generate();
+	mesh->ExtractUV<float>(0, vbo.Buffer(), 12, stride,
+			gl::BasicMeshLoader::ConverterFloatPlain<float, 2>);
+	
+	mesh->ExtractColor<uint8_t>(0, vbo.Buffer(), 20, stride,
+			gl::BasicMeshLoader::ConverterIntPlainClampScale<uint8_t, 255, 0, 255, 4>);
+	
+	mesh->ExtractNormal(0, vbo.Buffer(), 24, stride,
+			gl::BasicMeshLoader::ConverterIntNormalized<uint8_t, 127, 3>);
+	
+	mesh->AppendIndices<uint32_t>(0, indices.Buffer());
+	
+	// Generate VBO & EBO
+	vbo.Generate();
 	indices.Generate();
-    
+	
 	// Initiate VAO with VBO attributes
     gl::VAO vao(gl::TRIANGLES);
-	vao.SetAttribPointer(uv, ourShader.GetAttributeLocation("uv"), 2, gl::FLOAT, false, 0);
-	vao.SetAttribPointer(color, ourShader.GetAttributeLocation("color"), 4, gl::FLOAT, false, 0);
-	vao.SetAttribPointer(normal, ourShader.GetAttributeLocation("normal"), 3, gl::FLOAT, false, 0);
-	vao.SetAttribPointer(pos, ourShader.GetAttributeLocation("pos"), 3, gl::FLOAT, false, 0);
+	vao.SetAttribPointer(vbo, ourShader.GetAttributeLocation("pos"), 3, gl::FLOAT, false, 0);
+	vao.SetAttribPointer(vbo, ourShader.GetAttributeLocation("uv"), 2, gl::FLOAT, false, 12);
+	vao.SetAttribPointer(vbo, ourShader.GetAttributeLocation("color"), 4, gl::UNSIGNED_BYTE, true, 20);
+	vao.SetAttribPointer(vbo, ourShader.GetAttributeLocation("normal"), 3, gl::BYTE, true, 24);
 	vao.BindElementBuffer(indices, gl::UNSIGNED_INT);
     
 	// Load texture
@@ -68,6 +78,7 @@ int main() {
 	int projLoc = ourShader.GetUniformLocation("projection");
 	int texLoc = ourShader.GetUniformLocation("tex");
 	int lightDirLoc = ourShader.GetUniformLocation("lightDir");
+	int renderTargetDimLoc = ourShader.GetUniformLocation("winDim");
 	
 	// Init camera position
 //     camera.ProcessMouseMovement(150, -200);
@@ -96,6 +107,9 @@ int main() {
 		ourShader.SetMat4(viewLoc, view);
 		ourShader.SetMat4(projLoc, projection);
 		
+		glm::vec2 winDim = {gl::openGL.GetWidth(), gl::openGL.GetHeight()};
+		ourShader.SetVec2(renderTargetDimLoc, winDim);
+		
 		// Calulate model matrix
 		glm::mat4 model = 
 			glm::scale(
@@ -119,6 +133,8 @@ int main() {
 
 			// Draw VAO
 			vao.Draw();
+// 			vao.Draw(0, 900);
+// 			vao.DrawArrays(0, 900);
 // 		}
         
 		DefaultIterationEnd();
