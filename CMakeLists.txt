@@ -14,15 +14,15 @@ add_subdirectory(thirdparty/assimp)
 
 include_directories(./include/)
 aux_source_directory(./include/openglwrapper/ header_files)
+aux_source_directory(./include/openglwrapper/basic_mesh_loader/ header_files_basic_mesh_loader)
+aux_source_directory(./src/ source_files)
+aux_source_directory(./src/basic_mesh_loader/ source_files_basic_mesh_loader)
 
 add_library(OpenGLWrapper SHARED
 	${header_files}
-	src/OpenGL.cpp
-	src/Texture.cpp
-	src/Shader.cpp
-	src/VAO.cpp
-	src/VBO.cpp
-	src/AssimpLoader.cpp
+	${header_files_basic_mesh_loader}
+	${source_files}
+	${source_files_basic_mesh_loader}
 )
 target_link_libraries(OpenGLWrapper soil2 assimp)
 
