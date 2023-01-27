@@ -9,7 +9,7 @@
 #include <openglwrapper/Texture.h>
 #include <openglwrapper/VAO.h>
 #include <openglwrapper/VBO.h>
-#include <openglwrapper/AssimpLoader.h>
+#include <openglwrapper/AssimpLoader.hpp>
 
 #include "Camera.hpp"
 
