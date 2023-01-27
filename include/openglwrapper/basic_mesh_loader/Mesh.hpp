@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include <limits>
 #ifndef OPEN_GL_BASIC_MESH_LOADER_MESH_HPP
 #define OPEN_GL_BASIC_MESH_LOADER_MESH_HPP
 
@@ -32,14 +33,20 @@
 
 #include <glm/glm.hpp>
 
+#include "Value.hpp"
+
 class aiScene;
 class aiMesh;
 
 namespace gl {
 namespace BasicMeshLoader {
-	template<uint32_t dim>
-	struct Value {
-		float v[dim];
+	
+	struct VertexBoneWeight {
+	public:
+		inline VertexBoneWeight(uint32_t boneId, float weight) : boneId(boneId), weight(weight) {}
+		
+		uint32_t boneId;
+		float weight;
 	};
 	
 	class Mesh {
@@ -47,32 +54,83 @@ namespace BasicMeshLoader {
 		
 		std::string name;
 		
-		std::vector<std::vector<Value<3>>> pos;			// always size == 1 ; for attributes compatibility reason with other attributes
+		std::vector<Value<3>> pos;
 		std::vector<std::vector<Value<2>>> uv;
 		std::vector<std::vector<Value<4>>> color;
-		std::vector<std::vector<Value<3>>> normal;		// always size == 1 ; for attributes compatibility reason with other attributes
-		std::vector<std::vector<Value<1>>> weightBone;
-		std::vector<std::vector<Value<1>>> weight;
+		std::vector<Value<3>> normal;
+		std::vector<std::vector<VertexBoneWeight>> weight;
 		
 		std::vector<uint32_t> indices;
+		
+		
+		
+		void LoadMesh(const aiMesh* mesh);
+		
 		
 		template<typename T>
 		void AppendIndices(
 				uint32_t vertexBaseOffsetWithData,
-				std::vector<uint8_t>& elementBuffer);
+				std::vector<uint8_t>& elementBuffer
+				) const;
+		
+
+		template<typename T>
+		void ExtractPos(
+				uint32_t baseOffset, // bytes
+				std::vector<uint8_t>& buffer,
+				uint32_t offset,
+				uint32_t stride,
+				void(*converter)(T* dst, Value<3> value) = ConverterFloatPlain<T, 3>
+				) const;
+
+		template<typename T>
+		void ExtractNormal(
+				uint32_t baseOffset, // bytes
+				std::vector<uint8_t>& buffer,
+				uint32_t offset,
+				uint32_t stride,
+				void(*converter)(T* dst, Value<3> value)
+				) const;
 				
-		template<typename T, bool normalize, uint32_t dim>
-		void ExtractAttribute(
-				std::vector<std::vector<Value<dim>>> Mesh::* attribute,
+		template<typename T>
+		void ExtractUV(
 				uint32_t baseOffset,
 				std::vector<uint8_t>& buffer,
 				uint32_t offset,
 				uint32_t stride,
-				uint32_t channelId = 0, // optional for uv/color/weights
+				void(*converter)(T* dst, Value<2> value),
+				uint32_t channelId = 0,
 				uint32_t subsequentChannels = 1
 				) const;
-		
-		void LoadMesh(const aiMesh* mesh);
+				
+		template<typename T>
+		void ExtractColor(
+				uint32_t baseOffset,
+				std::vector<uint8_t>& buffer,
+				uint32_t offset,
+				uint32_t stride,
+				void(*converter)(T* dst, Value<4> value)
+					= ConverterIntPlainClampScale<
+						T,
+						std::numeric_limits<T>::max(),
+						std::numeric_limits<T>::min(),
+						std::numeric_limits<T>::max(),
+						4>,
+				uint32_t channelId = 0,
+				uint32_t subsequentChannels = 1
+				) const;
+				
+		template<typename Tweight, typename Tbone>
+		void ExtractWeightsWithBones(
+				uint32_t baseOffset,
+				std::vector<uint8_t>& buffer,
+				uint32_t weightsOffset,
+				uint32_t boneIdsOffset,
+				uint32_t stride,
+				void(*converterWeight)(Tweight* dst, Value<4> value),
+				void(*converterBone)(Tbone* dst, Value<4> value),
+				uint32_t weightsCount = 3
+				) const;
 	};
 } // namespace BasicMeshLoader
 } // namespace gl

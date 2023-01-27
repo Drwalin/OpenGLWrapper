@@ -18,6 +18,8 @@
 
 #include <cstdio>
 
+#include <algorithm>
+
 #include <openglwrapper/basic_mesh_loader/Mesh.hpp>
 
 #include <assimp/Importer.hpp>
@@ -32,10 +34,9 @@ namespace BasicMeshLoader {
 		uint32_t uvs = mesh->GetNumUVChannels();
 		
 		if(mesh->HasPositions()) {
-			pos.resize(1);
-			pos[0].resize(vertices);
+			pos.resize(vertices);
 			for(int i=0; i<mesh->mNumVertices; ++i) {
-				pos[0][i] = {
+				pos[i] = {
 						mesh->mVertices[i].x,
 						mesh->mVertices[i].y,
 						mesh->mVertices[i].z
@@ -72,10 +73,9 @@ namespace BasicMeshLoader {
 		}
 		
 		if(mesh->HasNormals()) {
-			normal.resize(1);
-			normal[0].resize(vertices);
+			normal.resize(vertices);
 			for(int i=0; i<mesh->mNumVertices; ++i) {
-				normal[0][i] = {
+				normal[i] = {
 						mesh->mNormals[i].x,
 						mesh->mNormals[i].y,
 						mesh->mNormals[i].z
@@ -84,39 +84,30 @@ namespace BasicMeshLoader {
 		}
 		
 		if(mesh->HasBones()) {
-			const int weightsPerVert = 4;
-			weight.resize(weightsPerVert);
-			weightBone.resize(weightsPerVert);
-			for(int i=0; i<weightsPerVert; ++i) {
-				weight[i].clear();
-				weight[i].resize(vertices, {0});
-				weightBone[i].clear();
-				weightBone[i].resize(vertices, {0});
-			}
+			this->weight.resize(vertices);
 			for(int b=0; b<mesh->mNumBones; ++b) {
 				aiBone* bone = mesh->mBones[b];
 				for(int i=0; i<bone->mNumWeights; ++i) {
-					aiVertexWeight W = bone->mWeights[i];
-					uint32_t v = W.mVertexId;
-					float w = W.mWeight;
-					uint32_t minId = 3;
-					float min = weight[3][v].v[0];
-					for(int j=3; j>=0; --j) {
-						if(min >= weight[j][v].v[0]) {
-							min = weight[j][v].v[0];
-							minId = j;
-						}
-					}
-					if(min < w) {
-						weight[minId][v].v[0] = w;
-						weightBone[minId][v].v[0] = b;
-					}
+					aiVertexWeight w = bone->mWeights[i];
+					weight[w.mVertexId].emplace_back(VertexBoneWeight(b, w.mWeight));
 				}
+			}
+			for(int i=0; i<vertices; ++i) {
+				std::sort(
+						weight[i].begin(),
+						weight[i].end(),
+						[](VertexBoneWeight a, VertexBoneWeight b)->int{
+							if(a.weight < b.weight)
+								return -1;
+							if(a.weight > b.weight)
+								return 1;
+							return 0;
+						});
 			}
 		}
 		
 		for(int i=0; i<mesh->mNumFaces; ++i) {
-			auto f = mesh->mFaces[i];
+			const auto& f = mesh->mFaces[i];
 			for(int j=2; j<f.mNumIndices; ++j) {
 				indices.emplace_back(f.mIndices[0]);
 				indices.emplace_back(f.mIndices[j-1]);
