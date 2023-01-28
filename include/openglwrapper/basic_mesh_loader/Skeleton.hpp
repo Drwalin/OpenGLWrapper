@@ -18,8 +18,8 @@
 
 #pragma once
 
-#ifndef OPEN_GL_BASIC_MESH_LOADER_ASSIMP_LOADER_HPP
-#define OPEN_GL_BASIC_MESH_LOADER_ASSIMP_LOADER_HPP
+#ifndef OPEN_GL_BASIC_MESH_LOADER_SKELETON_HPP
+#define OPEN_GL_BASIC_MESH_LOADER_SKELETON_HPP
 
 #include <cinttypes>
 #include <cmath>
@@ -32,34 +32,31 @@
 
 #include <glm/glm.hpp>
 
-#include "Value.hpp"
-#include "Mesh.hpp"
-#include "Skeleton.hpp"
-#include "Animation.hpp"
-
-class aiScene;
-class aiMesh;
+class aiSkeleton;
 
 namespace gl {
 namespace BasicMeshLoader {
 	
-	class AssimpLoader {
+	class Bone {
+	public:
+		glm::mat4 inverseBindingPoseMatrix;
+		glm::mat4 relativeOffsetMatrix;
+		int id;
+		int parentId;
+	};
+	
+	class Skeleton {
 	public:
 		
-		std::unordered_map<std::string, uint32_t> meshNameToId;
-		std::vector<std::shared_ptr<Mesh>> meshes;
-		std::unordered_map<std::string, uint32_t> skeletonNameToId;
-		std::vector<std::shared_ptr<Skeleton>> skeletons;
-		std::unordered_map<std::string, uint32_t> animationNameToId;
-		std::vector<std::shared_ptr<Animation>> animations;
+		std::string name;
 		
-		void Load(const char* file);
+		std::vector<Bone> bones;
+		
+		void LoadSkeleton(const aiSkeleton* skeleton);
 	};
 	
 } // namespace BasicMeshLoader
 } // namespace gl
 
 #endif
-
-#include "AssimpLoader.inl.hpp"
 

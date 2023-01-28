@@ -18,8 +18,8 @@
 
 #pragma once
 
-#ifndef OPEN_GL_BASIC_MESH_LOADER_ASSIMP_LOADER_HPP
-#define OPEN_GL_BASIC_MESH_LOADER_ASSIMP_LOADER_HPP
+#ifndef OPEN_GL_BASIC_MESH_LOADER_ANIMATION_HPP
+#define OPEN_GL_BASIC_MESH_LOADER_ANIMATION_HPP
 
 #include <cinttypes>
 #include <cmath>
@@ -31,35 +31,56 @@
 #include <memory>
 
 #include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
 
-#include "Value.hpp"
 #include "Mesh.hpp"
-#include "Skeleton.hpp"
-#include "Animation.hpp"
 
-class aiScene;
-class aiMesh;
+class aiAnimation;
 
 namespace gl {
 namespace BasicMeshLoader {
 	
-	class AssimpLoader {
+	struct VectorKey {
+		float time;
+		glm::vec3 value;
+	};
+	
+	struct QuatKey {
+		float time;
+		glm::quat value;
+	};
+	
+	class BoneAnimation {
 	public:
 		
-		std::unordered_map<std::string, uint32_t> meshNameToId;
-		std::vector<std::shared_ptr<Mesh>> meshes;
-		std::unordered_map<std::string, uint32_t> skeletonNameToId;
-		std::vector<std::shared_ptr<Skeleton>> skeletons;
-		std::unordered_map<std::string, uint32_t> animationNameToId;
-		std::vector<std::shared_ptr<Animation>> animations;
+		std::vector<VectorKey> keyPos;
+		std::vector<VectorKey> keyScale;
+		std::vector<QuatKey> keyRot;
 		
-		void Load(const char* file);
+		template<typename T>
+		float Find(std::vector<T>& keys, float time, T& a, T& b);
+		glm::mat4 GetLocalMatrix(float time);
+	};
+	
+	class Animation {
+	public:
+		
+		std::string name;
+		
+		std::vector<BoneAnimation> keyFramesPerBone;
+		
+		float duration;
+		float framesPerSecond;
+		
+		std::shared_ptr<Mesh> mesh;
+		
+		void GetModelBoneMatrices(std::vector<glm::mat4>& matrices, float time, bool loop);
+		
+		void LoadAnimation(class AssimpLoader* loader, const aiAnimation* animation, std::shared_ptr<Mesh> mesh);
 	};
 	
 } // namespace BasicMeshLoader
 } // namespace gl
 
 #endif
-
-#include "AssimpLoader.inl.hpp"
 

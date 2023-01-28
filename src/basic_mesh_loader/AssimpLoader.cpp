@@ -29,22 +29,38 @@ namespace BasicMeshLoader {
 	void AssimpLoader::Load(const char* file) {
 		Assimp::Importer importer;
 		const ::aiScene* s = importer.ReadFile(file, aiProcess_Triangulate | aiProcess_JoinIdenticalVertices);
-		auto m = s->mMeshes[0];
 		
-		this->meshes.clear();
-		this->meshes.resize(s->mNumMeshes);
+		meshNameToId.clear();
+		meshes.clear();
+		meshes.resize(s->mNumMeshes);
 		for(int i=0; i<s->mNumMeshes; ++i) {
 			meshes[i] = std::make_shared<Mesh>();
-			meshes[i]->LoadMesh(s->mMeshes[i]);
+			meshes[i]->LoadMesh(s, s->mMeshes[i]);
+			meshNameToId.emplace(meshes[i]->name, i);
 		}
 		
-// 		// weights of vertices of bone [0]
-// 		s->mSkeletons[0]->mBones[0]->mWeights;
-// 		
-// 		// animations data probrably per bone
-// 		s->mAnimations[0]->mChannels[0]->mPositionKeys;
-// 		s->mAnimations[0]->mChannels[0]->mRotationKeys;
-// 		s->mAnimations[0]->mChannels[0]->mScalingKeys;
+		/*
+		skeletonNameToId.clear();
+		skeletons.clear();
+		skeletons.resize(s->mNumSkeletons);
+		for(int i=0; i<s->mNumSkeletons; ++i) {
+			skeletons[i] = std::make_shared<Skeleton>();
+			skeletons[i]->LoadSkeleton(s->mSkeletons[i]);
+			skeletonNameToId.emplace(skeletons[i]->name, i);
+		}
+		*/
+		
+		animationNameToId.clear();
+		animations.clear();
+		animations.resize(s->mNumAnimations);
+		for(int i=0; i<s->mNumAnimations; ++i) {
+			animations[i] = std::make_shared<Animation>();
+			animations[i]->LoadAnimation(this, s->mAnimations[i], meshes[0]);
+			animationNameToId.emplace(animations[i]->name, i);
+			printf(" loaded animation: %s\n", animations[i]->name.c_str());
+		}
+		
+		puts("PUTS\n");
 	}
 } // namespace BasicMeshLoader
 } // namespace gl

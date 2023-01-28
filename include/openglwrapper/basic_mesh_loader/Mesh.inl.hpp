@@ -135,8 +135,7 @@ namespace BasicMeshLoader {
 			uint32_t weightsOffset,
 			uint32_t boneIdsOffset,
 			uint32_t stride,
-			void(*converterWeight)(Tweight* dst, Value<4> value),
-			void(*converterBone)(Tbone* dst, Value<4> value),
+			void(*converterWeight)(Tweight* dst, Value<1> value),
 			uint32_t weightsCount
 			) const {
 		std::vector<VertexBoneWeight> w;
@@ -152,6 +151,15 @@ namespace BasicMeshLoader {
 			if(sum > 0)
 				for(auto v : w)
 					v.weight /= sum;
+			else
+				for(auto v : w)
+					v.weight = 0;
+			for(int j=0; j<w.size(); ++j) {
+				Tweight* wb = (Tweight*)&(buffer[baseOffset + i*stride + weightsOffset + sizeof(Tweight)*j]);
+				converterWeight(wb, {w[j].weight});
+				Tbone* bb = (Tbone*)&(buffer[baseOffset + i*stride + boneIdsOffset + sizeof(Tbone)*j]);
+				bb[0] = w[j].boneId;
+			}
 		}
 	}
 	
