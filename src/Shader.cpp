@@ -278,7 +278,7 @@ void Shader::SetMat4(int location, const glm::mat4 &mat) {
 
 void Shader::SetMat4(int location, const std::vector<glm::mat4>& array) {
 	Use();
-	glUniformMatrix4fv(location, array.size(), GL_FALSE,
+	glUniformMatrix4fv(location, array.size()*16*4, GL_FALSE,
 			(float*)&array.front());
 }
 

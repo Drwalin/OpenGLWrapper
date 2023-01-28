@@ -34,6 +34,7 @@ if(BUILD_EXAMPLES)
 		samples/Camera
 		
 		samples/AssimpModelWithShading/Main
+		samples/AssimpAnimatedModel/Main
 		samples/Samples
 		samples/Simple/Main
 		samples/SimpleCompute/Main

@@ -37,6 +37,10 @@ namespace AssimpModelWithShading {
 	int main();
 }
 
+namespace AssimpAniamatedModel {
+	int main();
+}
+
 
 
 struct Entry {
@@ -64,6 +68,10 @@ const Entry entries[] = {
 	{
 		"assimp_model_with_shading",
 		AssimpModelWithShading::main
+	},
+	{
+		"assim_animated_model",
+		AssimpAniamatedModel::main
 	},
 	{
 		"complex_compute",

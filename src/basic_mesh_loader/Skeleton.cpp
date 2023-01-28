@@ -16,50 +16,32 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include <cstdio>
 
-#ifndef OPEN_GL_BASIC_MESH_LOADER_ASSIMP_LOADER_HPP
-#define OPEN_GL_BASIC_MESH_LOADER_ASSIMP_LOADER_HPP
+#include <algorithm>
 
-#include <cinttypes>
-#include <cmath>
+#include <openglwrapper/basic_mesh_loader/Skeleton.hpp>
 
-#include <vector>
-#include <unordered_map>
-#include <type_traits>
-#include <string>
-#include <memory>
-
-#include <glm/glm.hpp>
-
-#include "Value.hpp"
-#include "Mesh.hpp"
-#include "Skeleton.hpp"
-#include "Animation.hpp"
-
-class aiScene;
-class aiMesh;
+#include <assimp/scene.h>
 
 namespace gl {
 namespace BasicMeshLoader {
-	
-	class AssimpLoader {
-	public:
+	void Skeleton::LoadSkeleton(const aiSkeleton* skel) {
+		bones.resize(skel->mNumBones);
 		
-		std::unordered_map<std::string, uint32_t> meshNameToId;
-		std::vector<std::shared_ptr<Mesh>> meshes;
-		std::unordered_map<std::string, uint32_t> skeletonNameToId;
-		std::vector<std::shared_ptr<Skeleton>> skeletons;
-		std::unordered_map<std::string, uint32_t> animationNameToId;
-		std::vector<std::shared_ptr<Animation>> animations;
+		for(int i=0; i<skel->mNumBones; ++i) {
+			const aiSkeletonBone* bone = skel->mBones[i];
+			Bone& b = bones[i];
+// 			b.inverseBindingPoseMatrix = bone->mLocalMatrix;
+// 			b.relativeOffsetMatrix = bone->mOffsetMatrix;
+			b.parentId = bone->mParent;
+			b.id = i;
+		}
 		
-		void Load(const char* file);
-	};
-	
+		this->name = skel->mName.C_Str();
+		printf(" skeleton name: %s\n", skel->mName.C_Str());
+	}
 } // namespace BasicMeshLoader
 } // namespace gl
 
-#endif
-
-#include "AssimpLoader.inl.hpp"
 

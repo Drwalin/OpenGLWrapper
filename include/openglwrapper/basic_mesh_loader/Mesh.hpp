@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include <limits>
 #ifndef OPEN_GL_BASIC_MESH_LOADER_MESH_HPP
 #define OPEN_GL_BASIC_MESH_LOADER_MESH_HPP
 
@@ -30,10 +29,12 @@
 #include <type_traits>
 #include <string>
 #include <memory>
+#include <limits>
 
 #include <glm/glm.hpp>
 
 #include "Value.hpp"
+#include "Skeleton.hpp"
 
 class aiScene;
 class aiMesh;
@@ -43,11 +44,22 @@ namespace BasicMeshLoader {
 	
 	struct VertexBoneWeight {
 	public:
-		inline VertexBoneWeight(uint32_t boneId, float weight) : boneId(boneId), weight(weight) {}
+		inline VertexBoneWeight(uint32_t boneId=0, float weight=0) : boneId(boneId), weight(weight) {}
 		
 		uint32_t boneId;
 		float weight;
 	};
+	
+	class MeshBone {
+	public:
+		std::string name;
+		glm::mat4 inverseLocalModelSpaceBindingPoseMatrix;
+		glm::mat4 globalInverseBindingPoseMatrix;
+		glm::mat4 relativePosition;
+		int id;
+		int parentId;
+	};
+	
 	
 	class Mesh {
 	public:
@@ -62,9 +74,15 @@ namespace BasicMeshLoader {
 		
 		std::vector<uint32_t> indices;
 		
+		// begin skeleton
+		std::vector<MeshBone> bones;
+		std::unordered_map<std::string, int32_t> boneNameToId;
+		glm::mat4 inverseGlobalMatrix;
+		// end skeleton
 		
 		
-		void LoadMesh(const aiMesh* mesh);
+		
+		void LoadMesh(const aiScene* scene, const aiMesh* mesh);
 		
 		
 		template<typename T>
@@ -127,9 +145,8 @@ namespace BasicMeshLoader {
 				uint32_t weightsOffset,
 				uint32_t boneIdsOffset,
 				uint32_t stride,
-				void(*converterWeight)(Tweight* dst, Value<4> value),
-				void(*converterBone)(Tbone* dst, Value<4> value),
-				uint32_t weightsCount = 3
+				void(*converterWeight)(Tweight* dst, Value<1> value),
+				uint32_t weightsCount = 4
 				) const;
 	};
 } // namespace BasicMeshLoader

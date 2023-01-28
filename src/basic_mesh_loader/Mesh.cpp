@@ -19,16 +19,26 @@
 #include <cstdio>
 
 #include <algorithm>
+#include <unordered_map>
 
 #include <openglwrapper/basic_mesh_loader/Mesh.hpp>
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include <assimp/matrix4x4.h>
+
+static glm::mat4 ConvertAssimpToGlmMat(aiMatrix4x4 s) {
+	return glm::mat4(
+			s.a1, s.a2, s.a3, s.a4,
+			s.b1, s.b2, s.b3, s.b4,
+			s.c1, s.c2, s.c3, s.c4,
+			s.d1, s.d2, s.d3, s.d4);
+}
 
 namespace gl {
 namespace BasicMeshLoader {
-	void Mesh::LoadMesh(const aiMesh* mesh) {
+	void Mesh::LoadMesh(const aiScene* scene, const aiMesh* mesh) {
 		uint32_t vertices = mesh->mNumVertices;
 		uint32_t colors = mesh->GetNumColorChannels();
 		uint32_t uvs = mesh->GetNumUVChannels();
@@ -84,13 +94,50 @@ namespace BasicMeshLoader {
 		}
 		
 		if(mesh->HasBones()) {
-			this->weight.resize(vertices);
+			weight.resize(vertices);
+			bones.resize(mesh->mNumBones);
+			std::unordered_map<std::string, int32_t> boneNameToId;
 			for(int b=0; b<mesh->mNumBones; ++b) {
 				aiBone* bone = mesh->mBones[b];
+				bones[b].name = bone->mName.C_Str();
+				boneNameToId[bones[b].name] = b;
+				bones[b].id = b;
+			}
+			for(int b=0; b<mesh->mNumBones; ++b) {
+				aiBone* bone = mesh->mBones[b];
+				
+				aiNode* node = scene->mRootNode->FindNode(bone->mName);
+				
+				const char* bname = node->mParent->mName.C_Str();
+				if(boneNameToId.find(bname) != boneNameToId.end()) {
+					bones[b].parentId = boneNameToId[bname];
+				} else {
+					aiNode* cn = node->mParent;// should start here, or a in nodeo; ??
+					glm::mat4 mat(1.0f);
+					while(cn) {
+						glm::mat4 m = ConvertAssimpToGlmMat(cn->mTransformation);
+						mat = m * mat;
+						cn = cn->mParent;
+					}
+					
+					inverseGlobalMatrix = glm::inverse(mat);
+					bones[b].parentId = -1;
+				}
+				
+				printf(" %i -> %i ; %s -> %s   ((%i)) \n", bones[b].parentId, bones[b].id, bones[b].parentId > 0 ? bones[bones[b].parentId].name.c_str():"[nil]", bones[b].name.c_str(), bone->mNumWeights);
+				
+				bones[b].globalInverseBindingPoseMatrix = ConvertAssimpToGlmMat(bone->mOffsetMatrix);
+				bones[b].relativePosition = ConvertAssimpToGlmMat(node->mTransformation);
+				
 				for(int i=0; i<bone->mNumWeights; ++i) {
 					aiVertexWeight w = bone->mWeights[i];
 					weight[w.mVertexId].emplace_back(VertexBoneWeight(b, w.mWeight));
 				}
+			}
+			for(int b=0; b<mesh->mNumBones; ++b) {
+				glm::mat4 fwd = glm::inverse(bones[b].globalInverseBindingPoseMatrix);
+				fwd = inverseGlobalMatrix * fwd;
+				bones[b].inverseLocalModelSpaceBindingPoseMatrix = glm::inverse(fwd);
 			}
 			for(int i=0; i<vertices; ++i) {
 				std::sort(
