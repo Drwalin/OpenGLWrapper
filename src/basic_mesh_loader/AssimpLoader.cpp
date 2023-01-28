@@ -18,7 +18,7 @@
 
 #include <cstdio>
 
-#include <openglwrapper/basic_mesh_loader/AssimpLoader.hpp>
+#include "../../include/openglwrapper/basic_mesh_loader/AssimpLoader.hpp"
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>

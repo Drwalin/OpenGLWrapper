@@ -56,13 +56,13 @@ int main() {
 			gl::BasicMeshLoader::ConverterIntNormalized<uint8_t, 127, 3>);
 	
 	mesh->ExtractWeightsWithBones<uint8_t, uint8_t>(0, vbo.Buffer(), 28, 32, stride,
-			gl::BasicMeshLoader::ConverterIntPlainClamp<uint8_t, 0, 255, 1>, 4);
+			gl::BasicMeshLoader::ConverterIntPlainClampScale<uint8_t, 255, 0, 255, 1>, 4);
 	
 	mesh->AppendIndices<uint32_t>(0, indices.Buffer());
 	
 	// Extract one frame
 	std::vector<glm::mat4> matrices;
-	l.animations[0]->GetModelBoneMatrices(matrices, 2, false);
+	l.animations[0]->GetModelBoneMatrices(matrices, 2, true);
 	
 	// Generate VBO & EBO
 	vbo.Generate();
@@ -95,7 +95,7 @@ int main() {
         ourShader.Use();
 		
 		// Set light direction
-		ourShader.SetVec4(lightDirLoc, glm::normalize(glm::rotate(glm::mat4(1),(lastFrame)/1.0f,glm::vec3(0,1,0))*glm::vec4(-1,-0.1,-1,1)));
+		ourShader.SetVec4(lightDirLoc, glm::normalize(glm::rotate(glm::mat4(1),(lastFrame*0)/1.0f,glm::vec3(0,1,0))*glm::vec4(-1,-0.1,-1,1)));
         
 		// Calculate projection matrix
         glm::mat4 projection = glm::perspective(45.0f,
@@ -110,6 +110,8 @@ int main() {
 		ourShader.SetMat4(projLoc, projection);
 		
 		// set animation (bone) matrices
+		matrices.clear();
+		l.animations[0]->GetModelBoneMatrices(matrices, lastFrame, true);
 		ourShader.SetMat4(bonesMatLoc, matrices);
 		
 		// Calulate model matrix
@@ -127,7 +129,7 @@ int main() {
 						3.141592f/2.0f,
 						glm::vec3(-1,0,0)
 					),
-					glm::vec3(2.0f)
+					glm::vec3(0.01)
 				);
 
 			// Set shader uniform model matrice

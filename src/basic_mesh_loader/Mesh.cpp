@@ -21,12 +21,12 @@
 #include <algorithm>
 #include <unordered_map>
 
-#include <openglwrapper/basic_mesh_loader/Mesh.hpp>
-
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <assimp/matrix4x4.h>
+
+#include "../../include/openglwrapper/basic_mesh_loader/Mesh.hpp"
 
 static glm::mat4 ConvertAssimpToGlmMat(aiMatrix4x4 s) {
 	return glm::mat4(
@@ -96,7 +96,7 @@ namespace BasicMeshLoader {
 		if(mesh->HasBones()) {
 			weight.resize(vertices);
 			bones.resize(mesh->mNumBones);
-			std::unordered_map<std::string, int32_t> boneNameToId;
+			boneNameToId.clear();
 			for(int b=0; b<mesh->mNumBones; ++b) {
 				aiBone* bone = mesh->mBones[b];
 				bones[b].name = bone->mName.C_Str();

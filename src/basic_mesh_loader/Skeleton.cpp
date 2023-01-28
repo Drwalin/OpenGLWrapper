@@ -20,7 +20,7 @@
 
 #include <algorithm>
 
-#include <openglwrapper/basic_mesh_loader/Skeleton.hpp>
+#include "../../include/openglwrapper/basic_mesh_loader/Skeleton.hpp"
 
 #include <assimp/scene.h>
 
