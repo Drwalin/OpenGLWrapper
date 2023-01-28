@@ -25,10 +25,27 @@
 #include <glm/gtc/constants.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/vector_relational.hpp>
-#include <openglwrapper/basic_mesh_loader/Animation.hpp>
+#include <glm/mat4x4.hpp>
 
 #include <assimp/scene.h>
 #include <assimp/quaternion.h>
+
+#include "../../include/openglwrapper/basic_mesh_loader/Animation.hpp"
+
+static void print(glm::vec3 v) {
+	printf("{%f %f %f %f}", v.x, v.y, v.z);
+}
+
+static void print(glm::quat v) {
+	printf("{%f %f %f %f}", v.x, v.y, v.z, v.w);
+}
+
+template<typename T>
+static void printKey(T v) {
+	printf(" key: %f -> ", v.time);
+	print(v.value);
+	printf("\n");
+}
 
 namespace gl {
 namespace BasicMeshLoader {
@@ -46,51 +63,50 @@ namespace BasicMeshLoader {
 			aiNodeAnim* ch = anim->mChannels[c];
 			if(mesh->boneNameToId.find(ch->mNodeName.C_Str()) != mesh->boneNameToId.end()) {
 				int boneId = mesh->boneNameToId[ch->mNodeName.C_Str()];
+				auto& kf = keyFramesPerBone[boneId];
 			
-			printf(" channel %i -> %s\n", c, ch->mNodeName.C_Str());
-			
-			for(int i=0; i<ch->mNumPositionKeys; ++i) {
-				auto K = ch->mPositionKeys[i];
-				auto v = K.mValue;
-				keyFramesPerBone[c].keyPos.emplace_back(VectorKey{K.mTime, {v.x,v.y,v.z}});
-			}
-			
-			for(int i=0; i<ch->mNumScalingKeys; ++i) {
-				auto K = ch->mScalingKeys[i];
-				auto v = K.mValue;
-				keyFramesPerBone[c].keyScale.emplace_back(VectorKey{K.mTime, {v.x,v.y,v.z}});
-			}
-			
-			for(int i=0; i<ch->mNumRotationKeys; ++i) {
-				auto K = ch->mRotationKeys[i];
-				auto v = K.mValue;
-				keyFramesPerBone[c].keyRot.emplace_back(QuatKey{K.mTime, {v.w,v.x,v.y,v.z}});
-			}
-			
-			std::sort(
-					keyFramesPerBone[c].keyPos.begin(),
-					keyFramesPerBone[c].keyPos.end(), 
-					[](VectorKey a, VectorKey b)->bool{
-						return a.time < b.time;
-					});
-			
-			std::sort(
-					keyFramesPerBone[c].keyScale.begin(),
-					keyFramesPerBone[c].keyScale.end(), 
-					[](VectorKey a, VectorKey b)->bool{
-						return a.time < b.time;
-					});
-			
-			std::sort(
-					keyFramesPerBone[c].keyRot.begin(),
-					keyFramesPerBone[c].keyRot.end(), 
-					[](QuatKey a, QuatKey b)->bool{
-						return a.time < b.time;
-					});
+				printf(" channel %i -> %s\n", c, ch->mNodeName.C_Str());
+				
+				for(int i=0; i<ch->mNumPositionKeys; ++i) {
+					auto K = ch->mPositionKeys[i];
+					auto v = K.mValue;
+					kf.keyPos.emplace_back(VectorKey{(float)K.mTime/framesPerSecond, {v.x,v.y,v.z}});
+				}
+				
+				for(int i=0; i<ch->mNumScalingKeys; ++i) {
+					auto K = ch->mScalingKeys[i];
+					auto v = K.mValue;
+					kf.keyScale.emplace_back(VectorKey{(float)K.mTime/framesPerSecond, {v.x,v.y,v.z}});
+				}
+				
+				for(int i=0; i<ch->mNumRotationKeys; ++i) {
+					auto K = ch->mRotationKeys[i];
+					auto v = K.mValue;
+					kf.keyRot.emplace_back(QuatKey{(float)K.mTime/framesPerSecond, {v.w,v.x,v.y,v.z}});
+				}
+				
+				std::sort(
+						kf.keyPos.begin(),
+						kf.keyPos.end(), 
+						[](VectorKey a, VectorKey b)->bool{
+							return a.time < b.time;
+						});
+				
+				std::sort(
+						kf.keyScale.begin(),
+						kf.keyScale.end(), 
+						[](VectorKey a, VectorKey b)->bool{
+							return a.time < b.time;
+						});
+				
+				std::sort(
+						kf.keyRot.begin(),
+						kf.keyRot.end(), 
+						[](QuatKey a, QuatKey b)->bool{
+							return a.time < b.time;
+						});
 			}
 		}
-		
-		printf(" animation name: %s\n", anim->mName.C_Str());
 	}
 	
 	template<typename T>
@@ -132,8 +148,14 @@ namespace BasicMeshLoader {
 		tr = Find(keyRot, time, ar, br);
 		p = ap.value + (bp.value-ap.value)*tp;
 		s = as.value + (bs.value-as.value)*ts;
-		r = glm::slerp(ar.value, br.value, tr);
+		r = glm::lerp(ar.value, br.value, tr);
 		
+// 			printf(" found data:\n");
+// 			printf(" pos: %f %f %f\n", p.x, p.y, p.z);
+// 			printf(" scale: %f %f %f\n", s.x, s.y, s.z);
+// 			printf(" rotation: %f %f %f %f\n", r.x, r.y, r.z, r.w);
+// 			printf("\n");
+
 		glm::mat4 trans = glm::translate(glm::mat4(1), p);
 		glm::mat4 rot = glm::mat4_cast(r);
 		glm::mat4 scale = glm::scale(glm::mat4(1), s);
@@ -152,15 +174,29 @@ namespace BasicMeshLoader {
 			if(parent >= i) {
 				throw "Error in: '" __FILE__ "' - bones need to be ordered (parent bone id must be lower than child, what is not the case here).";
 			}
+			if(i == 14) {
+				printf(" mat:  %f %f %f\n",
+						matrices[i][3][0],
+						matrices[i][3][1],
+						matrices[i][3][2]);
+			}
 			//translate matrix from local to model, multiplying by parent
 			if(parent >= 0) {
 				matrices[i] = matrices[parent] * matrices[i];
+			} else {
+// 				matrices[i] = glm::inverse(mesh->inverseGlobalMatrix) * matrices[i];
 			}
 		}
 		// encapsulate transformation from offset of a bone
 		for(int i=0; i<keyFramesPerBone.size(); ++i) {
-// 			matrices[i] = matrices[i] * this->mesh->bones[i].inverseLocalModelSpaceBindingPoseMatrix;
-			matrices[i] = this->mesh->bones[i].inverseLocalModelSpaceBindingPoseMatrix * matrices[i];
+			matrices[i] = matrices[i] * mesh->bones[i].inverseLocalModelSpaceBindingPoseMatrix;
+// 			matrices[i] = matrices[i] * mesh->bones[i].globalInverseBindingPoseMatrix;
+			if(i == 4) {
+				printf(" mat:  %f %f %f\n",
+						matrices[i][3][0],
+						matrices[i][3][1],
+						matrices[i][3][2]);
+			}
 		}
 	}
 } // namespace BasicMeshLoader

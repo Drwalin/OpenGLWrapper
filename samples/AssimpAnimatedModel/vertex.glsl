@@ -4,7 +4,7 @@ in vec3 pos;
 in vec4 color;
 in vec3 normal;
 in vec4 weights;
-in ivec4 bones;
+in vec4 bones;
 
 const int MAX_BONES = 100;
 uniform mat4 bonesMat[MAX_BONES];
@@ -26,16 +26,18 @@ vec4 Mult(vec4 point) {
 // 		) * point;
 	
 	return
-		  (bonesMat[bones.x] * point) * weights.x
-		+ (bonesMat[bones.y] * point) * weights.y
-		+ (bonesMat[bones.z] * point) * weights.z
-		+ (bonesMat[bones.w] * point) * weights.w;
+		  (bonesMat[int(bones.x)] * point) * weights.x
+		+ (bonesMat[int(bones.y)] * point) * weights.y
+		+ (bonesMat[int(bones.z)] * point) * weights.z
+		+ (bonesMat[int(bones.w)] * point) * weights.w;
 }
 
 void main() {
-	
 	vec4 vp = Mult(vec4(pos, 1));
-	float t = 0.65;
+// 	vp = vec4(pos, 0) + bonesMat[bones.x][3];
+// 	vp.x = bones.x;
+// 	vp.w = 1;
+	float t = 1;
 	vp = vp * t + vec4(pos,1) * (1.0f-t);
 	vp.w = 1;
 	vec4 pp = model * vp;

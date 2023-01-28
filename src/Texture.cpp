@@ -16,7 +16,7 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <openglwrapper/Texture.h>
+#include "../include/openglwrapper/Texture.h"
 
 #include "../thirdparty/SOIL2/src/SOIL2/SOIL2.h"
 

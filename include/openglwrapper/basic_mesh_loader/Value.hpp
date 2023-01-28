@@ -141,12 +141,21 @@ namespace BasicMeshLoader {
 	void ConverterIntPlainClampScale(T* dst, Value<dim> value) {
 		for(int i=0; i<dim; ++i) {
 			float v = (value.v[i]*(float)scale)+0.5f;
-			if(v <= (float)min)
+			if(v <= (float)min) {
 				dst[i] = min;
-			else if(v >= (float)max)
+			if(dim == 1)
+				printf("A");
+			} else if(v >= (float)max) {
 				dst[i] = max;
-			else
+			if(dim == 1)
+				printf("B");
+			} else {
 				dst[i] = v;
+			if(dim == 1)
+				printf("C");
+			}
+			if(dim == 1)
+			printf(" %f ==> %i", v, dst[i]);
 		}
 	}
 	
