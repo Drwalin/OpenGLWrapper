@@ -110,26 +110,27 @@ int main() {
 		ourShader.SetMat4(projLoc, projection);
 		
 		// set animation (bone) matrices
-		matrices.clear();
+// 		matrices.clear();
 		l.animations[0]->GetModelBoneMatrices(matrices, lastFrame, true);
+// 		l.GetModelBoneMatrices(l.animations[0], l.meshes[0], matrices, lastFrame, true);
 		ourShader.SetMat4(bonesMatLoc, matrices);
 		
 		// Calulate model matrix
-		glm::mat4 model = 
+		glm::mat4 model = //glm::mat4(1);
 			glm::scale(
-					glm::rotate(
-						glm::rotate(
+// 					glm::rotate(
+// 						glm::rotate(
 							glm::translate(
 								glm::mat4(1.0f),
 								glm::vec3(2, -1, 0)
 							),
-							-3.141592f/2,
-							glm::vec3(0,1,0)
-						),
-						3.141592f/2.0f,
-						glm::vec3(-1,0,0)
-					),
-					glm::vec3(0.01)
+// 							0.0f,//-3.141592f/2,
+// 							glm::vec3(0,1,0)
+// 						),
+// 						0.0f,//3.141592f/2.0f,
+// 						glm::vec3(1,0,0)
+// 					),
+					glm::vec3(1.01)
 				);
 
 			// Set shader uniform model matrice

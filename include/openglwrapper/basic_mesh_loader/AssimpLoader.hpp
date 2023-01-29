@@ -39,12 +39,20 @@
 
 class aiScene;
 class aiMesh;
+class aiNode;
+
+namespace Assimp {
+	class Importer;
+}
 
 namespace gl {
 namespace BasicMeshLoader {
 	
 	class AssimpLoader {
 	public:
+		
+		std::shared_ptr<Assimp::Importer> importer;
+		aiScene const* scene;
 		
 		std::unordered_map<std::string, uint32_t> meshNameToId;
 		std::vector<std::shared_ptr<Mesh>> meshes;
@@ -53,7 +61,18 @@ namespace BasicMeshLoader {
 		std::unordered_map<std::string, uint32_t> animationNameToId;
 		std::vector<std::shared_ptr<Animation>> animations;
 		
+		
 		void Load(const char* file);
+		
+		void GetModelBoneMatrices(std::shared_ptr<Animation> animation,
+				std::shared_ptr<Mesh> mesh, std::vector<glm::mat4>& matrices,
+				float time, bool loop);
+		
+		void ReadNodeHierarchy(std::vector<glm::mat4>& matrices,
+				std::shared_ptr<Animation> animation,
+				std::shared_ptr<Mesh> mesh,
+				float time, const aiNode* pNode, 
+				glm::mat4 parentTransform);
 	};
 	
 } // namespace BasicMeshLoader

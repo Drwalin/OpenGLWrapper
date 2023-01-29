@@ -73,6 +73,7 @@ namespace BasicMeshLoader {
 		float framesPerSecond;
 		
 		std::shared_ptr<Mesh> mesh;
+		aiAnimation const* aiAnim;
 		
 		void GetModelBoneMatrices(std::vector<glm::mat4>& matrices, float time, bool loop);
 		

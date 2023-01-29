@@ -22,6 +22,7 @@
 
 #include <glm/ext/quaternion_trigonometric.hpp>
 #include <glm/fwd.hpp>
+#include <glm/geometric.hpp>
 #include <glm/gtc/constants.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/vector_relational.hpp>
@@ -32,8 +33,12 @@
 
 #include "../../include/openglwrapper/basic_mesh_loader/Animation.hpp"
 
+static void print(glm::vec4	v) {
+	printf("{%f %f %f %f}", v.x, v.y, v.z, v.w);
+}
+
 static void print(glm::vec3 v) {
-	printf("{%f %f %f %f}", v.x, v.y, v.z);
+	printf("{%f %f %f}", v.x, v.y, v.z);
 }
 
 static void print(glm::quat v) {
@@ -47,10 +52,23 @@ static void printKey(T v) {
 	printf("\n");
 }
 
+static void printMat(glm::mat4 m) {
+	printf("{");
+	for(int i=0; i<4; ++i) {
+		if(i);
+		printf(" ;");
+		for(int j=0; j<4; ++j) {
+			printf(" %+10.3f", m[i][j]);
+		}
+	}
+	printf("}");
+}
+
 namespace gl {
 namespace BasicMeshLoader {
 	void Animation::LoadAnimation(class AssimpLoader* loader, const aiAnimation* anim, std::shared_ptr<Mesh> mesh) {
 		this->mesh = mesh;
+		this->aiAnim = anim;
 		duration = anim->mDuration;
 		framesPerSecond = 24.0f;
 		name = anim->mName.C_Str();
@@ -148,7 +166,8 @@ namespace BasicMeshLoader {
 		tr = Find(keyRot, time, ar, br);
 		p = ap.value + (bp.value-ap.value)*tp;
 		s = as.value + (bs.value-as.value)*ts;
-		r = glm::lerp(ar.value, br.value, tr);
+		r = glm::slerp(ar.value, br.value, tr);
+		r = glm::normalize(r);
 		
 // 			printf(" found data:\n");
 // 			printf(" pos: %f %f %f\n", p.x, p.y, p.z);
@@ -184,20 +203,24 @@ namespace BasicMeshLoader {
 			if(parent >= 0) {
 				matrices[i] = matrices[parent] * matrices[i];
 			} else {
-// 				matrices[i] = glm::inverse(mesh->inverseGlobalMatrix) * matrices[i];
+// // // 				matrices[i] = glm::inverse(mesh->inverseGlobalMatrix) * matrices[i];
+// 				matrices[i] = mesh->rootInverseMatrix * mesh->globalMatrix * matrices[i];
+				matrices[i] = mesh->globalMatrix * matrices[i];
 			}
 		}
 		// encapsulate transformation from offset of a bone
 		for(int i=0; i<keyFramesPerBone.size(); ++i) {
-			matrices[i] = matrices[i] * mesh->bones[i].inverseLocalModelSpaceBindingPoseMatrix;
-// 			matrices[i] = matrices[i] * mesh->bones[i].globalInverseBindingPoseMatrix;
-			if(i == 4) {
-				printf(" mat:  %f %f %f\n",
-						matrices[i][3][0],
-						matrices[i][3][1],
-						matrices[i][3][2]);
+// 			matrices[i] = matrices[i] * mesh->bones[i].inverseLocalModelSpaceBindingPoseMatrix;
+ 			matrices[i] = matrices[i] * mesh->bones[i].globalInverseBindingPoseMatrix;
+			if(i == 5)
+			{
+				glm::vec4 p = matrices[i] * glm::vec4(0, 0, 4, 1);
+// 				print(p);
+// 				printMat(matrices[i]);
+// 				printf("\n");
 			}
 		}
+// 		printf("\n");
 	}
 } // namespace BasicMeshLoader
 } // namespace gl
