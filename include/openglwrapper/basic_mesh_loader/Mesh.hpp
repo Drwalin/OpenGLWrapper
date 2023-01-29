@@ -78,8 +78,11 @@ namespace BasicMeshLoader {
 		std::vector<MeshBone> bones;
 		std::unordered_map<std::string, int32_t> boneNameToId;
 		glm::mat4 inverseGlobalMatrix;
+		glm::mat4 globalMatrix;
+		glm::mat4 rootInverseMatrix;
 		// end skeleton
 		
+		int GetBoneIndex(std::string boneName);
 		
 		
 		void LoadMesh(const aiScene* scene, const aiMesh* mesh);

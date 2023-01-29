@@ -38,6 +38,14 @@ static glm::mat4 ConvertAssimpToGlmMat(aiMatrix4x4 s) {
 
 namespace gl {
 namespace BasicMeshLoader {
+	
+	int Mesh::GetBoneIndex(std::string boneName) {
+		auto it = boneNameToId.find(boneName);
+		if(it == boneNameToId.end())
+			return -1;
+		return it->second;
+	}
+	
 	void Mesh::LoadMesh(const aiScene* scene, const aiMesh* mesh) {
 		uint32_t vertices = mesh->mNumVertices;
 		uint32_t colors = mesh->GetNumColorChannels();
@@ -93,6 +101,8 @@ namespace BasicMeshLoader {
 			}
 		}
 		
+		rootInverseMatrix = glm::inverse(ConvertAssimpToGlmMat(scene->mRootNode->mTransformation));
+		
 		if(mesh->HasBones()) {
 			weight.resize(vertices);
 			bones.resize(mesh->mNumBones);
@@ -112,7 +122,7 @@ namespace BasicMeshLoader {
 				if(boneNameToId.find(bname) != boneNameToId.end()) {
 					bones[b].parentId = boneNameToId[bname];
 				} else {
-					aiNode* cn = node->mParent;// should start here, or a in nodeo; ??
+					aiNode* cn = node;//->mParent;// should start here, or a in nodeo; ??
 					glm::mat4 mat(1.0f);
 					while(cn) {
 						glm::mat4 m = ConvertAssimpToGlmMat(cn->mTransformation);
@@ -120,11 +130,12 @@ namespace BasicMeshLoader {
 						cn = cn->mParent;
 					}
 					
+					globalMatrix = mat;
 					inverseGlobalMatrix = glm::inverse(mat);
 					bones[b].parentId = -1;
 				}
 				
-				printf(" %i -> %i ; %s -> %s   ((%i)) \n", bones[b].parentId, bones[b].id, bones[b].parentId > 0 ? bones[bones[b].parentId].name.c_str():"[nil]", bones[b].name.c_str(), bone->mNumWeights);
+// 				printf(" %i -> %i ; %s -> %s   ((%i)) \n", bones[b].parentId, bones[b].id, bones[b].parentId > 0 ? bones[bones[b].parentId].name.c_str():"[nil]", bones[b].name.c_str(), bone->mNumWeights);
 				
 				bones[b].globalInverseBindingPoseMatrix = ConvertAssimpToGlmMat(bone->mOffsetMatrix);
 				bones[b].relativePosition = ConvertAssimpToGlmMat(node->mTransformation);
@@ -143,12 +154,8 @@ namespace BasicMeshLoader {
 				std::sort(
 						weight[i].begin(),
 						weight[i].end(),
-						[](VertexBoneWeight a, VertexBoneWeight b)->int{
-							if(a.weight < b.weight)
-								return -1;
-							if(a.weight > b.weight)
-								return 1;
-							return 0;
+						[](VertexBoneWeight a, VertexBoneWeight b)->bool{
+							return a.weight > b.weight;
 						});
 			}
 		}
