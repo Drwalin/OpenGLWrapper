@@ -40,6 +40,7 @@ if(BUILD_EXAMPLES)
 		samples/SimpleCompute/Main
 		samples/ComplexCompute/Main
 		samples/SimpleDrawMultiIndirectBuffer/Main
+		samples/DrawMultiTestPerformanceVsInstanced/Main
 		samples/Particles_1/Main
 		samples/CircleLine/Main
 		samples/Texture/Main

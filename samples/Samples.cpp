@@ -13,6 +13,10 @@ namespace SimpleDrawMultiIndirectBuffer {
 	int main();
 }
 
+namespace DrawMultiTestPerformanceVsInstanced {
+	int main();
+}
+
 namespace Texture {
 	int main();
 }
@@ -84,6 +88,10 @@ const Entry entries[] = {
 	{
 		"cirlce_line",
 		CircleLine::main
+	},
+	{
+		"draw_multi_test_performance_vs_instanced",
+		DrawMultiTestPerformanceVsInstanced::main
 	}
 };
 

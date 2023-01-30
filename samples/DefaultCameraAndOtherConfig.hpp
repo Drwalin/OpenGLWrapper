@@ -54,24 +54,44 @@ static void DefaultIterationEnd() {
 }
 
 static void DoMovement() {
-    if(keys[GLFW_KEY_W] || keys[GLFW_KEY_UP]) {
-        camera.ProcessKeyboard(FORWARD, deltaTime);
+	float mult = 1;
+	if(keys[GLFW_KEY_LEFT_SHIFT]) {
+		mult = 10;
+	}
+    if(keys[GLFW_KEY_W]) {
+        camera.ProcessKeyboard(FORWARD, deltaTime*mult);
     }
-    if(keys[GLFW_KEY_S] || keys[GLFW_KEY_DOWN]) {
-        camera.ProcessKeyboard(BACKWARD, deltaTime);
+    if(keys[GLFW_KEY_S]) {
+        camera.ProcessKeyboard(BACKWARD, deltaTime*mult);
     }
-    if(keys[GLFW_KEY_D] || keys[GLFW_KEY_RIGHT]) {
-        camera.ProcessKeyboard(RIGHT, deltaTime);
+    if(keys[GLFW_KEY_D]) {
+        camera.ProcessKeyboard(RIGHT, deltaTime*mult);
     }
-    if(keys[GLFW_KEY_A] || keys[GLFW_KEY_LEFT]) {
-        camera.ProcessKeyboard(LEFT, deltaTime);
+    if(keys[GLFW_KEY_A]) {
+        camera.ProcessKeyboard(LEFT, deltaTime*mult);
     }
     if(keys[GLFW_KEY_Q]) {
-        camera.Up(-1, deltaTime);
+        camera.Up(-1, deltaTime*mult);
     }
     if(keys[GLFW_KEY_E]) {
-        camera.Up(1, deltaTime);
+        camera.Up(1, deltaTime*mult);
     }
+	{
+		float y = 0, x=0;
+		if(keys[GLFW_KEY_UP]) {
+			y = 1;
+		}
+		if(keys[GLFW_KEY_DOWN]) {
+			y = -1;
+		}
+		if(keys[GLFW_KEY_RIGHT]) {
+			x = 1;
+		}
+		if(keys[GLFW_KEY_LEFT]) {
+			x = -1;
+		}
+		camera.ProcessMouseMovement(x*deltaTime*100*mult, y*deltaTime*100*mult);
+	}
 }
 
 static void KeyCallback(GLFWwindow * window, int key, int scancode, int action, int mode) {
@@ -94,13 +114,13 @@ static void MouseCallback(GLFWwindow * window, double xPos, double yPos) {
         firstMouse = false;
     }
     
-    float xOfsset = xPos - lastX;
-    float yOfsset = lastY - yPos;
+    float xOffset = xPos - lastX;
+    float yOffset = lastY - yPos;
     
     lastX = xPos;
     lastY = yPos;
-    
-    camera.ProcessMouseMovement(xOfsset, yOfsset);
+	
+	camera.ProcessMouseMovement(xOffset, yOffset);
 }
 
 static void ScrollCallback(GLFWwindow * window, double xOffset, double yOffset) {
