@@ -104,7 +104,7 @@ unsigned int OpenGL::GetHeight() const {
 }
 
 int OpenGL::Init(const char* windowName, unsigned int width,
-		unsigned int height, bool resizable, bool fullscreen,
+		unsigned int height, bool resizable, bool fullscreen, bool limitFrames,
 		int majorOpenglVersion, int minorOpenglVersion) {
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, majorOpenglVersion);
@@ -121,7 +121,6 @@ int OpenGL::Init(const char* windowName, unsigned int width,
 	}
 	glfwGetFramebufferSize(window, (int*)&(this->width), (int*)&(this->height));
 	
-	
 	glfwSetKeyCallback(window, OpenGLKeyCallback);
 	glfwSetCursorPosCallback(window, OpenGLMouseCallback);
 	glfwSetScrollCallback(window, OpenGLScrollCallback);
@@ -131,6 +130,13 @@ int OpenGL::Init(const char* windowName, unsigned int width,
 	
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwMakeContextCurrent(window);
+	
+	if(!limitFrames) {
+		glfwSwapInterval(0);
+	} else {
+		glfwSwapInterval(1);
+	}
+	
 	glewExperimental = GL_TRUE;
 	if(GLEW_OK != glewInit()) {
 	    printf("\n Failed to initialize GLEW! ");

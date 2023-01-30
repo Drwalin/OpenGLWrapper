@@ -112,7 +112,7 @@ namespace gl {
 		unsigned int GetHeight() const;
 		
 		int Init(const char* windowName, unsigned int width, unsigned int height,
-				bool resizable, bool fullscreen,
+				bool resizable, bool fullscreen, bool limitFrames = true,
 				int majorOpenglVersion=4, int minorOpenglVersion=3);
 		
 		void SetKeyCallback(void (GLFWwindow*, int, int, int, int));
