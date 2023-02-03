@@ -12,7 +12,7 @@ uniform mat4 view;
 uniform mat4 projection;
 uniform vec3 acceleration;
 
-out vec3 a, b, c, d;
+out vec3 a, b, c, d, e, f;
 out float life1;
 out vec4 col1;
 
@@ -40,7 +40,7 @@ void main() {
 	life1 = currentTime / lifeTime;
 	
 	vec3 curr = GetPosition(currentTime);
-	vec3 next = GetPosition(currentTime+0.05);
+	vec3 next = GetPosition(currentTime+0.35);
 	vec3 dir = next - curr;
 	dir = dir * (0.2 / length(dir));
 	vec3 perp = Perpendicular(dir) * 0.2;
@@ -51,6 +51,10 @@ void main() {
 	b = mid + perp;
 	c = mid - perp;
 	d = next;
+	
+	vec3 perp2 = normalize(cross(normalize(next-curr), normalize(perp))) * length(perp);
+	e = mid + perp2;
+	f = mid - perp2;
 	
 	col1 = color;
 	gl_Position = vec4(curr, 1);/*
