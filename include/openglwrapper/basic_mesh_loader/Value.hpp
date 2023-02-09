@@ -143,19 +143,11 @@ namespace BasicMeshLoader {
 			float v = (value.v[i]*(float)scale)+0.5f;
 			if(v <= (float)min) {
 				dst[i] = min;
-			if(dim == 1)
-				printf("A");
 			} else if(v >= (float)max) {
 				dst[i] = max;
-			if(dim == 1)
-				printf("B");
 			} else {
 				dst[i] = v;
-			if(dim == 1)
-				printf("C");
 			}
-			if(dim == 1)
-			printf(" %f ==> %i", v, dst[i]);
 		}
 	}
 	

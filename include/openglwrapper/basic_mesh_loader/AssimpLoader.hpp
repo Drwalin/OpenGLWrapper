@@ -69,10 +69,15 @@ namespace BasicMeshLoader {
 				float time, bool loop);
 		
 		void ReadNodeHierarchy(std::vector<glm::mat4>& matrices,
-				std::shared_ptr<Animation> animation,
+				const aiAnimation* animation,
 				std::shared_ptr<Mesh> mesh,
 				float time, const aiNode* pNode, 
 				glm::mat4 parentTransform);
+		
+		aiNode* FindRootNode(aiNode* node,
+				glm::mat4& transform,
+				std::shared_ptr<Animation> anim,
+				std::shared_ptr<Mesh> mesh);
 	};
 	
 } // namespace BasicMeshLoader

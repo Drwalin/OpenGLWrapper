@@ -154,15 +154,15 @@ namespace BasicMeshLoader {
 			else
 				for(auto v : w)
 					v.weight = 0;
-			printf("bone ids: ");
+// 			printf("bone ids: ");
 			for(int j=0; j<w.size(); ++j) {
 				Tweight* wb = (Tweight*)&(buffer[baseOffset + i*stride + weightsOffset + sizeof(Tweight)*j]);
 				converterWeight(wb, {w[j].weight});
 				Tbone* bb = (Tbone*)&(buffer[baseOffset + i*stride + boneIdsOffset + sizeof(Tbone)*j]);
 				bb[0] = w[j].boneId;
-				printf(" %i -> %i (%f)\n", bb[0], wb[0], w[j].weight);
+// 				printf(" %i -> %i (%f)\n", bb[0], wb[0], w[j].weight);
 			}
-			printf("\n");
+// 			printf("\n");
 		}
 	}
 	
