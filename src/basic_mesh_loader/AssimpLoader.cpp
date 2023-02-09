@@ -68,10 +68,7 @@ namespace BasicMeshLoader {
 			animations[i] = std::make_shared<Animation>();
 			animations[i]->LoadAnimation(this, s->mAnimations[i], meshes[0]);
 			animationNameToId.emplace(animations[i]->name, i);
-			printf(" loaded animation: %s\n", animations[i]->name.c_str());
 		}
-		
-		puts("PUTS\n");
 	}
 	
 	void AssimpLoader::GetModelBoneMatrices(
@@ -84,7 +81,33 @@ namespace BasicMeshLoader {
 		}
 		time *= animation->framesPerSecond;
 		matrices.resize(mesh->bones.size());
-		ReadNodeHierarchy(matrices, animation, mesh, time, scene->mRootNode, glm::mat4(1));
+		
+		glm::mat4 transform(1.0f);
+		aiNode* animationRootNode = FindRootNode(scene->mRootNode, transform, animation, mesh);
+		
+// 		ReadNodeHierarchy(matrices, animation->aiAnim, mesh, time, scene->mRootNode, glm::inverse(transform));//glm::mat4(1));
+//		ReadNodeHierarchy(matrices, animation->aiAnim, mesh, time, animationRootNode, transform);//glm::mat4(1));
+		ReadNodeHierarchy(matrices, animation->aiAnim, mesh, time, scene->mRootNode, glm::mat4(1));
+	}
+	
+	aiNode* AssimpLoader::FindRootNode(
+			aiNode* node,
+			glm::mat4& transform,
+			std::shared_ptr<Animation> anim,
+			std::shared_ptr<Mesh> mesh) {
+		if(mesh->boneNameToId.find(node->mName.C_Str()) != mesh->boneNameToId.end()) {
+			return node;
+		}
+		transform *= ConvertAssimpToGlmMat(node->mTransformation);
+		for(int i=0; i<node->mNumChildren; ++i) {
+			glm::mat4 t = transform;
+			aiNode* n = FindRootNode(node->mChildren[i], t, anim, mesh);
+			if(n) {
+				transform = t;
+				return n;
+			}
+		}
+		return NULL;
 	}
 	
 	static const aiNodeAnim* FindNodeAnim(const aiAnimation* anim, std::string name) {
@@ -127,10 +150,26 @@ namespace BasicMeshLoader {
 				const aiQuaternion& StartRotationQ = pNodeAnim->mRotationKeys[RotationIndex].mValue;
 				const aiQuaternion& EndRotationQ = pNodeAnim->mRotationKeys[NextRotationIndex].mValue;
 				aiQuaternion::Interpolate(Out, StartRotationQ, EndRotationQ, Factor);
+				
+				glm::quat a, b;
+				a = {
+					StartRotationQ.w,
+					StartRotationQ.x,
+					StartRotationQ.y,
+					StartRotationQ.z
+				};
+				b = {
+					EndRotationQ.w,
+					EndRotationQ.x,
+					EndRotationQ.y,
+					EndRotationQ.z
+				};
+				
 				Out = Out.Normalize();
 			}
 		}
-		return glm::mat4_cast(glm::quat(Out.w, Out.x, Out.y, Out.z));
+// 		return glm::mat4_cast(glm::quat(Out.w, Out.x, Out.y, Out.z));
+		return glm::mat4_cast(glm::quat(Out.x, Out.y, Out.z, Out.w));
 	}
 	
 	
@@ -171,31 +210,26 @@ namespace BasicMeshLoader {
 	
 	
 	void AssimpLoader::ReadNodeHierarchy(std::vector<glm::mat4>& matrices,
-			std::shared_ptr<Animation> animation,
+			const aiAnimation* animation,
 			std::shared_ptr<Mesh> mesh,
 			float time, const aiNode* pNode, 
 			glm::mat4 parentTransform) {
-		
-		std::string NodeName(pNode->mName.data);
+		std::string nodeName = pNode->mName.C_Str();
+		glm::mat4 nodeTransformation = ConvertAssimpToGlmMat(pNode->mTransformation);
+		const aiNodeAnim* nodeAnim = FindNodeAnim(animation, nodeName);
 
-		const aiAnimation* pAnimation = animation->aiAnim;
-
-		glm::mat4  nodeTransformation = ConvertAssimpToGlmMat(pNode->mTransformation);
-
-		const aiNodeAnim* pNodeAnim = FindNodeAnim(pAnimation, NodeName);
-
-		if(pNodeAnim) {
+		if(nodeAnim && false) {
 			// Interpolate scaling and generate scaling transformation matrix
 			glm::mat4 scale = glm::scale(
 					glm::mat4(1),
 					CalcInterpolatedVector(
 						glm::vec3(1),
 						time,
-						pNodeAnim->mNumScalingKeys,
-						pNodeAnim->mScalingKeys));
+						nodeAnim->mNumScalingKeys,
+						nodeAnim->mScalingKeys));
 			
 			// Interpolate rotation and generate rotation transformation matrix
-			glm::mat4 rotation = CalcInterpolatedRotation(time, pNodeAnim);
+			glm::mat4 rotation = CalcInterpolatedRotation(time, nodeAnim);
 
 			// Interpolate translation and generate translation transformation matrix
 			glm::mat4 translate = glm::translate(
@@ -203,8 +237,8 @@ namespace BasicMeshLoader {
 					CalcInterpolatedVector(
 						glm::vec3(0),
 						time,
-						pNodeAnim->mNumPositionKeys,
-						pNodeAnim->mPositionKeys));
+						nodeAnim->mNumPositionKeys,
+						nodeAnim->mPositionKeys));
 
 			// Combine the above transformations
 			nodeTransformation = translate * rotation * scale;
@@ -212,19 +246,18 @@ namespace BasicMeshLoader {
 
 		glm::mat4 globalTransformation = parentTransform * nodeTransformation;
 
-		int boneIndex = mesh->GetBoneIndex(NodeName);
+		int boneIndex = mesh->GetBoneIndex(nodeName);
 		if(boneIndex >= 0) {
 			matrices[boneIndex] =
-// 				mesh->inverseGlobalMatrix
-				mesh->rootInverseMatrix
-				* globalTransformation
-				* mesh->bones[boneIndex].globalInverseBindingPoseMatrix;
+				mesh->inverseGlobalMatrix *
+// 				mesh->rootInverseMatrix *
+				globalTransformation *
+				mesh->bones[boneIndex].globalInverseBindingPoseMatrix;
 		}
 
 		for(uint i=0; i<pNode->mNumChildren; i++) {
 			ReadNodeHierarchy(matrices, animation, mesh, time, pNode->mChildren[i], globalTransformation);
 		}
-	
 	}
 } // namespace BasicMeshLoader
 } // namespace gl
