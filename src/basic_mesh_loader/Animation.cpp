@@ -58,7 +58,7 @@ static void printMat(glm::mat4 m) {
 		if(i);
 		printf(" ;");
 		for(int j=0; j<4; ++j) {
-			printf(" %+10.3f", m[i][j]);
+			printf(" %+10.3f", m[j][i]);
 		}
 	}
 	printf("}");

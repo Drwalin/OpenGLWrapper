@@ -12,17 +12,21 @@ uniform mat4 bonesMat[MAX_BONES];
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
+uniform bool useBones;
 
 out vec4 out_color;
 out vec4 out_normal;
 out vec4 out_pos;
 
 vec4 Mult(vec4 point) {
-	return
-		  ((bonesMat[int(bones[0])] * point) * weights[0])
-		+ ((bonesMat[int(bones[1])] * point) * weights[1])
-		+ ((bonesMat[int(bones[2])] * point) * weights[2])
-		+ ((bonesMat[int(bones[3])] * point) * weights[3]);
+	if(useBones)
+		return
+			  ((bonesMat[int(bones[0])] * point) * weights[0])
+			+ ((bonesMat[int(bones[1])] * point) * weights[1])
+			+ ((bonesMat[int(bones[2])] * point) * weights[2])
+			+ ((bonesMat[int(bones[3])] * point) * weights[3]);
+	else
+		return point;
 }
 
 void main() {

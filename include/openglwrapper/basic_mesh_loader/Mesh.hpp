@@ -56,6 +56,9 @@ namespace BasicMeshLoader {
 		glm::mat4 inverseLocalModelSpaceBindingPoseMatrix;
 		glm::mat4 globalInverseBindingPoseMatrix;
 		glm::mat4 relativePosition;
+		
+		glm::mat4 handCalculatedBindingPoseMatrix;
+		
 		int id;
 		int parentId;
 	};

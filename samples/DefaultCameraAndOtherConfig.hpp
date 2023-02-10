@@ -21,6 +21,7 @@ static Camera camera(glm::vec3(0.0f,0.0f, 0.0f));
 static float lastX = 0.0;//WIDTH/2.0;
 static float lastY = 0.0;//WIDTH/2.0;
 static bool keys[1024];
+static bool keysPrev[1024];
 static bool firstMouse = true;
 
 static float deltaTime = 0.0f;
@@ -36,10 +37,17 @@ static void DefaultsSetup() {
     glfwSetScrollCallback(gl::openGL.window, ScrollCallback);
 }
 
+static bool WasPressed(int key) {
+	return keys[key] && !keysPrev[key];
+}
+
 static void DefaultIterationStart() {
 	float currentFrame = glfwGetTime();
 	deltaTime = currentFrame - lastFrame;
 	lastFrame = currentFrame;
+	
+	
+	memcpy(&(keysPrev[0]), &(keys[0]), sizeof(keys));
 
 	glfwPollEvents();
 	DoMovement();

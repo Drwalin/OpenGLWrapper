@@ -27,11 +27,52 @@
 #include <assimp/vector3.h>
 
 static glm::mat4 ConvertAssimpToGlmMat(aiMatrix4x4 s) {
-	return glm::mat4(
+	aiVector3D pos, scale;
+	aiQuaternion rot;
+	s.Decompose(scale, rot, pos);
+	
+	glm::mat4 ss = glm::scale(glm::mat4(1), {scale.x, scale.y, scale.z});
+	glm::mat4 pp = glm::translate(glm::mat4(1), {pos.x, pos.y, pos.z});
+	glm::mat4 rr = glm::mat4_cast(glm::quat(rot.w, rot.x, rot.y, rot.z));
+	
+	return pp * rr * ss;
+	
+	
+	return glm::transpose(glm::mat4(
 			s.a1, s.a2, s.a3, s.a4,
 			s.b1, s.b2, s.b3, s.b4,
 			s.c1, s.c2, s.c3, s.c4,
-			s.d1, s.d2, s.d3, s.d4);
+			s.d1, s.d2, s.d3, s.d4));
+}
+
+static void print(glm::vec4	v) {
+	printf("{%f %f %f %f}", v.x, v.y, v.z, v.w);
+}
+
+static void print(glm::vec3 v) {
+	printf("{%f %f %f}", v.x, v.y, v.z);
+}
+
+static void print(glm::quat v) {
+	printf("{%f %f %f %f}", v.x, v.y, v.z, v.w);
+}
+
+template<typename T>
+static void printKey(T v) {
+	printf(" key: %f -> ", v.time);
+	print(v.value);
+	printf("\n");
+}
+
+static void printMat(glm::mat4 m) {
+	printf("{\n");
+	for(int i=0; i<4; ++i) {
+		for(int j=0; j<4; ++j) {
+			printf(" %+10.3f", m[j][i]);
+		}
+		printf("\n");
+	}
+	printf("}");
 }
 
 namespace gl {
@@ -82,12 +123,13 @@ namespace BasicMeshLoader {
 		time *= animation->framesPerSecond;
 		matrices.resize(mesh->bones.size());
 		
-		glm::mat4 transform(1.0f);
-		aiNode* animationRootNode = FindRootNode(scene->mRootNode, transform, animation, mesh);
+// 		glm::mat4 transform(1.0f);
+// 		aiNode* animationRootNode = FindRootNode(scene->mRootNode, transform, animation, mesh);
 		
-// 		ReadNodeHierarchy(matrices, animation->aiAnim, mesh, time, scene->mRootNode, glm::inverse(transform));//glm::mat4(1));
-//		ReadNodeHierarchy(matrices, animation->aiAnim, mesh, time, animationRootNode, transform);//glm::mat4(1));
-		ReadNodeHierarchy(matrices, animation->aiAnim, mesh, time, scene->mRootNode, glm::mat4(1));
+// 		ReadNodeHierarchy(matrices, animation->aiAnim, mesh, time, scene->mRootNode, glm::inverse(transform));//glm::mat4(1), false);
+//		ReadNodeHierarchy(matrices, animation->aiAnim, mesh, time, animationRootNode, transform);//glm::mat4(1), false);
+		ReadNodeHierarchy(matrices, animation->aiAnim, mesh, time, scene->mRootNode, glm::mat4(1), false);
+		printf("\n\n\n\n\n\n");
 	}
 	
 	aiNode* AssimpLoader::FindRootNode(
@@ -168,8 +210,8 @@ namespace BasicMeshLoader {
 				Out = Out.Normalize();
 			}
 		}
-// 		return glm::mat4_cast(glm::quat(Out.w, Out.x, Out.y, Out.z));
-		return glm::mat4_cast(glm::quat(Out.x, Out.y, Out.z, Out.w));
+		return glm::mat4_cast(glm::quat(Out.w, Out.x, Out.y, Out.z));
+// 		return glm::mat4_cast(glm::quat(Out.x, Out.y, Out.z, Out.w));
 	}
 	
 	
@@ -213,12 +255,15 @@ namespace BasicMeshLoader {
 			const aiAnimation* animation,
 			std::shared_ptr<Mesh> mesh,
 			float time, const aiNode* pNode, 
-			glm::mat4 parentTransform) {
+			glm::mat4 parentTransform,
+			bool isSkeleton) {
 		std::string nodeName = pNode->mName.C_Str();
 		glm::mat4 nodeTransformation = ConvertAssimpToGlmMat(pNode->mTransformation);
 		const aiNodeAnim* nodeAnim = FindNodeAnim(animation, nodeName);
-
-		if(nodeAnim && false) {
+		int boneIndex = mesh->GetBoneIndex(nodeName);
+		
+		if(nodeAnim) {
+			isSkeleton = true;
 			// Interpolate scaling and generate scaling transformation matrix
 			glm::mat4 scale = glm::scale(
 					glm::mat4(1),
@@ -243,21 +288,53 @@ namespace BasicMeshLoader {
 			// Combine the above transformations
 			nodeTransformation = translate * rotation * scale;
 		}
+		
+		if(boneIndex < 0) {
+			nodeTransformation = glm::mat4(1);
+		}
+			
+			if(boneIndex >= 0) {
+				printf(" node relative transfrmation animation '%s'\n", nodeName.c_str());
+				printMat(nodeTransformation);
+			}
 
 		glm::mat4 globalTransformation = parentTransform * nodeTransformation;
-
-		int boneIndex = mesh->GetBoneIndex(nodeName);
+		
 		if(boneIndex >= 0) {
+// 			printf(" global transform '%s'\n", nodeName.c_str());
+// 			printMat(globalTransformation);
+
 			matrices[boneIndex] =
-				mesh->inverseGlobalMatrix *
+// 				mesh->inverseGlobalMatrix *
 // 				mesh->rootInverseMatrix *
-				globalTransformation *
-				mesh->bones[boneIndex].globalInverseBindingPoseMatrix;
+				globalTransformation
+				*
+				mesh->bones[boneIndex].globalInverseBindingPoseMatrix
+				;
 		}
 
 		for(uint i=0; i<pNode->mNumChildren; i++) {
-			ReadNodeHierarchy(matrices, animation, mesh, time, pNode->mChildren[i], globalTransformation);
+			ReadNodeHierarchy(matrices, animation, mesh, time, pNode->mChildren[i], globalTransformation, isSkeleton);
 		}
+	}
+	
+		
+	aiNode* AssimpLoader::FindNodeAndTransform(aiNode* node,
+			const std::string& name,
+			glm::mat4& parentTransform) {
+		if(name == node->mName.C_Str()) {
+			return node;
+		}
+		parentTransform *= ConvertAssimpToGlmMat(node->mTransformation);
+		for(int i=0; i<node->mNumChildren; ++i) {
+			glm::mat4 t = parentTransform;
+			aiNode* n = FindNodeAndTransform(node->mChildren[i], name, t);
+			if(n) {
+				parentTransform = t;
+				return n;
+			}
+		}
+		return NULL;
 	}
 } // namespace BasicMeshLoader
 } // namespace gl
