@@ -78,18 +78,75 @@ int main() {
 	vao.SetAttribPointer(vbo, ourShader.GetAttributeLocation("bones"), 4, gl::UNSIGNED_BYTE, false, 32);
 	vao.BindElementBuffer(indices, gl::UNSIGNED_INT);
 	
+	
+	
+	
+		// Generate vertex data
+		gl::VBO vbo2(3*sizeof(float)+2*sizeof(uint16_t)+11*sizeof(uint8_t), gl::ARRAY_BUFFER, gl::STATIC_DRAW);
+		{
+			auto buf = vbo2.Buffer<gl::Atr<float, 3>, gl::Atr<uint8_t,4>, gl::Atr<int8_t,3>, gl::Atr<uint8_t,4>, gl::Atr<uint8_t,4>>();
+			for(int i = 0; i < 6; ++i) {
+				buf.At<0>(i, 0) = 0;
+				buf.At<0>(i, 1) = i;
+				buf.At<0>(i, 2) = 0;
+				buf.At<1>(i, 0) = 255;
+				buf.At<1>(i, 1) = 255;
+				buf.At<1>(i, 2) = 255;
+				buf.At<1>(i, 3) = 255;
+				buf.At<2>(i, 0) = 127;
+				buf.At<2>(i, 1) = 0;
+				buf.At<2>(i, 2) = 0;
+				
+				for(int j=0; j<4; ++j) {
+					buf.At<3>(i, j) = 0;
+					buf.At<4>(i, j) = 0;
+				}
+				buf.At<3>(i, 0) = 255;
+				buf.At<4>(i, 0) = i;
+			}
+		}
+		vbo2.Generate();
+	
+		gl::VAO vao2(gl::TRIANGLE_FAN);
+		vao2.SetAttribPointer(vbo2, ourShader.GetAttributeLocation("pos"), 3, gl::FLOAT, false, 0);
+		vao2.SetAttribPointer(vbo2, ourShader.GetAttributeLocation("color"), 4, gl::UNSIGNED_BYTE, true, 20);
+		vao2.SetAttribPointer(vbo2, ourShader.GetAttributeLocation("normal"), 3, gl::BYTE, true, 24);
+		vao2.SetAttribPointer(vbo2, ourShader.GetAttributeLocation("weights"), 4, gl::UNSIGNED_BYTE, true, 28);
+		vao2.SetAttribPointer(vbo2, ourShader.GetAttributeLocation("bones"), 4, gl::UNSIGNED_BYTE, false, 32);
+	
+		gl::VAO vao3(gl::POINTS);
+		vao3.SetAttribPointer(vbo2, ourShader.GetAttributeLocation("pos"), 3, gl::FLOAT, false, 0);
+		vao3.SetAttribPointer(vbo2, ourShader.GetAttributeLocation("color"), 4, gl::UNSIGNED_BYTE, true, 20);
+		vao3.SetAttribPointer(vbo2, ourShader.GetAttributeLocation("normal"), 3, gl::BYTE, true, 24);
+		vao3.SetAttribPointer(vbo2, ourShader.GetAttributeLocation("weights"), 4, gl::UNSIGNED_BYTE, true, 28);
+		vao3.SetAttribPointer(vbo2, ourShader.GetAttributeLocation("bones"), 4, gl::UNSIGNED_BYTE, false, 32);
+	
+	
+	
 	// Get uniform locations
 	int modelLoc = ourShader.GetUniformLocation("model");
 	int viewLoc = ourShader.GetUniformLocation("view");
 	int projLoc = ourShader.GetUniformLocation("projection");
 	int lightDirLoc = ourShader.GetUniformLocation("lightDir");
 	int bonesMatLoc = ourShader.GetUniformLocation("bonesMat");
+	int useBonesLoc = ourShader.GetUniformLocation("useBones");
+	
+	bool useBones = true;
+	bool drawModel = true;
+	
+	glPointSize(10.0f);
 	
 	// Init camera position
 //     camera.ProcessMouseMovement(150, -200);
 	
     while(!glfwWindowShouldClose(gl::openGL.window)) {
 		DefaultIterationStart();
+		
+		if(WasPressed(GLFW_KEY_O))
+			drawModel = !drawModel;
+		
+		if(WasPressed(GLFW_KEY_P))
+			useBones = !useBones;
         
 		// Use shader
         ourShader.Use();
@@ -116,13 +173,13 @@ int main() {
 		ourShader.SetMat4(bonesMatLoc, matrices);
 		
 		// Calulate model matrix
-		glm::mat4 model = //glm::mat4(1);
+		glm::mat4 model = glm::mat4(1);
 // 			glm::scale(
 // 					glm::rotate(
 // 						glm::rotate(
-							glm::translate(
-								glm::mat4(1.0f),
-								glm::vec3(2, -1, 0)
+// 							glm::translate(
+// 								glm::mat4(1.0f),
+// 								glm::vec3(2, -1, 0)
 // 							),
 // 							0.0f,//-3.141592f/2,
 // 							glm::vec3(0,1,0)
@@ -131,15 +188,25 @@ int main() {
 // 						glm::vec3(1,0,0)
 // 					),
 // 					glm::vec3(1.0)
-				);
+// 		);
 
-			// Set shader uniform model matrice
-			ourShader.SetMat4(modelLoc, model);
+		// Set shader uniform model matrice
+		ourShader.SetMat4(modelLoc, model);
 
+		if(useBones) {
+			ourShader.SetBool(useBonesLoc, true);
+		} else {
+			ourShader.SetBool(useBonesLoc, false);
+		}
+
+		if(drawModel) {
 			// Draw VAO
 			vao.Draw();
-// 		}
-        
+		} else {
+			vao2.Draw();
+			vao3.Draw();
+		}
+			
 		DefaultIterationEnd();
     }
 	
