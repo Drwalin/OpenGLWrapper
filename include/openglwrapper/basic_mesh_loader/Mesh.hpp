@@ -42,6 +42,22 @@ class aiMesh;
 namespace gl {
 namespace BasicMeshLoader {
 	
+	template<typename T>
+	glm::mat4 ConvertAssimpToGlmMat(T s);
+	void print(glm::vec4 v);
+	void print(glm::vec3 v);
+	void print(glm::quat v);
+	void printMat(glm::mat4 m);
+	inline void print(glm::mat4 m) {printMat(m);}
+
+	template<typename T>
+		void printKey(T v) {
+			printf(" key: %f -> ", v.time);
+			print(v.value);
+			printf("\n");
+		}
+	
+	
 	struct VertexBoneWeight {
 	public:
 		inline VertexBoneWeight(uint32_t boneId=0, float weight=0) : boneId(boneId), weight(weight) {}

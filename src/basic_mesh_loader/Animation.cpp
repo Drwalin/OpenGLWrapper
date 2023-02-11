@@ -33,37 +33,6 @@
 
 #include "../../include/openglwrapper/basic_mesh_loader/Animation.hpp"
 
-static void print(glm::vec4	v) {
-	printf("{%f %f %f %f}", v.x, v.y, v.z, v.w);
-}
-
-static void print(glm::vec3 v) {
-	printf("{%f %f %f}", v.x, v.y, v.z);
-}
-
-static void print(glm::quat v) {
-	printf("{%f %f %f %f}", v.x, v.y, v.z, v.w);
-}
-
-template<typename T>
-static void printKey(T v) {
-	printf(" key: %f -> ", v.time);
-	print(v.value);
-	printf("\n");
-}
-
-static void printMat(glm::mat4 m) {
-	printf("{");
-	for(int i=0; i<4; ++i) {
-		if(i);
-		printf(" ;");
-		for(int j=0; j<4; ++j) {
-			printf(" %+10.3f", m[j][i]);
-		}
-	}
-	printf("}");
-}
-
 namespace gl {
 namespace BasicMeshLoader {
 	void Animation::LoadAnimation(class AssimpLoader* loader, const aiAnimation* anim, std::shared_ptr<Mesh> mesh) {

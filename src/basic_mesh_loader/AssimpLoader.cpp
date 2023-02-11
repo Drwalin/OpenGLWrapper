@@ -26,55 +26,6 @@
 #include <assimp/matrix4x4.h>
 #include <assimp/vector3.h>
 
-static glm::mat4 ConvertAssimpToGlmMat(aiMatrix4x4 s) {
-	aiVector3D pos, scale;
-	aiQuaternion rot;
-	s.Decompose(scale, rot, pos);
-	
-	glm::mat4 ss = glm::scale(glm::mat4(1), {scale.x, scale.y, scale.z});
-	glm::mat4 pp = glm::translate(glm::mat4(1), {pos.x, pos.y, pos.z});
-	glm::mat4 rr = glm::mat4_cast(glm::quat(rot.w, rot.x, rot.y, rot.z));
-	
-	return pp * rr * ss;
-	
-	
-	return glm::transpose(glm::mat4(
-			s.a1, s.a2, s.a3, s.a4,
-			s.b1, s.b2, s.b3, s.b4,
-			s.c1, s.c2, s.c3, s.c4,
-			s.d1, s.d2, s.d3, s.d4));
-}
-
-static void print(glm::vec4	v) {
-	printf("{%f %f %f %f}", v.x, v.y, v.z, v.w);
-}
-
-static void print(glm::vec3 v) {
-	printf("{%f %f %f}", v.x, v.y, v.z);
-}
-
-static void print(glm::quat v) {
-	printf("{%f %f %f %f}", v.x, v.y, v.z, v.w);
-}
-
-template<typename T>
-static void printKey(T v) {
-	printf(" key: %f -> ", v.time);
-	print(v.value);
-	printf("\n");
-}
-
-static void printMat(glm::mat4 m) {
-	printf("{\n");
-	for(int i=0; i<4; ++i) {
-		for(int j=0; j<4; ++j) {
-			printf(" %+10.3f", m[j][i]);
-		}
-		printf("\n");
-	}
-	printf("}");
-}
-
 namespace gl {
 namespace BasicMeshLoader {
 	void AssimpLoader::Load(const char* file) {
