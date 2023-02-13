@@ -62,27 +62,6 @@ namespace BasicMeshLoader {
 		std::vector<std::shared_ptr<Animation>> animations;
 		
 		void Load(const char* file);
-		
-		void GetModelBoneMatrices(std::shared_ptr<Animation> animation,
-				std::shared_ptr<Skeleton> skeleton,
-				std::vector<glm::mat4>& matrices,
-				float time, bool loop);
-		
-		void ReadNodeHierarchy(std::vector<glm::mat4>& matrices,
-				const aiAnimation* animation,
-				std::shared_ptr<Skeleton> skeleton,
-				float time, const aiNode* pNode, 
-				glm::mat4 parentTransform,
-				bool isSkeleton);
-		
-		aiNode* FindRootNode(aiNode* node,
-				glm::mat4& transform,
-				std::shared_ptr<Animation> anim,
-				std::shared_ptr<Skeleton> skeleton);
-		
-		static aiNode* FindNodeAndTransform(aiNode* node,
-				const std::string& name,
-				glm::mat4& parentTransform);
 	};
 	
 } // namespace BasicMeshLoader
