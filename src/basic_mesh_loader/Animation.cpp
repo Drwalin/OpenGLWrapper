@@ -97,6 +97,7 @@ namespace BasicMeshLoader {
 				return i;
 		return -5;
 	}
+	
 	static glm::mat4 CalcInterpolatedRotation(float AnimationTime, const aiNodeAnim* pNodeAnim) {
 		aiQuaternion Out;
 		if(pNodeAnim->mNumRotationKeys == 1) {
@@ -134,6 +135,7 @@ namespace BasicMeshLoader {
 				return i;
 		return -5;
 	}
+	
 	static glm::vec3 CalcInterpolatedVector(glm::vec3 Default, float AnimationTime, int numKeys, const aiVectorKey* vectorKeys) {
 		aiVector3D Out;
 		if(numKeys == 1) {
@@ -205,7 +207,6 @@ namespace BasicMeshLoader {
 		glm::mat4 globalTransformation = parentTransform * nodeTransformation;
 		
 		if(boneIndex >= 0) {
-
 			matrices[boneIndex] =
 				globalTransformation
 				* skeleton->bones[boneIndex].globalInverseBindingPoseMatrix;
