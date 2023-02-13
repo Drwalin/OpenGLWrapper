@@ -65,21 +65,21 @@ namespace BasicMeshLoader {
 	
 	void AssimpLoader::GetModelBoneMatrices(
 			std::shared_ptr<Animation> animation,
-			std::shared_ptr<Mesh> mesh,
+			std::shared_ptr<Skeleton> skeleton,
 			std::vector<glm::mat4>& matrices,
 			float time, bool loop) {
 		if(loop) {
 			time = fmod(time, animation->duration);
 		}
 		time *= animation->framesPerSecond;
-		matrices.resize(mesh->bones.size());
+		matrices.resize(skeleton->bones.size());
 		
 // 		glm::mat4 transform(1.0f);
 // 		aiNode* animationRootNode = FindRootNode(scene->mRootNode, transform, animation, mesh);
 		
-// 		ReadNodeHierarchy(matrices, animation->aiAnim, mesh, time, scene->mRootNode, glm::inverse(transform));//glm::mat4(1), false);
-//		ReadNodeHierarchy(matrices, animation->aiAnim, mesh, time, animationRootNode, transform);//glm::mat4(1), false);
-		ReadNodeHierarchy(matrices, animation->aiAnim, mesh, time, scene->mRootNode, glm::mat4(1), false);
+// 		ReadNodeHierarchy(matrices, animation->aiAnim, skeleton, time, scene->mRootNode, glm::inverse(transform));//glm::mat4(1), false);
+//		ReadNodeHierarchy(matrices, animation->aiAnim, skeleton, time, animationRootNode, transform);//glm::mat4(1), false);
+		ReadNodeHierarchy(matrices, animation->aiAnim, skeleton, time, scene->mRootNode, glm::mat4(1), false);
 		printf("\n\n\n\n\n\n");
 	}
 	
@@ -87,14 +87,14 @@ namespace BasicMeshLoader {
 			aiNode* node,
 			glm::mat4& transform,
 			std::shared_ptr<Animation> anim,
-			std::shared_ptr<Mesh> mesh) {
-		if(mesh->boneNameToId.find(node->mName.C_Str()) != mesh->boneNameToId.end()) {
+			std::shared_ptr<Skeleton> skeleton) {
+		if(skeleton->boneNameToId.find(node->mName.C_Str()) != skeleton->boneNameToId.end()) {
 			return node;
 		}
 		transform *= ConvertAssimpToGlmMat(node->mTransformation);
 		for(int i=0; i<node->mNumChildren; ++i) {
 			glm::mat4 t = transform;
-			aiNode* n = FindRootNode(node->mChildren[i], t, anim, mesh);
+			aiNode* n = FindRootNode(node->mChildren[i], t, anim, skeleton);
 			if(n) {
 				transform = t;
 				return n;
@@ -204,14 +204,14 @@ namespace BasicMeshLoader {
 	
 	void AssimpLoader::ReadNodeHierarchy(std::vector<glm::mat4>& matrices,
 			const aiAnimation* animation,
-			std::shared_ptr<Mesh> mesh,
+			std::shared_ptr<Skeleton> skeleton,
 			float time, const aiNode* pNode, 
 			glm::mat4 parentTransform,
 			bool isSkeleton) {
 		std::string nodeName = pNode->mName.C_Str();
 		glm::mat4 nodeTransformation = ConvertAssimpToGlmMat(pNode->mTransformation);
 		const aiNodeAnim* nodeAnim = FindNodeAnim(animation, nodeName);
-		int boneIndex = mesh->GetBoneIndex(nodeName);
+		int boneIndex = skeleton->GetBoneIndex(nodeName);
 		
 		if(nodeAnim) {
 			isSkeleton = true;
@@ -256,16 +256,16 @@ namespace BasicMeshLoader {
 // 			printMat(globalTransformation);
 
 			matrices[boneIndex] =
-// 				mesh->inverseGlobalMatrix *
-// 				mesh->rootInverseMatrix *
+// 				skeleton->inverseGlobalMatrix *
+// 				skeleton->rootInverseMatrix *
 				globalTransformation
 				*
-				mesh->bones[boneIndex].globalInverseBindingPoseMatrix
+				skeleton->bones[boneIndex].globalInverseBindingPoseMatrix
 				;
 		}
 
 		for(uint i=0; i<pNode->mNumChildren; i++) {
-			ReadNodeHierarchy(matrices, animation, mesh, time, pNode->mChildren[i], globalTransformation, isSkeleton);
+			ReadNodeHierarchy(matrices, animation, skeleton, time, pNode->mChildren[i], globalTransformation, isSkeleton);
 		}
 	}
 	

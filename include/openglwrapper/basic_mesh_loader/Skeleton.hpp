@@ -33,14 +33,23 @@
 #include <glm/glm.hpp>
 
 class aiSkeleton;
+class aiScene;
+class aiMesh;
 
 namespace gl {
 namespace BasicMeshLoader {
 	
+	class Mesh;
+	
 	class Bone {
 	public:
-		glm::mat4 inverseBindingPoseMatrix;
-		glm::mat4 relativeOffsetMatrix;
+		std::string name;
+		glm::mat4 inverseLocalModelSpaceBindingPoseMatrix;
+		glm::mat4 globalInverseBindingPoseMatrix;
+		glm::mat4 relativePosition;
+		
+		glm::mat4 handCalculatedBindingPoseMatrix;
+		
 		int id;
 		int parentId;
 	};
@@ -51,8 +60,13 @@ namespace BasicMeshLoader {
 		std::string name;
 		
 		std::vector<Bone> bones;
+		std::unordered_map<std::string, int32_t> boneNameToId;
+		glm::mat4 inverseGlobalMatrix;
+		glm::mat4 globalMatrix;
+		glm::mat4 rootInverseMatrix;
 		
-		void LoadSkeleton(const aiSkeleton* skeleton);
+		int GetBoneIndex(std::string boneName);
+		void LoadSkeleton(Mesh* cmesh, const aiMesh* aimesh, const aiScene* scene);
 	};
 	
 } // namespace BasicMeshLoader

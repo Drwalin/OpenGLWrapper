@@ -43,6 +43,7 @@ namespace BasicMeshLoader {
 		name = anim->mName.C_Str();
 		duration = anim->mDuration/framesPerSecond;
 		
+		/*
 		keyFramesPerBone.clear();
 		keyFramesPerBone.resize(mesh->bones.size());
 		
@@ -94,10 +95,12 @@ namespace BasicMeshLoader {
 						});
 			}
 		}
+		*/
 	}
 	
 	template<typename T>
 	inline float BoneAnimation::Find(std::vector<T>& keys, float time, T& a, T& b) { 
+		/*
 		int i=0;
 		for(i=0; i<keys.size(); ++i) {
 			if(keys[i].time > time) {
@@ -122,9 +125,11 @@ namespace BasicMeshLoader {
 			return 0;
 		}
 		return (time-a.time)/(b.time-a.time);
+		*/
 	}
 	
 	glm::mat4 BoneAnimation::GetLocalMatrix(float time) {
+		/*
 		VectorKey ap, bp, as, bs;
 		QuatKey ar, br;
 		glm::vec3 p, s;
@@ -149,9 +154,11 @@ namespace BasicMeshLoader {
 		glm::mat4 scale = glm::scale(glm::mat4(1), s);
 		
 		return trans*rot*scale;
+		*/
 	}
 	
 	void Animation::GetModelBoneMatrices(std::vector<glm::mat4>& matrices, float time, bool loop) {
+		/*
 		if(loop) {
 			time = fmod(time, duration);
 		}
@@ -190,6 +197,7 @@ namespace BasicMeshLoader {
 			}
 		}
 // 		printf("\n");
+		*/
 	}
 } // namespace BasicMeshLoader
 } // namespace gl

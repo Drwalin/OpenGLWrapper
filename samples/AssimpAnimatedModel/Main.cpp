@@ -169,7 +169,7 @@ int main() {
 		// set animation (bone) matrices
 // 		matrices.clear();
 // 		l.animations[0]->GetModelBoneMatrices(matrices, lastFrame, true);
-		l.GetModelBoneMatrices(l.animations[0], l.meshes[0], matrices, lastFrame, true);
+		l.GetModelBoneMatrices(l.animations[0], l.meshes[0]->skeleton, matrices, lastFrame, true);
 		ourShader.SetMat4(bonesMatLoc, matrices);
 		
 		// Calulate model matrix
