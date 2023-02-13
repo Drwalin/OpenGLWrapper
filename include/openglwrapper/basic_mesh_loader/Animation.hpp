@@ -63,12 +63,8 @@ namespace BasicMeshLoader {
 				float time, const aiNode* pNode, 
 				glm::mat4 parentTransform);
 		
-		aiNode* FindRootNode(aiNode* node,
-				glm::mat4& transform);
-		
-		static aiNode* FindNodeAndTransform(aiNode* node,
-				const std::string& name,
-				glm::mat4& parentTransform);
+// 		aiNode* FindRootNode(aiNode* node,
+// 				glm::mat4& transform);
 	};
 	
 } // namespace BasicMeshLoader
