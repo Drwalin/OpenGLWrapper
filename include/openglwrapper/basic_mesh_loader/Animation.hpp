@@ -62,9 +62,6 @@ namespace BasicMeshLoader {
 		void ReadNodeHierarchy(std::vector<glm::mat4>& matrices,
 				float time, const aiNode* pNode, 
 				glm::mat4 parentTransform);
-		
-// 		aiNode* FindRootNode(aiNode* node,
-// 				glm::mat4& transform);
 	};
 	
 } // namespace BasicMeshLoader
