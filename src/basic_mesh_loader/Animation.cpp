@@ -62,24 +62,6 @@ namespace BasicMeshLoader {
 		ReadNodeHierarchy(matrices, time, scene->mRootNode, glm::mat4(1));
 	}
 	
-// 	aiNode* Animation::FindRootNode(
-// 			aiNode* node,
-// 			glm::mat4& transform) {
-// 		if(skeleton->boneNameToId.find(node->mName.C_Str()) != skeleton->boneNameToId.end()) {
-// 			return node;
-// 		}
-// 		transform *= ConvertAssimpToGlmMat(node->mTransformation);
-// 		for(int i=0; i<node->mNumChildren; ++i) {
-// 			glm::mat4 t = transform;
-// 			aiNode* n = FindRootNode(node->mChildren[i], t);
-// 			if(n) {
-// 				transform = t;
-// 				return n;
-// 			}
-// 		}
-// 		return NULL;
-// 	}
-	
 	static const aiNodeAnim* FindNodeAnim(const aiAnimation* anim, std::string name) {
 		for(int i=0; i<anim->mNumChannels; ++i) {
 			if(name == anim->mChannels[i]->mNodeName.C_Str()) {
