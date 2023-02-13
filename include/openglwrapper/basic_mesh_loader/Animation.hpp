@@ -42,35 +42,10 @@ class aiNode;
 
 namespace gl {
 namespace BasicMeshLoader {
-	
-	struct VectorKey {
-		float time;
-		glm::vec3 value;
-	};
-	
-	struct QuatKey {
-		float time;
-		glm::quat value;
-	};
-	
-	class BoneAnimation {
-	public:
-		
-		std::vector<VectorKey> keyPos;
-		std::vector<VectorKey> keyScale;
-		std::vector<QuatKey> keyRot;
-		
-		template<typename T>
-		float Find(std::vector<T>& keys, float time, T& a, T& b);
-		glm::mat4 GetLocalMatrix(float time);
-	};
-	
 	class Animation {
 	public:
 		
 		std::string name;
-		
-		std::vector<BoneAnimation> keyFramesPerBone;
 		
 		float duration;
 		float framesPerSecond;
@@ -79,12 +54,10 @@ namespace BasicMeshLoader {
 		aiAnimation const* aiAnim;
 		aiScene const* scene;
 		
-		void GetModelBoneMatrices(std::vector<glm::mat4>& matrices, float time, bool loop);
-		
 		void LoadAnimation(class AssimpLoader* loader, const aiAnimation* animation, std::shared_ptr<Mesh> mesh);
 		
 		
-		
+		void GetModelBoneMatrices(std::vector<glm::mat4>& matrices, float time, bool loop);
 		
 		void ReadNodeHierarchy(std::vector<glm::mat4>& matrices,
 				float time, const aiNode* pNode, 

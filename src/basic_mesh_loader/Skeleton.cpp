@@ -66,9 +66,6 @@ namespace BasicMeshLoader {
 					while(cn) {
 						glm::mat4 m = ConvertAssimpToGlmMat(cn->mTransformation);
 						mat = m * mat;
-						printf(" Multiplying from top by (%s):\n", cn->mName.C_Str());
-						printMat(m);
-						printf("\n\n");
 						cn = cn->mParent;
 					}
 					
@@ -76,20 +73,8 @@ namespace BasicMeshLoader {
 					inverseGlobalMatrix = glm::inverse(mat);
 					bones[b].parentId = -1;
 					
-					printf("\n\n\n");
-// 					printf("Inverse of root binding matrix:\n");
-// 					printMat(glm::inverse(bones[b].globalInverseBindingPoseMatrix));
-// 					printf("\n\n\n\n\n");
-					
-					
-					
 					bones[b].relativePosition = mat;
-// 					bones[b].relativePosition = glm::mat4(1);
 				}
-				
-				printf("Bone relative (%s):\n", bones[b].name.c_str());
-				printMat(bones[b].relativePosition);
-				printf("\n\n");
 			}
 			for(int b=0; b<mesh->mNumBones; ++b) {
 				glm::mat4 fwd = glm::inverse(bones[b].globalInverseBindingPoseMatrix);

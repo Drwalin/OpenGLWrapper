@@ -48,185 +48,7 @@ namespace BasicMeshLoader {
 		framesPerSecond = 24.0f;
 		name = anim->mName.C_Str();
 		duration = anim->mDuration/framesPerSecond;
-		
-		
-		
-		/*
-		keyFramesPerBone.clear();
-		keyFramesPerBone.resize(mesh->bones.size());
-		
-		for(int c=0; c<anim->mNumChannels; ++c) {
-			aiNodeAnim* ch = anim->mChannels[c];
-			if(mesh->boneNameToId.find(ch->mNodeName.C_Str()) != mesh->boneNameToId.end()) {
-				int boneId = mesh->boneNameToId[ch->mNodeName.C_Str()];
-				auto& kf = keyFramesPerBone[boneId];
-			
-				printf(" channel %i -> %s\n", c, ch->mNodeName.C_Str());
-				
-				for(int i=0; i<ch->mNumPositionKeys; ++i) {
-					auto K = ch->mPositionKeys[i];
-					auto v = K.mValue;
-					kf.keyPos.emplace_back(VectorKey{(float)K.mTime/framesPerSecond, {v.x,v.y,v.z}});
-				}
-				
-				for(int i=0; i<ch->mNumScalingKeys; ++i) {
-					auto K = ch->mScalingKeys[i];
-					auto v = K.mValue;
-					kf.keyScale.emplace_back(VectorKey{(float)K.mTime/framesPerSecond, {v.x,v.y,v.z}});
-				}
-				
-				for(int i=0; i<ch->mNumRotationKeys; ++i) {
-					auto K = ch->mRotationKeys[i];
-					auto v = K.mValue;
-					kf.keyRot.emplace_back(QuatKey{(float)K.mTime/framesPerSecond, {v.w,v.x,v.y,v.z}});
-				}
-				
-				std::sort(
-						kf.keyPos.begin(),
-						kf.keyPos.end(), 
-						[](VectorKey a, VectorKey b)->bool{
-							return a.time < b.time;
-						});
-				
-				std::sort(
-						kf.keyScale.begin(),
-						kf.keyScale.end(), 
-						[](VectorKey a, VectorKey b)->bool{
-							return a.time < b.time;
-						});
-				
-				std::sort(
-						kf.keyRot.begin(),
-						kf.keyRot.end(), 
-						[](QuatKey a, QuatKey b)->bool{
-							return a.time < b.time;
-						});
-			}
-		}
-		*/
 	}
-	
-	template<typename T>
-	inline float BoneAnimation::Find(std::vector<T>& keys, float time, T& a, T& b) { 
-		/*
-		int i=0;
-		for(i=0; i<keys.size(); ++i) {
-			if(keys[i].time > time) {
-				i = i-1;
-				break;
-			}
-		}
-		if(keys.size() == 0) {
-			a = b = T();
-			return 0;
-		}
-		if(i < 0) {
-			a = b = keys[0];
-			return 0;
-		} else if(i >= keys.size()) {
-			a = b = keys[keys.size()-1];
-			return 0;
-		}
-		a = keys[i];
-		b = keys[i+1];
-		if(std::fabs(a.time-b.time) <= 0.000001) {
-			return 0;
-		}
-		return (time-a.time)/(b.time-a.time);
-		*/
-	}
-	
-	glm::mat4 BoneAnimation::GetLocalMatrix(float time) {
-		/*
-		VectorKey ap, bp, as, bs;
-		QuatKey ar, br;
-		glm::vec3 p, s;
-		glm::quat r;
-		float tp, ts, tr;
-		tp = Find(keyPos, time, ap, bp);
-		ts = Find(keyScale, time, as, bs);
-		tr = Find(keyRot, time, ar, br);
-		p = ap.value + (bp.value-ap.value)*tp;
-		s = as.value + (bs.value-as.value)*ts;
-		r = glm::slerp(ar.value, br.value, tr);
-		r = glm::normalize(r);
-		
-// 			printf(" found data:\n");
-// 			printf(" pos: %f %f %f\n", p.x, p.y, p.z);
-// 			printf(" scale: %f %f %f\n", s.x, s.y, s.z);
-// 			printf(" rotation: %f %f %f %f\n", r.x, r.y, r.z, r.w);
-// 			printf("\n");
-
-		glm::mat4 trans = glm::translate(glm::mat4(1), p);
-		glm::mat4 rot = glm::mat4_cast(r);
-		glm::mat4 scale = glm::scale(glm::mat4(1), s);
-		
-		return trans*rot*scale;
-		*/
-	}
-	
-		/*
-	void Animation::GetModelBoneMatrices(std::vector<glm::mat4>& matrices, float time, bool loop) {
-		if(loop) {
-			time = fmod(time, duration);
-		}
-		matrices.resize(keyFramesPerBone.size());
-		for(int i=0; i<keyFramesPerBone.size(); ++i) {
-			matrices[i] = keyFramesPerBone[i].GetLocalMatrix(time);
-			int parent = mesh->bones[i].parentId;
-			if(parent >= i) {
-				throw "Error in: '" __FILE__ "' - bones need to be ordered (parent bone id must be lower than child, what is not the case here).";
-			}
-			if(i == 14) {
-				printf(" mat:  %f %f %f\n",
-						matrices[i][3][0],
-						matrices[i][3][1],
-						matrices[i][3][2]);
-			}
-			//translate matrix from local to model, multiplying by parent
-			if(parent >= 0) {
-				matrices[i] = matrices[parent] * matrices[i];
-			} else {
-// // // 				matrices[i] = glm::inverse(mesh->inverseGlobalMatrix) * matrices[i];
-// 				matrices[i] = mesh->rootInverseMatrix * mesh->globalMatrix * matrices[i];
-				matrices[i] = mesh->globalMatrix * matrices[i];
-			}
-		}
-		// encapsulate transformation from offset of a bone
-		for(int i=0; i<keyFramesPerBone.size(); ++i) {
-// 			matrices[i] = matrices[i] * mesh->bones[i].inverseLocalModelSpaceBindingPoseMatrix;
- 			matrices[i] = matrices[i] * mesh->bones[i].globalInverseBindingPoseMatrix;
-			if(i == 5)
-			{
-				glm::vec4 p = matrices[i] * glm::vec4(0, 0, 4, 1);
-// 				print(p);
-// 				printMat(matrices[i]);
-// 				printf("\n");
-			}
-		}
-// 		printf("\n");
-	}
-		*/
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 	void Animation::GetModelBoneMatrices(
 			std::vector<glm::mat4>& matrices,
@@ -237,11 +59,6 @@ namespace BasicMeshLoader {
 		time *= framesPerSecond;
 		matrices.resize(skeleton->bones.size());
 		
-// 		glm::mat4 transform(1.0f);
-// 		aiNode* animationRootNode = FindRootNode(scene->mRootNode, transform, animation, mesh);
-		
-// 		ReadNodeHierarchy(matrices, animation->aiAnim, skeleton, time, scene->mRootNode, glm::inverse(transform));//glm::mat4(1), false);
-//		ReadNodeHierarchy(matrices, animation->aiAnim, skeleton, time, animationRootNode, transform);//glm::mat4(1), false);
 		ReadNodeHierarchy(matrices, time, scene->mRootNode, glm::mat4(1));
 	}
 	
@@ -304,25 +121,10 @@ namespace BasicMeshLoader {
 				const aiQuaternion& EndRotationQ = pNodeAnim->mRotationKeys[NextRotationIndex].mValue;
 				aiQuaternion::Interpolate(Out, StartRotationQ, EndRotationQ, Factor);
 				
-				glm::quat a, b;
-				a = {
-					StartRotationQ.w,
-					StartRotationQ.x,
-					StartRotationQ.y,
-					StartRotationQ.z
-				};
-				b = {
-					EndRotationQ.w,
-					EndRotationQ.x,
-					EndRotationQ.y,
-					EndRotationQ.z
-				};
-				
 				Out = Out.Normalize();
 			}
 		}
 		return glm::mat4_cast(glm::quat(Out.w, Out.x, Out.y, Out.z));
-// 		return glm::mat4_cast(glm::quat(Out.x, Out.y, Out.z, Out.w));
 	}
 	
 	
@@ -400,27 +202,16 @@ namespace BasicMeshLoader {
 			nodeTransformation = glm::mat4(1);
 		}
 			
-			if(boneIndex >= 0) {
-				printf(" node relative transfrmation animation '%s'\n", nodeName.c_str());
-				printMat(nodeTransformation);
-			}
-
 		glm::mat4 globalTransformation = parentTransform * nodeTransformation;
 		
 		if(boneIndex >= 0) {
-// 			printf(" global transform '%s'\n", nodeName.c_str());
-// 			printMat(globalTransformation);
 
 			matrices[boneIndex] =
-// 				skeleton->inverseGlobalMatrix *
-// 				skeleton->rootInverseMatrix *
 				globalTransformation
-				*
-				skeleton->bones[boneIndex].globalInverseBindingPoseMatrix
-				;
+				* skeleton->bones[boneIndex].globalInverseBindingPoseMatrix;
 		}
 
-		for(uint i=0; i<pNode->mNumChildren; i++) {
+		for(uint i=0; i<pNode->mNumChildren; ++i) {
 			ReadNodeHierarchy(matrices, time, pNode->mChildren[i], globalTransformation);
 		}
 	}
@@ -443,28 +234,6 @@ namespace BasicMeshLoader {
 		}
 		return NULL;
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 } // namespace BasicMeshLoader
 } // namespace gl
 
