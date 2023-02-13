@@ -36,6 +36,9 @@
 #include "Mesh.hpp"
 
 class aiAnimation;
+class aiScene;
+class aiMesh;
+class aiNode;
 
 namespace gl {
 namespace BasicMeshLoader {
@@ -72,12 +75,27 @@ namespace BasicMeshLoader {
 		float duration;
 		float framesPerSecond;
 		
-		std::shared_ptr<Mesh> mesh;
+		std::shared_ptr<Skeleton> skeleton;
 		aiAnimation const* aiAnim;
+		aiScene const* scene;
 		
 		void GetModelBoneMatrices(std::vector<glm::mat4>& matrices, float time, bool loop);
 		
 		void LoadAnimation(class AssimpLoader* loader, const aiAnimation* animation, std::shared_ptr<Mesh> mesh);
+		
+		
+		
+		
+		void ReadNodeHierarchy(std::vector<glm::mat4>& matrices,
+				float time, const aiNode* pNode, 
+				glm::mat4 parentTransform);
+		
+		aiNode* FindRootNode(aiNode* node,
+				glm::mat4& transform);
+		
+		static aiNode* FindNodeAndTransform(aiNode* node,
+				const std::string& name,
+				glm::mat4& parentTransform);
 	};
 	
 } // namespace BasicMeshLoader
