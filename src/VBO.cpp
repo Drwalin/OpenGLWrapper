@@ -18,7 +18,7 @@
 
 #include <cstdio>
 
-#include "../include/openglwrapper/VBO.h"
+#include "../include/openglwrapper/VBO.hpp"
 
 namespace gl {
 

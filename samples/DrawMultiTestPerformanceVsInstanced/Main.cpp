@@ -1,9 +1,6 @@
 
 #include "../DefaultCameraAndOtherConfig.hpp"
-#include "openglwrapper/OpenGL.h"
 #include "openglwrapper/basic_mesh_loader/AssimpLoader.hpp"
-#include "openglwrapper/VAO.h"
-#include "openglwrapper/VBO.h"
 #include "openglwrapper/basic_mesh_loader/Value.hpp"
 
 #include <cstring>

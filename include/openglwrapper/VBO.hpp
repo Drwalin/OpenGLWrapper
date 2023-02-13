@@ -24,7 +24,7 @@
 #include <vector>
 #include <tuple>
 
-#include "OpenGL.h"
+#include "OpenGL.hpp"
 
 namespace gl {
 	enum BufferTarget : GLenum {
