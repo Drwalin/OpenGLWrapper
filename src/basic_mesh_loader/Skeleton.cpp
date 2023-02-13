@@ -35,8 +35,6 @@ namespace BasicMeshLoader {
 	}
 	
 	void Skeleton::LoadSkeleton(Mesh* cmesh, const aiMesh* mesh, const aiScene* scene) {
-		rootInverseMatrix = glm::inverse(ConvertAssimpToGlmMat(scene->mRootNode->mTransformation));
-		
 		if(mesh->HasBones()) {
 			bones.resize(mesh->mNumBones);
 			boneNameToId.clear();
@@ -49,25 +47,13 @@ namespace BasicMeshLoader {
 			}
 			for(int b=0; b<mesh->mNumBones; ++b) {
 				aiBone* bone = mesh->mBones[b];
-				
 				aiNode* node = scene->mRootNode->FindNode(bone->mName);
 				
 				const char* bname = node->mParent->mName.C_Str();
 				if(boneNameToId.find(bname) != boneNameToId.end()) {
 					bones[b].parentId = boneNameToId[bname];
 				} else {
-					aiNode* cn = node;
-					glm::mat4 mat(1.0f);
-					while(cn) {
-						glm::mat4 m = ConvertAssimpToGlmMat(cn->mTransformation);
-						mat = m * mat;
-						cn = cn->mParent;
-					}
-					
-					globalMatrix = mat;
-					inverseGlobalMatrix = glm::inverse(mat);
 					bones[b].parentId = -1;
-					
 				}
 			}
 		}
