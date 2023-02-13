@@ -21,7 +21,7 @@
 
 #include <GL/glew.h>
 
-#include "OpenGL.h"
+#include "OpenGL.hpp"
 
 namespace gl {
 	enum TextureDataFormat : GLenum {

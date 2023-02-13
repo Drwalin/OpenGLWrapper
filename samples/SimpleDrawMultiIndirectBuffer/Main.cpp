@@ -1,7 +1,5 @@
 
 #include "../DefaultCameraAndOtherConfig.hpp"
-#include "openglwrapper/VAO.h"
-#include "openglwrapper/VBO.h"
 
 namespace SimpleDrawMultiIndirectBuffer {
 int main() {

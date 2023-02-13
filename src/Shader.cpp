@@ -16,8 +16,8 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "../include/openglwrapper/Shader.h"
-#include "../include/openglwrapper/Texture.h"
+#include "../include/openglwrapper/Shader.hpp"
+#include "../include/openglwrapper/Texture.hpp"
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>

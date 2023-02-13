@@ -23,8 +23,8 @@
 
 #include <vector>
 
-#include "VBO.h"
-#include "OpenGL.h"
+#include "VBO.hpp"
+#include "OpenGL.hpp"
 
 namespace gl {
 	enum VertexMode : GLenum {

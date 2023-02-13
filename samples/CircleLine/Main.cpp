@@ -13,11 +13,11 @@
 
 #include "../Camera.hpp"
 
-#include <openglwrapper/OpenGL.h>
-#include <openglwrapper/Shader.h>
-#include <openglwrapper/Texture.h>
-#include <openglwrapper/VAO.h>
-#include <openglwrapper/VBO.h>
+#include <openglwrapper/OpenGL.hpp>
+#include <openglwrapper/Shader.hpp>
+#include <openglwrapper/Texture.hpp>
+#include <openglwrapper/VAO.hpp>
+#include <openglwrapper/VBO.hpp>
 
 namespace CircleLine {
 
