@@ -55,13 +55,8 @@ namespace BasicMeshLoader {
 				const char* bname = node->mParent->mName.C_Str();
 				if(boneNameToId.find(bname) != boneNameToId.end()) {
 					bones[b].parentId = boneNameToId[bname];
-					
-					bones[b].relativePosition = 
-						bones[bones[b].parentId].globalInverseBindingPoseMatrix
-						* glm::inverse(bones[b].globalInverseBindingPoseMatrix)
-						;
 				} else {
-					aiNode* cn = node;//->mParent;// should start here, or a in nodeo; ??
+					aiNode* cn = node;
 					glm::mat4 mat(1.0f);
 					while(cn) {
 						glm::mat4 m = ConvertAssimpToGlmMat(cn->mTransformation);
@@ -73,13 +68,7 @@ namespace BasicMeshLoader {
 					inverseGlobalMatrix = glm::inverse(mat);
 					bones[b].parentId = -1;
 					
-					bones[b].relativePosition = mat;
 				}
-			}
-			for(int b=0; b<mesh->mNumBones; ++b) {
-				glm::mat4 fwd = glm::inverse(bones[b].globalInverseBindingPoseMatrix);
-				fwd = inverseGlobalMatrix * fwd;
-				bones[b].inverseLocalModelSpaceBindingPoseMatrix = glm::inverse(fwd);
 			}
 		}
 	}
