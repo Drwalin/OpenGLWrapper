@@ -93,13 +93,16 @@ namespace BasicMeshLoader {
 		
 		std::vector<uint32_t> indices;
 		
-		// begin skeleton
-		std::vector<MeshBone> bones;
-		std::unordered_map<std::string, int32_t> boneNameToId;
-		glm::mat4 inverseGlobalMatrix;
-		glm::mat4 globalMatrix;
-		glm::mat4 rootInverseMatrix;
-		// end skeleton
+// 		// begin skeleton
+// 		std::vector<MeshBone> bones;
+// 		std::unordered_map<std::string, int32_t> boneNameToId;
+// 		glm::mat4 inverseGlobalMatrix;
+// 		glm::mat4 globalMatrix;
+// 		glm::mat4 rootInverseMatrix;
+// 		// end skeleton
+		
+		std::shared_ptr<Skeleton> skeleton;
+		
 		
 		int GetBoneIndex(std::string boneName);
 		
