@@ -62,23 +62,23 @@ namespace BasicMeshLoader {
 		ReadNodeHierarchy(matrices, time, scene->mRootNode, glm::mat4(1));
 	}
 	
-	aiNode* Animation::FindRootNode(
-			aiNode* node,
-			glm::mat4& transform) {
-		if(skeleton->boneNameToId.find(node->mName.C_Str()) != skeleton->boneNameToId.end()) {
-			return node;
-		}
-		transform *= ConvertAssimpToGlmMat(node->mTransformation);
-		for(int i=0; i<node->mNumChildren; ++i) {
-			glm::mat4 t = transform;
-			aiNode* n = FindRootNode(node->mChildren[i], t);
-			if(n) {
-				transform = t;
-				return n;
-			}
-		}
-		return NULL;
-	}
+// 	aiNode* Animation::FindRootNode(
+// 			aiNode* node,
+// 			glm::mat4& transform) {
+// 		if(skeleton->boneNameToId.find(node->mName.C_Str()) != skeleton->boneNameToId.end()) {
+// 			return node;
+// 		}
+// 		transform *= ConvertAssimpToGlmMat(node->mTransformation);
+// 		for(int i=0; i<node->mNumChildren; ++i) {
+// 			glm::mat4 t = transform;
+// 			aiNode* n = FindRootNode(node->mChildren[i], t);
+// 			if(n) {
+// 				transform = t;
+// 				return n;
+// 			}
+// 		}
+// 		return NULL;
+// 	}
 	
 	static const aiNodeAnim* FindNodeAnim(const aiAnimation* anim, std::string name) {
 		for(int i=0; i<anim->mNumChannels; ++i) {
@@ -91,41 +91,40 @@ namespace BasicMeshLoader {
 	
 	
 	
-	static int FindRotation(float AnimationTime, const aiNodeAnim* pNodeAnim) {
-		for(uint i=0; i<pNodeAnim->mNumRotationKeys-1; i++)
-			if(AnimationTime < (float)pNodeAnim->mRotationKeys[i + 1].mTime)
+	static int FindRotation(float animationTime, const aiNodeAnim* nodeAnim) {
+		for(uint i=0; i<nodeAnim->mNumRotationKeys-1; i++)
+			if(animationTime < (float)nodeAnim->mRotationKeys[i + 1].mTime)
 				return i;
 		return -5;
 	}
 	
-	static glm::mat4 CalcInterpolatedRotation(float AnimationTime, const aiNodeAnim* pNodeAnim) {
-		aiQuaternion Out;
-		if(pNodeAnim->mNumRotationKeys == 1) {
-			Out = pNodeAnim->mRotationKeys[0].mValue;
-		} else if(pNodeAnim->mNumRotationKeys == 0) {
+	static glm::mat4 CalcInterpolatedRotation(float animationTime, const aiNodeAnim* nodeAnim) {
+		aiQuaternion out;
+		if(nodeAnim->mNumRotationKeys == 1) {
+			out = nodeAnim->mRotationKeys[0].mValue;
+		} else if(nodeAnim->mNumRotationKeys == 0) {
 			return glm::mat4(1);
 		} else {
-			uint RotationIndex = FindRotation(AnimationTime, pNodeAnim);
-			if(RotationIndex < 0)
-				RotationIndex = pNodeAnim->mNumRotationKeys;
-			uint NextRotationIndex = (RotationIndex + 1);
-			if(NextRotationIndex >= pNodeAnim->mNumRotationKeys) {
-				Out = pNodeAnim->mRotationKeys[pNodeAnim->mNumRotationKeys-1].mValue;
+			uint index = FindRotation(animationTime, nodeAnim);
+			if(index < 0)
+				index = nodeAnim->mNumRotationKeys;
+			uint nextIndex = (index + 1);
+			if(nextIndex >= nodeAnim->mNumRotationKeys) {
+				out = nodeAnim->mRotationKeys[nodeAnim->mNumRotationKeys-1].mValue;
 			} else {
-				float DeltaTime = pNodeAnim->mRotationKeys[NextRotationIndex].mTime - pNodeAnim->mRotationKeys[RotationIndex].mTime;
-				float Factor = (AnimationTime - (float)pNodeAnim->mRotationKeys[RotationIndex].mTime) / DeltaTime;
-				if(Factor < 0.0)
-					Factor = 0;
-				else if(Factor > 1)
-					Factor = 1;
-				const aiQuaternion& StartRotationQ = pNodeAnim->mRotationKeys[RotationIndex].mValue;
-				const aiQuaternion& EndRotationQ = pNodeAnim->mRotationKeys[NextRotationIndex].mValue;
-				aiQuaternion::Interpolate(Out, StartRotationQ, EndRotationQ, Factor);
-				
-				Out = Out.Normalize();
+				float deltaTime = nodeAnim->mRotationKeys[nextIndex].mTime - nodeAnim->mRotationKeys[index].mTime;
+				float factor = (animationTime - (float)nodeAnim->mRotationKeys[index].mTime) / deltaTime;
+				if(factor < 0.0)
+					factor = 0;
+				else if(factor > 1)
+					factor = 1;
+				const aiQuaternion& start = nodeAnim->mRotationKeys[index].mValue;
+				const aiQuaternion& end = nodeAnim->mRotationKeys[nextIndex].mValue;
+				aiQuaternion::Interpolate(out, start, end, factor);
+				out = out.Normalize();
 			}
 		}
-		return glm::mat4_cast(glm::quat(Out.w, Out.x, Out.y, Out.z));
+		return glm::mat4_cast(glm::quat(out.w, out.x, out.y, out.z));
 	}
 	
 	
@@ -137,31 +136,31 @@ namespace BasicMeshLoader {
 	}
 	
 	static glm::vec3 CalcInterpolatedVector(glm::vec3 Default, float AnimationTime, int numKeys, const aiVectorKey* vectorKeys) {
-		aiVector3D Out;
+		aiVector3D out;
 		if(numKeys == 1) {
-			Out = vectorKeys[0].mValue;
+			out = vectorKeys[0].mValue;
 		} else if(numKeys == 0) {
 			return Default;
 		} else {
-			uint RotationIndex = FindVector(AnimationTime, numKeys, vectorKeys);
-			if(RotationIndex < 0)
-				RotationIndex = numKeys;
-			uint NextRotationIndex = (RotationIndex + 1);
-			if(NextRotationIndex >= numKeys) {
-				Out = vectorKeys[numKeys-1].mValue;
+			uint index = FindVector(AnimationTime, numKeys, vectorKeys);
+			if(index < 0)
+				index = numKeys;
+			uint nextIndex = (index + 1);
+			if(nextIndex >= numKeys) {
+				out = vectorKeys[numKeys-1].mValue;
 			} else {
-				float DeltaTime = vectorKeys[NextRotationIndex].mTime - vectorKeys[RotationIndex].mTime;
-				float Factor = (AnimationTime - (float)vectorKeys[RotationIndex].mTime) / DeltaTime;
-				if(Factor < 0.0)
-					Factor = 0;
-				else if(Factor > 1)
-					Factor = 1;
-				auto start = vectorKeys[RotationIndex].mValue;
-				auto end = vectorKeys[NextRotationIndex].mValue;
-				Out = start + (end-start)*Factor;
+				float deltaTime = vectorKeys[nextIndex].mTime - vectorKeys[index].mTime;
+				float factor = (AnimationTime - (float)vectorKeys[index].mTime) / deltaTime;
+				if(factor < 0.0)
+					factor = 0;
+				else if(factor > 1)
+					factor = 1;
+				auto start = vectorKeys[index].mValue;
+				auto end = vectorKeys[nextIndex].mValue;
+				out = start + (end-start)*factor;
 			}
 		}
-		return glm::vec3(Out.x, Out.y, Out.z); 
+		return glm::vec3(out.x, out.y, out.z); 
 	}
 	
 	
@@ -174,6 +173,7 @@ namespace BasicMeshLoader {
 		const aiNodeAnim* nodeAnim = FindNodeAnim(aiAnim, nodeName);
 		int boneIndex = skeleton->GetBoneIndex(nodeName);
 		
+		// Interpolate animation for bone
 		if(nodeAnim) {
 			// Interpolate scaling and generate scaling transformation matrix
 			glm::mat4 scale = glm::scale(
@@ -200,6 +200,7 @@ namespace BasicMeshLoader {
 			nodeTransformation = translate * rotation * scale;
 		}
 		
+		// We only care for nodes that are bones in our animation and chosen skeleton
 		if(boneIndex < 0) {
 			nodeTransformation = glm::mat4(1);
 		}
@@ -207,33 +208,16 @@ namespace BasicMeshLoader {
 		glm::mat4 globalTransformation = parentTransform * nodeTransformation;
 		
 		if(boneIndex >= 0) {
+			// Construct final matrix transformation for bone in position (used directly in animation shader)
 			matrices[boneIndex] =
 				globalTransformation
 				* skeleton->bones[boneIndex].globalInverseBindingPoseMatrix;
 		}
 
+		// Traverse child nodes
 		for(uint i=0; i<pNode->mNumChildren; ++i) {
 			ReadNodeHierarchy(matrices, time, pNode->mChildren[i], globalTransformation);
 		}
-	}
-	
-		
-	aiNode* Animation::FindNodeAndTransform(aiNode* node,
-			const std::string& name,
-			glm::mat4& parentTransform) {
-		if(name == node->mName.C_Str()) {
-			return node;
-		}
-		parentTransform *= ConvertAssimpToGlmMat(node->mTransformation);
-		for(int i=0; i<node->mNumChildren; ++i) {
-			glm::mat4 t = parentTransform;
-			aiNode* n = FindNodeAndTransform(node->mChildren[i], name, t);
-			if(n) {
-				parentTransform = t;
-				return n;
-			}
-		}
-		return NULL;
 	}
 } // namespace BasicMeshLoader
 } // namespace gl
