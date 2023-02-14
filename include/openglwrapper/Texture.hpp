@@ -171,6 +171,8 @@ namespace gl {
 				bool generateMipMap,
 				gl::TextureTarget target, gl::TextureDataFormat internalformat,
 				gl::TextureDataFormat dataformat, gl::DataType datatype);
+		void InitTextureEmpty(uint32_t w, uint32_t h, 
+				gl::TextureTarget target, gl::TextureSizedInternalFormat internalformat);
 		
 		void MinFilter(TextureMinFilter filter);
 		void MagFilter(TextureMagFilter filter);

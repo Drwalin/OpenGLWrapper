@@ -62,6 +62,7 @@ namespace BasicMeshLoader {
 		std::vector<std::shared_ptr<Animation>> animations;
 		
 		void Load(const char* file);
+		void Load(std::string file);
 	};
 	
 } // namespace BasicMeshLoader

@@ -46,12 +46,14 @@ void VAO::SetAttribPointer(VBO& vbo, int location, unsigned count,
 	glBindBuffer(vbo.target, vbo.vboID);
 	GL_CHECK_PUSH_ERROR;
 	GL_CHECK_PUSH_ERROR;
-	glEnableVertexAttribArray(location);
-	GL_CHECK_PUSH_ERROR;
-	glVertexAttribPointer(location, count, type, normalized, vbo.vertexSize,
-			(void*)(size_t)offset);
-	GL_CHECK_PUSH_ERROR;
-	glVertexAttribDivisor(location, divisor);
+	if(location >= 0) {
+		glEnableVertexAttribArray(location);
+		GL_CHECK_PUSH_ERROR;
+		glVertexAttribPointer(location, count, type, normalized, vbo.vertexSize,
+				(void*)(size_t)offset);
+		GL_CHECK_PUSH_ERROR;
+		glVertexAttribDivisor(location, divisor);
+	}
 	GL_CHECK_PUSH_ERROR;
 	glBindVertexArray(0);
 	GL_CHECK_PUSH_ERROR;

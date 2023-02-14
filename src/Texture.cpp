@@ -96,6 +96,21 @@ void Texture::UpdateTextureData(const void* data, unsigned w, unsigned h,
 	}
 }
 
+void Texture::InitTextureEmpty(uint32_t w, uint32_t h, 
+		gl::TextureTarget target, gl::TextureSizedInternalFormat internalformat) {
+	this->target = target;
+	if(!textureID)
+		glGenTextures(1, &textureID);
+	glBindTexture(target, textureID);
+	
+	width = w;
+	height = h;
+	
+	glTexStorage2D(target, 1, internalformat, w, h);
+	
+	MinFilter(gl::NEAREST);
+}
+
 void Texture::MinFilter(TextureMinFilter filter) {
 	glTexParameteri(target, GL_TEXTURE_MIN_FILTER, filter);
 }

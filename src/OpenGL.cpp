@@ -29,6 +29,21 @@ namespace gl {
 
 OpenGL openGL;
 
+void OpenGL::FaceCulling(bool showFront, bool showBack) {
+	glEnable(GL_CULL_FACE);
+	if(showFront) {
+		if(showBack) {
+			glDisable(GL_CULL_FACE);
+		} else {
+			glCullFace(GL_BACK);
+		}
+	} else if(showBack) {
+		glCullFace(GL_FRONT);
+	} else {
+		glCullFace(GL_FRONT_AND_BACK);
+	}
+}
+
 void OpenGL::SetFullscreen(bool fullscreen) {
 	if(fullscreen == IsFullscreen())
 		return;
