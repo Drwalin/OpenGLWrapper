@@ -193,6 +193,14 @@ int Shader::GetAttributeLocation(const char * name) const {
 	return v;
 }
 
+int Shader::GetUniformLocation(std::string name) const {
+	return GetUniformLocation(name.c_str());
+}
+
+int Shader::GetAttributeLocation(std::string name) const {
+	return GetAttributeLocation(name.c_str());
+}
+
 void Shader::SetTexture(int location, class Texture* texture,
 		unsigned textureId) {
 	glActiveTexture(GL_TEXTURE0+textureId);

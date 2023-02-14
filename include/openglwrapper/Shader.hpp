@@ -46,6 +46,8 @@ namespace gl {
 		
 		int GetUniformLocation(const char* name) const;
 		int GetAttributeLocation(const char* name) const;
+		int GetUniformLocation(std::string name) const;
+		int GetAttributeLocation(std::string name) const;
 		
 		void SetTexture(int location, class Texture* texture, unsigned textureId);
 		void SetBool(int location, bool value);

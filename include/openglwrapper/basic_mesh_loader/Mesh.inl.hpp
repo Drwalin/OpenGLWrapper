@@ -33,8 +33,21 @@ namespace BasicMeshLoader {
 			uint32_t vertexBaseOffsetWithData,
 			std::vector<uint8_t>& elementBuffer
 			) const {
-		uint32_t offset = elementBuffer.size();
-		elementBuffer.resize(offset + indices.size()*sizeof(T));
+		ExtractIndices<T>(elementBuffer.size(), vertexBaseOffsetWithData,
+				elementBuffer);
+	}
+	
+		
+	template<typename T>
+	void Mesh::ExtractIndices(
+			uint32_t baseOffset, // bytes
+			uint32_t vertexBaseOffsetWithData,
+			std::vector<uint8_t>& elementBuffer
+			) const {
+		uint32_t offset = baseOffset;
+		if(elementBuffer.size() < offset + indices.size()*sizeof(T)) {
+			elementBuffer.resize(offset + indices.size()*sizeof(T));
+		}
 		T* inds = (T*)&(elementBuffer[offset]);
 		for(int32_t i=0; i<indices.size(); ++i) {
 			inds[i] = indices[i] + vertexBaseOffsetWithData;
