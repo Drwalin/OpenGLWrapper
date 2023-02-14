@@ -44,6 +44,7 @@ if(BUILD_EXAMPLES)
 		samples/Particles_1/Main
 		samples/CircleLine/Main
 		samples/Texture/Main
+		samples/CameraFBO/Main
 	)
 	target_link_libraries(samples OpenGLWrapper)
 endif()

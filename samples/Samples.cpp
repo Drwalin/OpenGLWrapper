@@ -45,6 +45,10 @@ namespace AssimpAniamatedModel {
 	int main();
 }
 
+namespace CameraFBO {
+	int main();
+}
+
 
 
 struct Entry {
@@ -92,6 +96,10 @@ const Entry entries[] = {
 	{
 		"draw_multi_test_performance_vs_instanced",
 		DrawMultiTestPerformanceVsInstanced::main
+	},
+	{
+		"camera_fbo",
+		CameraFBO::main
 	}
 };
 

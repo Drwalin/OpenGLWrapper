@@ -204,7 +204,12 @@ int Shader::GetAttributeLocation(std::string name) const {
 void Shader::SetTexture(int location, class Texture* texture,
 		unsigned textureId) {
 	glActiveTexture(GL_TEXTURE0+textureId);
-	texture->Bind();
+	if(texture) {
+		texture->Bind();
+		SetInt(location, textureId);
+	} else {
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
 	SetInt(location, textureId);
 }
 

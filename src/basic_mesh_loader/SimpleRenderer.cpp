@@ -18,14 +18,35 @@
 
 #include "../../include/openglwrapper/basic_mesh_loader/SimpleRender.hpp"
 
+#include "../../include/openglwrapper/basic_mesh_loader/AssimpLoader.hpp"
+
 namespace gl {
 namespace BasicMeshLoader {
+	StaticMeshRenderable::StaticMeshRenderable(std::string fileModelName,
+			uint32_t modelId,
+			std::shared_ptr<Shader> shader,
+			std::string positionName,
+			std::string uvName,
+			std::string colorName,
+			std::string normalName) {
+		gl::BasicMeshLoader::AssimpLoader l;
+		l.Load(fileModelName);
+		std::shared_ptr<gl::BasicMeshLoader::Mesh> mesh;
+		if(l.meshes.size() > modelId) {
+			mesh = l.meshes[modelId];
+			Init(mesh, shader, positionName, uvName, colorName, normalName);
+		} else {
+			// TODO: print error
+		}
+	}
+	
 	StaticMeshRenderable::StaticMeshRenderable(std::shared_ptr<Mesh> mesh,
 			std::shared_ptr<Shader> shader,
 			std::string positionName,
 			std::string uvName,
 			std::string colorName,
 			std::string normalName) {
+		Init(mesh, shader, positionName, uvName, colorName, normalName);
 	}
 
 	void StaticMeshRenderable::Init(std::shared_ptr<Mesh> mesh,
@@ -34,8 +55,8 @@ namespace BasicMeshLoader {
 			std::string uvName,
 			std::string colorName,
 			std::string normalName) {
-		
 		this->shader = shader;
+		
 		uint32_t stride
 			= 3*sizeof(float)
 			+ 2*sizeof(float)
@@ -71,8 +92,10 @@ namespace BasicMeshLoader {
 	}
 	
 	void StaticMeshRenderable::Draw() {
-		shader->Use();
-		vao->Draw();
+		if(shader && vao) {
+			shader->Use();
+			vao->Draw();
+		}
 	}
 	
 } // namespace BasicMeshLoader

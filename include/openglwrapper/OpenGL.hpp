@@ -85,6 +85,8 @@ namespace gl {
 			int line;
 		};
 		
+		void FaceCulling(bool showFront=true, bool showBack=true);
+		
 		void PushCustomError(ErrorStruct err);
 		int StackError(int line, const char* file);
 		void ClearErrors();

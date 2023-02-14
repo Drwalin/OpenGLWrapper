@@ -19,6 +19,7 @@
 #include <cstdio>
 
 #include "../../include/openglwrapper/basic_mesh_loader/AssimpLoader.hpp"
+#include "../../include/openglwrapper/basic_mesh_loader/Mesh.hpp"
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -28,6 +29,10 @@
 
 namespace gl {
 namespace BasicMeshLoader {
+	void AssimpLoader::Load(std::string file) {
+		return Load(file.c_str());
+	}
+	
 	void AssimpLoader::Load(const char* file) {
 		importer = std::make_shared<Assimp::Importer>();
 		const ::aiScene* s = importer->ReadFile(file, aiProcess_Triangulate | aiProcess_JoinIdenticalVertices);

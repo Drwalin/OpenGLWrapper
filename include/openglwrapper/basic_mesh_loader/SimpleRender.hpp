@@ -32,27 +32,34 @@ namespace BasicMeshLoader {
 	class StaticMeshRenderable {
 	public:
 		
+		StaticMeshRenderable(std::string fileModelName,
+				uint32_t modelId,
+				std::shared_ptr<Shader> shader,
+				std::string positionName = "pos",
+				std::string uvName = "uv",
+				std::string colorName = "color",
+				std::string normalName = "normal");
 		
 		StaticMeshRenderable(std::string fileModelName,
 				std::shared_ptr<Shader> shader,
-				std::string positionName,
-				std::string uvName,
-				std::string colorName,
-				std::string normalName);
+				std::string positionName = "pos",
+				std::string uvName = "uv",
+				std::string colorName = "color",
+				std::string normalName = "normal");
 		
 		StaticMeshRenderable(std::shared_ptr<Mesh> mesh,
 				std::shared_ptr<Shader> shader,
-				std::string positionName,
-				std::string uvName,
-				std::string colorName,
-				std::string normalName);
+				std::string positionName = "pos",
+				std::string uvName = "uv",
+				std::string colorName = "color",
+				std::string normalName = "normal");
 		
 		void Init(std::shared_ptr<Mesh> mesh,
 				std::shared_ptr<Shader> shader,
-				std::string positionName,
-				std::string uvName,
-				std::string colorName,
-				std::string normalName);
+				std::string positionName = "pos",
+				std::string uvName = "uv",
+				std::string colorName = "color",
+				std::string normalName = "normal");
 		
 		void Draw();
 		
