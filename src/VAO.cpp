@@ -162,5 +162,13 @@ void VAO::SetSize(unsigned count) {
 		sizeI = count;
 }
 
+void VAO::Bind() {
+	glBindVertexArray(vaoID);
+}
+
+void VAO::Unbind() {
+	glBindVertexArray(0);
+}
+
 }
 

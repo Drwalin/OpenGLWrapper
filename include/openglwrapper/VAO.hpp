@@ -55,9 +55,11 @@ namespace gl {
 		void BindElementBuffer(VBO& elementBO, gl::DataType type);
 		void BindIndirectBuffer(VBO& indirectBO);
 		
-		
 		void SetSize(unsigned count);
 		void SetInstances(unsigned instances);
+		
+		void Bind();
+		void Unbind();
 		
 		void Draw();
 		void Draw(unsigned start, unsigned count);
