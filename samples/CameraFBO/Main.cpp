@@ -30,15 +30,16 @@ int main() {
 			"../../samples/CameraFBO/vertex.glsl",
 			NULL,
 			"../../samples/CameraFBO/fragment.glsl");
+	std::shared_ptr<gl::Shader> shader2 = std::make_shared<gl::Shader>();
+	shader2->Load(
+			"../../samples/CameraFBO/vertex.glsl",
+			NULL,
+			"../../samples/CameraFBO/fragment.glsl");
 	
 	gl::BasicMeshLoader::StaticMeshRenderable
 		terrain("../../samples/Terrain.fbx", 0, shader),
 		monkey("../../samples/Monkey.fbx", 0, shader),
 		cameraRenderMesh("../../samples/FlatTexturedSquare.fbx", 0, shader);
-	
-	std::shared_ptr<gl::Texture> renderTargetTexture = std::make_shared<gl::Texture>();
-	renderTargetTexture->InitTextureEmpty(1024, 1024, gl::TextureTarget::TEXTURE_2D, gl::TextureSizedInternalFormat::RGBA8UI);
-	
 	
 	// Get uniform locations
 	int modelLoc = shader->GetUniformLocation("model");
@@ -50,11 +51,11 @@ int main() {
 	
 	Camera camera2;
 	
-	auto RenderCommonObjects = [&](){
-		shader->SetBool(useTexLoc, false);
+	auto RenderCommonObjects = [&](std::shared_ptr<gl::Shader> shader_){
+		shader_->SetBool(useTexLoc, false);
 		gl::openGL.FaceCulling(true, false);
 		
-		shader->SetMat4(modelLoc,
+		shader_->SetMat4(modelLoc,
 				glm::rotate(
 					glm::mat4(1),
 					3.141592f/2.0f,
@@ -62,7 +63,7 @@ int main() {
 					));
 		terrain.Draw();
 		
-		shader->SetMat4(modelLoc,
+		shader_->SetMat4(modelLoc,
 				glm::rotate(
 					glm::rotate(
 						glm::translate(
@@ -79,6 +80,22 @@ int main() {
 	};
 	
 	// gen and setup FBO
+	std::shared_ptr<gl::Texture> renderTargetTexture
+		= std::make_shared<gl::Texture>();
+	renderTargetTexture->UpdateTextureData(NULL, 1024, 1024,
+			false, gl::TEXTURE_2D, gl::RGBA, gl::RGBA, gl::UNSIGNED_BYTE);
+// 	renderTargetTexture->InitTextureEmpty(1024, 1024,
+// 			gl::TextureTarget::TEXTURE_2D,
+// 			gl::TextureSizedInternalFormat::RGBA8UI);
+	
+// 	std::shared_ptr<gl::Texture> renderTargetDepth
+// 		= std::make_shared<gl::Texture>();
+// 	renderTargetDepth->UpdateTextureData(NULL, 1024, 1024,
+// 			false, gl::TEXTURE_2D, gl::RGBA, gl::R32, gl::UNSIGNED_INT);
+// 	renderTargetTexture->InitTextureEmpty(1024, 1024,
+// 			gl::TextureTarget::TEXTURE_2D,
+// 			gl::TextureSizedInternalFormat::RGBA8UI);
+	
 	unsigned int fbo;
 	glGenFramebuffers(1, &fbo);
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo); 
@@ -113,31 +130,40 @@ int main() {
 						glm::vec3(0,1,0)
 					) * glm::vec4(-1,-0.3,-1,0)
 				));
+		shader2->SetVec4(lightDirLoc,
+				glm::normalize(
+					glm::rotate(
+						glm::mat4(1),
+						(lastFrame)/1.0f,
+						glm::vec3(0,1,0)
+					) * glm::vec4(-1,-0.3,-1,0)
+				));
 		
 		// Render everything for secondary camera (FBO)
 		{
 			// Set up FBO
 			glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-			glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // we're not using the stencil buffer now
-			glEnable(GL_DEPTH_TEST);
-			shader->SetTexture(texLoc, NULL, 0);
+			shader2->SetTexture(texLoc, NULL, 0);
+			
+			glViewport(0, 0, 1024, 1024);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			
 			// Calculate andset projection matrix
-			shader->SetMat4(projLoc, glm::perspective(45.0f, 1.0f, 0.1f, 1000.0f));
-
-			// Calculate and set view matrix
-			shader->SetMat4(viewLoc, camera2.getViewMatrix());
+			shader2->SetMat4(projLoc, glm::perspective(45.0f, 1.0f, 0.1f, 1000.0f));
 			
-			RenderCommonObjects();
+			// Calculate and set view matrix
+			shader2->SetMat4(viewLoc, glm::mat4(1));//camera2.getViewMatrix());
+			
+			RenderCommonObjects(shader2);
 			
 			// Set down FBO
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			gl::openGL.InitFrame();
 		}
 		
 		// Render primary camera
 		{
-			// Calculate andset projection matrix
+			// Calculate and set projection matrix
 			shader->SetMat4(projLoc, glm::perspective(45.0f,
 						(float)gl::openGL.GetWidth()/(float)gl::openGL.GetHeight(), 0.1f,
 						10000.0f));
@@ -145,13 +171,20 @@ int main() {
 			// Calculate and set view matrix
 			shader->SetMat4(viewLoc, camera.getViewMatrix());
 			
-			RenderCommonObjects();
+			RenderCommonObjects(shader);
 			
 			// Render FBO result
 			gl::openGL.FaceCulling(true, true);
 			shader->SetBool(useTexLoc, true);
 			shader->SetTexture(texLoc, renderTargetTexture.get(), 0);
-			shader->SetMat4(modelLoc, glm::mat4(1));
+			shader->SetMat4(modelLoc,
+					glm::scale(
+						glm::translate(
+							glm::mat4(1),
+							{5, 10, 5}
+						),
+						{5,5,5}
+					));
 			cameraRenderMesh.Draw();
 		}
 		
