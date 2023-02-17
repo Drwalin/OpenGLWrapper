@@ -49,7 +49,13 @@ int main() {
 	int useTexLoc = shader->GetUniformLocation("useTex");
 	int texLoc = shader->GetUniformLocation("tex");
 	
-	Camera camera2;
+			printf("texLoc = %i\n", texLoc);
+			printf("useTexLoc = %i\n", useTexLoc);
+			printf("viewLoc = %i\n", viewLoc);
+			printf("lightDirLoc = %i\n", lightDirLoc);
+			printf("projLoc = %i\n", projLoc);
+	
+	Camera camera2(glm::vec3(0.0f,0.0f, 0.0f));
 	
 	auto RenderCommonObjects = [&](std::shared_ptr<gl::Shader> shader_){
 		shader_->SetBool(useTexLoc, false);
@@ -79,30 +85,38 @@ int main() {
 		monkey.Draw();
 	};
 	
+	const uint32_t RENDER_SIZE = 256;
+	
 	// gen and setup FBO
 	std::shared_ptr<gl::Texture> renderTargetTexture
 		= std::make_shared<gl::Texture>();
-	renderTargetTexture->UpdateTextureData(NULL, 1024, 1024,
+	renderTargetTexture->UpdateTextureData(NULL, RENDER_SIZE, RENDER_SIZE,
 			false, gl::TEXTURE_2D, gl::RGBA, gl::RGBA, gl::UNSIGNED_BYTE);
-// 	renderTargetTexture->InitTextureEmpty(1024, 1024,
+	renderTargetTexture->WrapX(gl::CLAMP_TO_BORDER);
+	renderTargetTexture->WrapY(gl::CLAMP_TO_BORDER);
+	renderTargetTexture->MinFilter(gl::NEAREST);
+	renderTargetTexture->MagFilter(gl::MAG_NEAREST);
+	
+// 	renderTargetTexture->InitTextureEmpty(RENDER_SIZE, RENDER_SIZE,
 // 			gl::TextureTarget::TEXTURE_2D,
 // 			gl::TextureSizedInternalFormat::RGBA8UI);
 	
 // 	std::shared_ptr<gl::Texture> renderTargetDepth
 // 		= std::make_shared<gl::Texture>();
-// 	renderTargetDepth->UpdateTextureData(NULL, 1024, 1024,
+// 	renderTargetDepth->UpdateTextureData(NULL, RENDER_SIZE, RENDER_SIZE,
 // 			false, gl::TEXTURE_2D, gl::RGBA, gl::R32, gl::UNSIGNED_INT);
-// 	renderTargetTexture->InitTextureEmpty(1024, 1024,
+// 	renderTargetTexture->InitTextureEmpty(RENDER_SIZE, RENDER_SIZE,
 // 			gl::TextureTarget::TEXTURE_2D,
 // 			gl::TextureSizedInternalFormat::RGBA8UI);
 	
 	unsigned int fbo;
 	glGenFramebuffers(1, &fbo);
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo); 
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo); 
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
 			renderTargetTexture->GetTexture(), 0);
 // 	std::shared_ptr<gl::Texture> renderTargetDepth = std::make_shared<gl::Texture>();
-// 	renderTargetDepth->UpdateTextureData(NULL, 1024, 1024, false, gl::TEXTURE_2D,
+// 	renderTargetDepth->UpdateTextureData(NULL, RENDER_SIZE, RENDER_SIZE, false, gl::TEXTURE_2D,
 // 			(gl::TextureDataFormat)GL_DEPTH24_STENCIL8,
 // 			(gl::TextureDataFormat)GL_DEPTH_STENCIL,
 // 			(gl::DataType)GL_UNSIGNED_INT_24_8);
@@ -110,9 +124,18 @@ int main() {
 	unsigned int rbo;
 	glGenRenderbuffers(1, &rbo);
 	glBindRenderbuffer(GL_RENDERBUFFER, rbo); 
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 1024, 1024);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, RENDER_SIZE, RENDER_SIZE);
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+	
+	GLenum Status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+
+	if(Status != GL_FRAMEBUFFER_COMPLETE) {
+		printf("FB error, status: 0x%x\n", Status);
+		return false;
+	} else {
+		printf("No FB error\n");
+	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	
 	while(!glfwWindowShouldClose(gl::openGL.window)) {
@@ -141,20 +164,21 @@ int main() {
 		
 		// Render everything for secondary camera (FBO)
 		{
+			shader->Use();
 			// Set up FBO
 			glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-			shader2->SetTexture(texLoc, NULL, 0);
+// 			shader->SetTexture(texLoc, NULL, 0);
 			
-			glViewport(0, 0, 1024, 1024);
+			glViewport(0, 0, RENDER_SIZE, RENDER_SIZE);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			
 			// Calculate andset projection matrix
-			shader2->SetMat4(projLoc, glm::perspective(45.0f, 1.0f, 0.1f, 1000.0f));
+			shader->SetMat4(projLoc, glm::perspective(45.0f, 1.0f, 0.1f, 1000.0f));
 			
 			// Calculate and set view matrix
-			shader2->SetMat4(viewLoc, glm::mat4(1));//camera2.getViewMatrix());
+			shader->SetMat4(viewLoc, camera2.getViewMatrix());
 			
-			RenderCommonObjects(shader2);
+			RenderCommonObjects(shader);
 			
 			// Set down FBO
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -163,6 +187,7 @@ int main() {
 		
 		// Render primary camera
 		{
+			shader->Use();
 			// Calculate and set projection matrix
 			shader->SetMat4(projLoc, glm::perspective(45.0f,
 						(float)gl::openGL.GetWidth()/(float)gl::openGL.GetHeight(), 0.1f,
@@ -180,10 +205,18 @@ int main() {
 			shader->SetMat4(modelLoc,
 					glm::scale(
 						glm::translate(
-							glm::mat4(1),
-							{5, 10, 5}
+							glm::rotate(
+								glm::rotate(
+									glm::mat4(1),
+									3.141592f/2.f,
+									{0,1,0}
+								),
+								3.141592f/2.f,
+								{0,0,1}
+							),
+							{0, 0, 5}
 						),
-						{5,5,5}
+						{5,-5,5}
 					));
 			cameraRenderMesh.Draw();
 		}
