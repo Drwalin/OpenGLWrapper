@@ -1,6 +1,7 @@
 #version 430 core
 
 in vec4 out_color;
+in vec4 out_pos;
 in vec2 out_uv;
 in vec4 out_normal;
 
@@ -21,12 +22,12 @@ void main() {
 		d1 =d;
 	}
 	
-	vec4 col = out_color;
 	if(useTex) {
-		col = texture(tex, out_uv);
+		FragColor = texture(tex, out_uv);
+	} else {
+		FragColor = vec4((out_color * d1).xyz, 1);
 	}
 	
-	FragColor = vec4((out_color * d1).xyz, 1);
 }
 
 
