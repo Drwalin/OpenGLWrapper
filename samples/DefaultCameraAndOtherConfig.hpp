@@ -3,6 +3,7 @@
 #define DEFAULTS_CAMERA_AND_OTHER_SAMPLES_STUFF_HPP
 
 #include <cstdio>
+#include <ctime>
 
 #include <openglwrapper/OpenGL.hpp>
 #include <openglwrapper/Shader.hpp>
@@ -29,6 +30,7 @@ static float lastFrame = 0.0f;
 
 template<typename T=int>
 static void DefaultsSetup() {
+	srand(time(NULL));
 	gl::openGL.Init("Window test name 311", 800, 600, true, false);
     gl::openGL.InitGraphic();
 	
@@ -45,7 +47,6 @@ static void DefaultIterationStart() {
 	float currentFrame = glfwGetTime();
 	deltaTime = currentFrame - lastFrame;
 	lastFrame = currentFrame;
-	
 	
 	memcpy(&(keysPrev[0]), &(keys[0]), sizeof(keys));
 
@@ -141,6 +142,7 @@ const inline void *const*const ptrs = new void*[]{
 	(void*)ScrollCallback,
 	(void*)DefaultIterationStart,
 	(void*)DefaultIterationEnd,
+	(void*)WasPressed,
 };
 
 #endif
