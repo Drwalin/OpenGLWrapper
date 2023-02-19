@@ -75,8 +75,10 @@ bool Texture::Load(const char* fileName,
 
 void Texture::UpdateTextureData(const void* data, unsigned w, unsigned h,
 		bool generateMipMap,
-		gl::TextureTarget target, gl::TextureDataFormat internalformat,
-		gl::TextureDataFormat dataformat, gl::DataType datatype) {
+		gl::TextureTarget target,
+		gl::TextureDataFormat internalformat,
+		gl::TextureDataFormat dataformat,
+		gl::DataType datatype) {
 	
 	this->target = target;
 	if(!textureID)
@@ -129,6 +131,13 @@ void Texture::WrapY(TextureWrapParam param) {
 
 void Texture::WrapZ(TextureWrapParam param) {
 	glTexParameteri(target, GL_TEXTURE_WRAP_R, param);
+}
+
+void Texture::SetDefaultParamPixelartClampBorderNoMipmap() {
+	WrapX(gl::CLAMP_TO_BORDER);
+	WrapY(gl::CLAMP_TO_BORDER);
+	MinFilter(gl::NEAREST);
+	MagFilter(gl::MAG_NEAREST);
 }
 
 void Texture::Bind() const {

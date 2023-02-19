@@ -3,6 +3,7 @@
 #include "../../include/openglwrapper/basic_mesh_loader/SimpleRender.hpp"
 #include "openglwrapper/OpenGL.hpp"
 #include "openglwrapper/Texture.hpp"
+#include "openglwrapper/FBO.hpp"
 
 #include <cstring>
 #include <filesystem>
@@ -80,32 +81,24 @@ int main() {
 	gl::Texture renderTargetTexture;
 	renderTargetTexture.UpdateTextureData(NULL, RENDER_SIZE, RENDER_SIZE,
 			false, gl::TEXTURE_2D, gl::RGBA, gl::RGBA, gl::UNSIGNED_BYTE);
-	renderTargetTexture.WrapX(gl::CLAMP_TO_BORDER);
-	renderTargetTexture.WrapY(gl::CLAMP_TO_BORDER);
-	renderTargetTexture.MinFilter(gl::NEAREST);
-	renderTargetTexture.MagFilter(gl::MAG_NEAREST);
+	renderTargetTexture.SetDefaultParamPixelartClampBorderNoMipmap();
 	
-	unsigned int fbo;
-	glGenFramebuffers(1, &fbo);
-	glBindFramebuffer(GL_FRAMEBUFFER, fbo); 
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo); 
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
-			renderTargetTexture.GetTexture(), 0);
-	
-	std::shared_ptr<gl::Texture> renderTargetDepth = std::make_shared<gl::Texture>();
-	renderTargetDepth->UpdateTextureData(NULL, RENDER_SIZE, RENDER_SIZE, false, gl::TEXTURE_2D,
+	gl::Texture renderTargetDepth;
+	renderTargetDepth.UpdateTextureData(NULL, RENDER_SIZE, RENDER_SIZE, false,
+			gl::TEXTURE_2D,
 			(gl::TextureDataFormat)GL_DEPTH24_STENCIL8,
 			(gl::TextureDataFormat)GL_DEPTH_STENCIL,
 			(gl::DataType)GL_UNSIGNED_INT_24_8);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, renderTargetDepth->GetTexture(), 0);
 	
-	GLenum Status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-
+	gl::FBO fbo;
+	fbo.AttachTexture(&renderTargetTexture, gl::ATTACHMENT_COLOR0);
+	fbo.AttachTexture(&renderTargetDepth, gl::ATTACHMENT_DEPTH_STENCIL);
+	
+	GLenum Status = fbo.CheckStatus();
 	if(Status != GL_FRAMEBUFFER_COMPLETE) {
 		printf("FB error, status: 0x%x\n", Status);
 		return false;
 	}
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	
 	while(!glfwWindowShouldClose(gl::openGL.window)) {
 		DefaultIterationStart();
@@ -127,12 +120,13 @@ int main() {
 		{
 			shader->Use();
 			// Set up FBO
-			glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+			fbo.Bind();
 			shader->SetTexture(texLoc, NULL, 0);
 			
 			// Set Viewport
-			glViewport(0, 0, RENDER_SIZE, RENDER_SIZE);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			fbo.SetClearColor({0.2,0.3,8,0.5});
+			fbo.Clear(true, true);
+			fbo.Viewport(0, 0, RENDER_SIZE, RENDER_SIZE);
 			
 			// Calculate andset projection matrix
 			shader->SetMat4(projLoc, glm::perspective(45.0f, 1.0f, 0.1f, 1000.0f));
@@ -143,7 +137,7 @@ int main() {
 			RenderCommonObjects(shader);
 			
 			// Set down FBO
-			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			fbo.Unbind();
 			gl::openGL.InitFrame();
 		}
 		

@@ -28,6 +28,25 @@
 
 namespace gl {
 	enum FboAttachmentType : GLenum {
+		ATTACHMENT_DEPTH = GL_DEPTH_ATTACHMENT,
+		ATTACHMENT_STENCIL = GL_STENCIL_ATTACHMENT,
+		ATTACHMENT_DEPTH_STENCIL = GL_DEPTH_STENCIL_ATTACHMENT,
+		ATTACHMENT_COLOR0 = GL_COLOR_ATTACHMENT0,
+		ATTACHMENT_COLOR1 = GL_COLOR_ATTACHMENT1,
+		ATTACHMENT_COLOR2 = GL_COLOR_ATTACHMENT2,
+		ATTACHMENT_COLOR3 = GL_COLOR_ATTACHMENT3,
+		ATTACHMENT_COLOR4 = GL_COLOR_ATTACHMENT4,
+		ATTACHMENT_COLOR5 = GL_COLOR_ATTACHMENT5,
+		ATTACHMENT_COLOR6 = GL_COLOR_ATTACHMENT6,
+		ATTACHMENT_COLOR7 = GL_COLOR_ATTACHMENT7,
+		ATTACHMENT_COLOR8 = GL_COLOR_ATTACHMENT8,
+		ATTACHMENT_COLOR9 = GL_COLOR_ATTACHMENT9,
+		ATTACHMENT_COLOR10 = GL_COLOR_ATTACHMENT10,
+		ATTACHMENT_COLOR11 = GL_COLOR_ATTACHMENT11,
+		ATTACHMENT_COLOR12 = GL_COLOR_ATTACHMENT12,
+		ATTACHMENT_COLOR13 = GL_COLOR_ATTACHMENT13,
+		ATTACHMENT_COLOR14 = GL_COLOR_ATTACHMENT14,
+		ATTACHMENT_COLOR15 = GL_COLOR_ATTACHMENT15,
 	};
 
 	class FBO {
@@ -37,20 +56,25 @@ namespace gl {
 		~FBO();
 		
 		void AttachTexture(Texture* texture, FboAttachmentType  attachmentType);
-		void DetachTexture(Texture* texture, FboAttachmentType  attachmentType);
+		void DetachTexture(FboAttachmentType  attachmentType);
+		void AttachColor(Texture* texture, int colorId);
+		void DetachColor(int colorId);
+		void AttachDepth(Texture* texture);
+		void DetachDepth();
 		
 		void Viewport(int x, int y, int width, int height);
 		void Clear(bool color, bool depth);
-		void SetClearColor(glm::vec3 clearColor);
+		void SetClearColor(glm::vec4 clearColor);
 		
 		void Bind();
-		void Unbind();
+		static void Unbind();
+		
+		GLenum CheckStatus();
 		
 	private:
-	public:
 		
-		int fbo;
-		int width, height;
+		uint32_t fbo;
+		uint32_t x, y, width, height;
 		glm::vec4 clearColor;
 		
 		static FBO* currentlyBoundFBO;
