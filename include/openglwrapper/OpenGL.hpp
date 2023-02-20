@@ -119,7 +119,7 @@ namespace gl {
 		
 		int Init(const char* windowName, unsigned int width, unsigned int height,
 				bool resizable, bool fullscreen, bool limitFrames = true,
-				int majorOpenglVersion=4, int minorOpenglVersion=3);
+				int majorOpenglVersion=4, int minorOpenglVersion=5);
 		
 		void SetKeyCallback(void (GLFWwindow*, int, int, int, int));
 		void SetScrollCallback(void (GLFWwindow*, double, double));

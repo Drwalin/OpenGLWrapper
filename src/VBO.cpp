@@ -25,7 +25,7 @@ namespace gl {
 VBO::VBO(unsigned vertexSize, gl::BufferTarget target, gl::BufferUsage usage) :
 	target(target), usage(usage), vertexSize(vertexSize) {
 	vboID = 0;
-	glGenBuffers(1, &vboID);
+	glCreateBuffers(1, &vboID);
 }
 
 VBO::~VBO() {
@@ -34,11 +34,12 @@ VBO::~VBO() {
 }
 
 void VBO::Generate() {
+	Generate(&buffer.front(), buffer.size()/vertexSize);
+}
+
+void VBO::Generate(const void* data, uint32_t vertexCount) {
 	vertices = buffer.size()/vertexSize;
-	glBindVertexArray(0);
-	glBindBuffer(target, vboID);
-	glBufferData(target, buffer.size(), &buffer.front(), usage);
-	glBindBuffer(target, 0);
+	glNamedBufferData(vboID, vertices*vertexSize, data, usage);
 }
 
 void VBO::Update(unsigned beg, unsigned end) {
@@ -56,6 +57,7 @@ void VBO::Update(unsigned beg, unsigned end) {
 	glBindBuffer(target, vboID);
 	glBufferSubData(target, offset, size, &(buffer[offset]));
 	glBindBuffer(target, 0);
+	GL_CHECK_PUSH_PRINT_ERROR;
 }
 
 void VBO::SetType(unsigned vertexSize, gl::BufferTarget target,
@@ -71,17 +73,33 @@ void VBO::ClearHostBuffer() {
 }
 
 void VBO::FetchAllDataToHostFromGPU() {
+	buffer.resize(vertexSize*vertices);
+	Fetch(&(buffer.front()), 0, vertexSize*vertices);
+}
+
+void VBO::Fetch(void* data, uint32_t offset, uint32_t bytes) {
 	if(vboID) {
-		glBindVertexArray(0);
-		glBindBuffer(target, vboID);
-		buffer.resize(vertexSize*vertices);
-		glGetBufferSubData(target, 0, vertexSize*vertices, &buffer.front());
-		glBindBuffer(target, 0);
+		glGetNamedBufferSubData(vboID, offset, bytes, data);
 	}
 }
 
 void VBO::BindBufferBase(gl::BufferTarget target, int location) {
 	glBindBufferBase(target, location, vboID);
+}
+
+void VBO::Resize(uint32_t newVertices) {
+	VBO temp(vertexSize, target, usage);
+	temp.Generate(NULL, vertices);
+	temp.Copy(this, 0, 0, vertices*vertexSize);
+	Generate(NULL, newVertices*vertexSize);
+	this->Copy(&temp, 0, 0, vertices*vertexSize);
+	vertices = newVertices;
+}
+
+void VBO::Copy(VBO* readBuffer, uint32_t readOffset, uint32_t writeOffset, uint32_t bytes) {
+	if(readBuffer) {
+		glCopyNamedBufferSubData(readBuffer->vboID, vboID, readOffset, writeOffset, bytes);
+	}
 }
 
 } // namespace gl
