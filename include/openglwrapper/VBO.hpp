@@ -142,10 +142,17 @@ namespace gl {
 				gl::BufferUsage usage);
 		~VBO();
 		
+		void Generate(const void* data, uint32_t vertexCount);
+		
 		void Generate();
 		void Update(unsigned beg, unsigned end);
 		void ClearHostBuffer();
 		void FetchAllDataToHostFromGPU();
+		
+		void Fetch(void* data, uint32_t offset, uint32_t bytes);
+		
+		void Resize(uint32_t newVertices);
+		void Copy(VBO* sourceBuffer, uint32_t sourceOffset, uint32_t destinyOffset, uint32_t bytes);
 		
 		inline std::vector<unsigned char>& Buffer() { return buffer; }
 		inline const std::vector<unsigned char>& Buffer() const { return buffer; }
@@ -153,6 +160,8 @@ namespace gl {
 		inline unsigned VertexSize() const { return vertexSize; }
 		
 		inline unsigned GetIdGL() const { return vboID; }
+		
+		inline uint32_t GetVertexCount() const { return vertices; }
 		
 		void BindBufferBase(gl::BufferTarget target, int location);
 		
