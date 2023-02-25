@@ -13,11 +13,12 @@
 
 #include "../Camera.hpp"
 
-#include <openglwrapper/OpenGL.hpp>
-#include <openglwrapper/Shader.hpp>
-#include <openglwrapper/Texture.hpp>
-#include <openglwrapper/VAO.hpp>
-#include <openglwrapper/VBO.hpp>
+#include "../../include/openglwrapper/OpenGL.hpp"
+#include "../../include/openglwrapper/Shader.hpp"
+#include "../../include/openglwrapper/Texture.hpp"
+#include "../../include/openglwrapper/VAO.hpp"
+#include "../../include/openglwrapper/VBO.hpp"
+#include "../../include/openglwrapper/BufferAccessor.hpp"
 
 namespace CircleLine {
 
@@ -57,7 +58,7 @@ int main() {
 	
 	gl::VBO vbo(2*sizeof(float), gl::ARRAY_BUFFER, gl::STATIC_DRAW);
 	
-	auto buf = vbo.Buffer<gl::Atr<glm::vec2, 1>>();
+	gl::BufferAccessor::BufferRef<gl::Atr<glm::vec2, 1>> buf(&vbo);
 	int i=0;
 	float t=0;
 	for(; t<(2.0*3.141592f); t+=0.01, ++i) {

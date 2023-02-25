@@ -5,11 +5,12 @@
 #include <unordered_map>
 #include <ctime>
 
-#include <openglwrapper/OpenGL.hpp>
-#include <openglwrapper/Shader.hpp>
-#include <openglwrapper/Texture.hpp>
-#include <openglwrapper/VAO.hpp>
-#include <openglwrapper/VBO.hpp>
+#include "../../include/openglwrapper/OpenGL.hpp"
+#include "../../include/openglwrapper/Shader.hpp"
+#include "../../include/openglwrapper/Texture.hpp"
+#include "../../include/openglwrapper/VAO.hpp"
+#include "../../include/openglwrapper/VBO.hpp"
+#include "../../include/openglwrapper/BufferAccessor.hpp"
 
 namespace ComplexCompute {
 
@@ -56,7 +57,8 @@ int main() {
 	atomicBuffer.ReserveResizeVertices(640);
 	atomicBuffer.Generate();
 	infosBuffer.ReserveResizeVertices(OBJECTS_COUNT);
-    auto buf = infosBuffer.Buffer<gl::Atr<Object, 1>>();
+	gl::BufferAccessor::BufferRef<gl::Atr<Object, 1>> buf(&infosBuffer);
+//     auto buf = infosBuffer.Buffer<gl::Atr<Object, 1>>();
 	int sum = 0;
 	for(int i=0; i<OBJECTS_COUNT; ++i) {
 		buf.At<0>(i).pos = {rand(), rand()};
@@ -117,7 +119,8 @@ int main() {
 		
 // 		int components = *(unsigned*)&(atomicBuffer.Buffer()[0]);
 		int components = sum;
-		auto buf = indirectBuffer.Buffer<gl::Atr<uint32_t, 5>>();
+// 		auto buf = indirectBuffer.Buffer<gl::Atr<uint32_t, 5>>();
+		gl::BufferAccessor::BufferRef<gl::Atr<uint32_t, 5>> buf(&infosBuffer);
 		for(int i=0; i<components; ++i) {
 			if(buf.At<0>(i, 2)) {
 				map2[buf.At<0>(i, 2)]++;

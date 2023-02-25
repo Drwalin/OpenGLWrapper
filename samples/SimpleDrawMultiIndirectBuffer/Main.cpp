@@ -1,5 +1,6 @@
 
 #include "../DefaultCameraAndOtherConfig.hpp"
+#include "../../include/openglwrapper/BufferAccessor.hpp"
 
 namespace SimpleDrawMultiIndirectBuffer {
 int main() {
@@ -17,7 +18,7 @@ int main() {
 	// Generate vertex data
     gl::VBO vbo(3*sizeof(float)+2*sizeof(uint16_t)+4*sizeof(uint8_t), gl::ARRAY_BUFFER, gl::STATIC_DRAW);
 	{
-		auto buf = vbo.Buffer<gl::Atr<float, 3>, gl::Atr<short,2>, gl::Atr<uint8_t,4>>();
+		gl::BufferAccessor::BufferRef<gl::Atr<float, 3>, gl::Atr<short,2>, gl::Atr<uint8_t,4>> buf(&vbo);
 		for(int i = 0; i < 4; ++i) {
 			buf.At<0>(i, 0) = (i>>0)&1;
 			buf.At<0>(i, 1) = (i>>2)&1;
@@ -37,7 +38,7 @@ int main() {
 	// Generate element buffer
 	gl::VBO element(4, gl::ELEMENT_ARRAY_BUFFER, gl::STATIC_DRAW);
 	{
-		auto buf = element.Buffer<gl::Atr<uint32_t, 1>>();
+		gl::BufferAccessor::BufferRef<gl::Atr<uint32_t, 1>> buf(&element);
 		buf.At<0>(0) = 0;
 		buf.At<0>(1) = 1;
 		buf.At<0>(2) = 2;
@@ -51,7 +52,7 @@ int main() {
 	// Init instance data buffer
 	gl::VBO instanceData(64, gl::ARRAY_BUFFER, gl::DYNAMIC_DRAW);
 	{
-		auto buf = instanceData.Buffer<gl::Atr<glm::mat4, 1>>();
+		gl::BufferAccessor::BufferRef<gl::Atr<glm::mat4, 1>> buf(&instanceData);
 		for(int i=0; i<objectsToRender; ++i) {
 			buf.At<0>(i) = glm::translate(glm::scale(glm::mat4(1.0f), glm::vec3(10.0f)), glm::vec3(i,i-5,i));
 		}
@@ -69,7 +70,7 @@ int main() {
 	};
 	gl::VBO indirectDrawBuffer(sizeof(DrawElementsIndirectCommand), gl::DRAW_INDIRECT_BUFFER, gl::DYNAMIC_DRAW);
 	{
-		auto buf = indirectDrawBuffer.Buffer<gl::Atr<DrawElementsIndirectCommand, 1>>();
+		gl::BufferAccessor::BufferRef<gl::Atr<DrawElementsIndirectCommand, 1>> buf(&indirectDrawBuffer);
 		for(int i=0; i<objectsToRender; ++i) {
 			auto& c = buf.At<0>(i);
 			c.instanceCount = 1;
