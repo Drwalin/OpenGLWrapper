@@ -4,11 +4,12 @@
 
 #include <algorithm>
 
-#include <openglwrapper/OpenGL.hpp>
-#include <openglwrapper/Shader.hpp>
-#include <openglwrapper/Texture.hpp>
-#include <openglwrapper/VAO.hpp>
-#include <openglwrapper/VBO.hpp>
+#include "../../include/openglwrapper/OpenGL.hpp"
+#include "../../include/openglwrapper/Shader.hpp"
+#include "../../include/openglwrapper/Texture.hpp"
+#include "../../include/openglwrapper/VAO.hpp"
+#include "../../include/openglwrapper/VBO.hpp"
+#include "../../include/openglwrapper/BufferAccessor.hpp"
 
 namespace SimpleCompute {
 	
@@ -33,7 +34,7 @@ int main() {
 	destinyBuffer.Generate();
 	
 	// init computational data values
-    auto src = sourceBuffer.Buffer<gl::Atr<uint32_t, 1>>();
+	gl::BufferAccessor::BufferRef<gl::Atr<uint32_t, 1>> src(&sourceBuffer);
 	uint32_t sum = 0;
 	for(int i=0; i<OBJECTS_COUNT; ++i) {
 		src.At<0>(i) = i;
@@ -61,7 +62,7 @@ int main() {
 		
 		// validate data
 		int correct=0, wrong=0;
-		auto dst = destinyBuffer.Buffer<gl::Atr<uint32_t, 1>>();
+		gl::BufferAccessor::BufferRef<gl::Atr<uint32_t, 1>> dst(&destinyBuffer);
 		for(int i=0; i<OBJECTS_COUNT; ++i) {
 			uint32_t a = src.At<0>(i);
 			uint32_t b = dst.At<0>(i);

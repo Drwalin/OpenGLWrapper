@@ -22,7 +22,7 @@
 
 namespace gl {
 
-VBO::VBO(unsigned vertexSize, gl::BufferTarget target, gl::BufferUsage usage) :
+VBO::VBO(uint32_t vertexSize, gl::BufferTarget target, gl::BufferUsage usage) :
 	target(target), usage(usage), vertexSize(vertexSize) {
 	vboID = 0;
 	glCreateBuffers(1, &vboID);
@@ -42,12 +42,12 @@ void VBO::Generate(const void* data, uint32_t vertexCount) {
 	glNamedBufferData(vboID, vertices*vertexSize, data, usage);
 }
 
-void VBO::Update(unsigned beg, unsigned end) {
-	end = std::min<unsigned>(end, vertices);
+void VBO::Update(uint32_t beg, uint32_t end) {
+	end = std::min<uint32_t>(end, vertices);
 	if(beg >= end)
 		return;
-	unsigned offset = beg * vertexSize;
-	unsigned size = (end - beg) * vertexSize;
+	uint32_t offset = beg * vertexSize;
+	uint32_t size = (end - beg) * vertexSize;
 	if(buffer.size() < offset+size) {
 		printf("VBO::Update Return: beg=%u, end=%u, vertexSize=%u, offset=%u, size=%u, vertices=%u, buffer.size()=%lu\n",
 				beg, end, vertexSize, offset, size, vertices, buffer.size());
@@ -60,7 +60,7 @@ void VBO::Update(unsigned beg, unsigned end) {
 	GL_CHECK_PUSH_PRINT_ERROR;
 }
 
-void VBO::SetType(unsigned vertexSize, gl::BufferTarget target,
+void VBO::SetType(uint32_t vertexSize, gl::BufferTarget target,
 		gl::BufferUsage usage) {
 	this->vertexSize = vertexSize;
 	this->target = target;
