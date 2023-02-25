@@ -52,13 +52,14 @@ int main() {
 	gl::VBO atomicBuffer(4, gl::SHADER_STORAGE_BUFFER, gl::DYNAMIC_DRAW);
 	gl::VBO infosBuffer(sizeof(Object), gl::ARRAY_BUFFER, gl::STREAM_DRAW);
 	
-	indirectBuffer.ReserveResizeVertices(OBJECTS_COUNT*32);
-	indirectBuffer.Generate();
-	atomicBuffer.ReserveResizeVertices(640);
-	atomicBuffer.Generate();
-	infosBuffer.ReserveResizeVertices(OBJECTS_COUNT);
-	gl::BufferAccessor::BufferRef<gl::Atr<Object, 1>> buf(&infosBuffer);
-//     auto buf = infosBuffer.Buffer<gl::Atr<Object, 1>>();
+	std::vector<uint8_t> indirectVbo, atomicVbo, infosVbo;
+	
+	indirectBuffer.Generate(NULL, OBJECTS_COUNT*32);
+	indirectVbo.resize(OBJECTS_COUNT*32*indirectBuffer.VertexSize());
+	atomicBuffer.Generate(NULL, 640);
+	atomicVbo.resize(640*atomicBuffer.VertexSize());
+	infosVbo.resize(OBJECTS_COUNT*infosBuffer.VertexSize());
+	gl::BufferAccessor::BufferRef<gl::Atr<Object, 1>> buf(&infosBuffer, infosVbo);
 	int sum = 0;
 	for(int i=0; i<OBJECTS_COUNT; ++i) {
 		buf.At<0>(i).pos = {rand(), rand()};
@@ -74,7 +75,7 @@ int main() {
 		sum += buf.At<0>(i).counts;
 	}
 	printf("sum = %i\n\n", sum);
-	infosBuffer.Generate();
+	infosBuffer.Generate(infosVbo);
 	
 	int FRAME = 0;
 	
@@ -91,12 +92,12 @@ int main() {
 		
 		unsigned objectCountLoc = computeShader.GetUniformLocation("objectsCount");
 		
-		memset(&(atomicBuffer.Buffer()[0]), 0, atomicBuffer.Buffer().size());
-		atomicBuffer.Update(0, 640);
+		memset(&(atomicVbo[0]), 0, atomicVbo.size());
+		atomicBuffer.Generate(atomicVbo);
 		int innerIters = 1024;
 		for(int i=0; i<innerIters; ++i) {
-			memset(&(atomicBuffer.Buffer()[0]), 0, atomicBuffer.Buffer().size());
-			atomicBuffer.Update(0, 16);
+			memset(&(atomicVbo[0]), 0, atomicVbo.size());
+			atomicBuffer.Generate(atomicVbo);
 			computeShader.SetInt(objectCountLoc, OBJECTS_COUNT);
 			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, indirectBuffer.GetIdGL());
 			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, infosBuffer.GetIdGL());
@@ -108,19 +109,22 @@ int main() {
 			emptyShader.Use();
 			
 			glMemoryBarrier(GL_ALL_BARRIER_BITS);
-			atomicBuffer.FetchAllDataToHostFromGPU();
+			atomicBuffer.FetchAll(atomicVbo);
+			
 			glMemoryBarrier(GL_ALL_BARRIER_BITS);
 		}
 		
 		float T = (glfwGetTime()-currentFrame);
 		
-		indirectBuffer.FetchAllDataToHostFromGPU();
+		indirectBuffer.FetchAll(indirectVbo);
+		infosBuffer.FetchAll(infosVbo);
+		atomicBuffer.FetchAll(atomicVbo);
 		glMemoryBarrier(GL_ALL_BARRIER_BITS);
 		
 // 		int components = *(unsigned*)&(atomicBuffer.Buffer()[0]);
 		int components = sum;
 // 		auto buf = indirectBuffer.Buffer<gl::Atr<uint32_t, 5>>();
-		gl::BufferAccessor::BufferRef<gl::Atr<uint32_t, 5>> buf(&infosBuffer);
+		gl::BufferAccessor::BufferRef<gl::Atr<uint32_t, 5>> buf(&infosBuffer, infosVbo);
 		for(int i=0; i<components; ++i) {
 			if(buf.At<0>(i, 2)) {
 				map2[buf.At<0>(i, 2)]++;
@@ -156,18 +160,18 @@ int main() {
 		
 		
 		printf(" frame time = %f ms\n", T*1000.0);
-		printf(" atomic[0] = %u\n", *(unsigned*)&(atomicBuffer.Buffer()[0]));
-		printf(" GlobalInvocationId.x = %u\n", *(unsigned*)&(atomicBuffer.Buffer()[20]));
-		printf(" GlobalInvocationId.y = %u\n", *(unsigned*)&(atomicBuffer.Buffer()[24]));
-		printf(" GlobalInvocationId.z = %u\n", *(unsigned*)&(atomicBuffer.Buffer()[28]));
-		printf(" LocalInvocation.x = %u\n", *(unsigned*)&(atomicBuffer.Buffer()[32]));
-		printf(" LocalInvocation.y = %u\n", *(unsigned*)&(atomicBuffer.Buffer()[36]));
-		printf(" LocalInvocation.z = %u\n", *(unsigned*)&(atomicBuffer.Buffer()[40]));
+		printf(" atomic[0] = %u\n", *(unsigned*)&(atomicVbo[0]));
+		printf(" GlobalInvocationId.x = %u\n", *(unsigned*)&(atomicVbo[20]));
+		printf(" GlobalInvocationId.y = %u\n", *(unsigned*)&(atomicVbo[24]));
+		printf(" GlobalInvocationId.z = %u\n", *(unsigned*)&(atomicVbo[28]));
+		printf(" LocalInvocation.x = %u\n", *(unsigned*)&(atomicVbo[32]));
+		printf(" LocalInvocation.y = %u\n", *(unsigned*)&(atomicVbo[36]));
+		printf(" LocalInvocation.z = %u\n", *(unsigned*)&(atomicVbo[40]));
 		
 		
-		uint64_t iterations = *(unsigned*)&(atomicBuffer.Buffer()[68]);
+		uint64_t iterations = *(unsigned*)&(atomicVbo[68]);
 		iterations <<= 32;
-		iterations += *(unsigned*)&(atomicBuffer.Buffer()[64]);
+		iterations += *(unsigned*)&(atomicVbo[64]);
 		
 				iterations = (long long)components * (long long)innerIters;
 		

@@ -68,7 +68,7 @@ namespace BufferAccessor {
 		
 		using Tuple = std::tuple<TupleArgs...>;
 		
-		BufferRef(VBO* vbo) : buffer(vbo->GetBuffer()), vertexSize(vbo->VertexSize()) {}
+		BufferRef(VBO* vbo, std::vector<uint8_t>& buf) : buffer(buf), vertexSize(vbo->VertexSize()) {}
 		BufferRef(BufferRef&& r) = default;
 		BufferRef(BufferRef& r) : buffer(r.buffer), vertexSize(r.vertexSize) {}
 		

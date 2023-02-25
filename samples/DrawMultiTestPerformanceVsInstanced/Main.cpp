@@ -8,13 +8,6 @@
 
 namespace DrawMultiTestPerformanceVsInstanced {
 	
-template<typename T>
-void Copy(gl::VBO& vbo, std::vector<T>& v) {
-	std::vector<uint8_t>& b = vbo.Buffer();
-	b.resize(v.size()*sizeof(T));
-	memcpy(&(b[0]), &(v[0]), b.size());
-}
-	
 int main() {
 	DefaultsSetup();
     
@@ -44,29 +37,31 @@ int main() {
 	gl::VBO vbo(stride, gl::ARRAY_BUFFER, gl::STATIC_DRAW);
 	gl::VBO indices(4, gl::ELEMENT_ARRAY_BUFFER, gl::STATIC_DRAW);
 	
+	std::vector<uint8_t> Vbo, Ebo, instanceVbo, indirectVbo;
+	
 	// Extract all desired attributes from mesh
-	mesh->ExtractPos<float>(0, vbo.Buffer(), 0, stride,
+	mesh->ExtractPos<float>(0, Vbo, 0, stride,
 			gl::BasicMeshLoader::ConverterFloatPlain<float, 3>);
 	
-	mesh->ExtractUV<float>(0, vbo.Buffer(), 12, stride,
+	mesh->ExtractUV<float>(0, Vbo, 12, stride,
 			gl::BasicMeshLoader::ConverterFloatPlain<float, 2>);
 	
-	mesh->ExtractColor<uint8_t>(0, vbo.Buffer(), 20, stride,
+	mesh->ExtractColor<uint8_t>(0, Vbo, 20, stride,
 			gl::BasicMeshLoader::ConverterIntPlainClampScale<uint8_t, 255, 0, 255, 4>);
 	
-	mesh->ExtractNormal(0, vbo.Buffer(), 24, stride,
+	mesh->ExtractNormal(0, Vbo, 24, stride,
 			gl::BasicMeshLoader::ConverterIntNormalized<uint8_t, 127, 3>);
 	
-	mesh->AppendIndices<uint32_t>(0, indices.Buffer());
+	mesh->AppendIndices<uint32_t>(0, Ebo);
 	
 	
 	
 	
 	
 	// Generate VBO & EBO
-	vbo.Generate();
+	vbo.Generate(Vbo);
 	GL_CHECK_PUSH_ERROR;
-	indices.Generate();
+	indices.Generate(Ebo);
 	GL_CHECK_PUSH_ERROR;
 	
 	
@@ -77,7 +72,7 @@ int main() {
 	// Init instance data buffer
 	gl::VBO instanceData(64, gl::ARRAY_BUFFER, gl::DYNAMIC_DRAW);
 	{
-		gl::BufferAccessor::BufferRef<gl::Atr<glm::mat4, 1>> buf(&instanceData);
+		gl::BufferAccessor::BufferRef<gl::Atr<glm::mat4, 1>> buf(&instanceData, instanceVbo);
 		int i=0;
 		for(int y=0; y<100; ++y) {
 			for(int x=0; x<100; ++x) {
@@ -87,7 +82,7 @@ int main() {
 			}
 		}
 	}
-	instanceData.Generate();
+	instanceData.Generate(instanceVbo);
 	GL_CHECK_PUSH_ERROR;
 	
 	// Init indirect draw buffer
@@ -100,14 +95,14 @@ int main() {
 	};
 	gl::VBO indirectDrawBuffer(sizeof(DrawElementsIndirectCommand), gl::DRAW_INDIRECT_BUFFER, gl::DYNAMIC_DRAW);
 	{
-		gl::BufferAccessor::BufferRef<gl::Atr<DrawElementsIndirectCommand, 1>> buf(&indirectDrawBuffer);
+		gl::BufferAccessor::BufferRef<gl::Atr<DrawElementsIndirectCommand, 1>> buf(&indirectDrawBuffer, indirectVbo);
 		for(int i=0; i<MAX_OBJECTS; ++i) {
 			auto& c = buf.At<0>(i);
 			c.instanceCount = 0;
 			c.baseVertex = 0;
 			c.baseInstance = i;
 			
-			c.count = indices.Buffer().size()/4;
+			c.count = Ebo.size()/4;
 			c.firstIndex = 0;
 		}
 		for(int i=0; i<objectsToRender; ++i) {
@@ -116,7 +111,7 @@ int main() {
 			c.instanceCount = 1;
 		}
 	}
-	indirectDrawBuffer.Generate();
+	indirectDrawBuffer.Generate(indirectVbo);
 	GL_CHECK_PUSH_ERROR;
 	
 	
@@ -202,12 +197,12 @@ int main() {
         
 		DefaultIterationEnd();
 		
-		printf(" fps = %f vertices=%i, triangles=%i, instances=%i   => all triangles = %lli\n",
+		printf(" fps = %f vertices=%ld, triangles=%ld, instances=%i   => all triangles = %lli\n",
 				((float)frameCount)/(glfwGetTime()-start),
-				vbo.Buffer().size() / vbo.VertexSize(),
-				indices.Buffer().size() / indices.VertexSize(),
+				Vbo.size() / vbo.VertexSize(),
+				Ebo.size() / indices.VertexSize(),
 				objectsToRender,
-				(long long)indices.Buffer().size() / (long long)indices.VertexSize() * (long long)objectsToRender
+				(long long)Ebo.size() / (long long)indices.VertexSize() * (long long)objectsToRender
 				);
     }
 	

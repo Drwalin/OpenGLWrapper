@@ -10,13 +10,6 @@
 
 namespace CameraFBO {
 	
-template<typename T>
-void Copy(gl::VBO& vbo, std::vector<T>& v) {
-	std::vector<uint8_t>& b = vbo.Buffer();
-	b.resize(v.size()*sizeof(T));
-	memcpy(&(b[0]), &(v[0]), b.size());
-}
-	
 int main() {
 	{
 		auto path = std::filesystem::current_path();

@@ -29,19 +29,20 @@ int main() {
 	// init data storage objects
 	gl::VBO sourceBuffer(sizeof(uint32_t), gl::ARRAY_BUFFER, gl::DYNAMIC_DRAW);
 	gl::VBO destinyBuffer(sizeof(uint32_t), gl::ARRAY_BUFFER, gl::DYNAMIC_DRAW);
-	sourceBuffer.ReserveResizeVertices(OBJECTS_COUNT);
-	destinyBuffer.ReserveResizeVertices(OBJECTS_COUNT);
-	destinyBuffer.Generate();
+	std::vector<uint8_t> Src, Dst;
+	Src.resize(OBJECTS_COUNT*4);
+	Dst.resize(OBJECTS_COUNT*4);
+	destinyBuffer.Generate(Dst);
 	
 	// init computational data values
-	gl::BufferAccessor::BufferRef<gl::Atr<uint32_t, 1>> src(&sourceBuffer);
+	gl::BufferAccessor::BufferRef<gl::Atr<uint32_t, 1>> src(&sourceBuffer, Src);
 	uint32_t sum = 0;
 	for(int i=0; i<OBJECTS_COUNT; ++i) {
 		src.At<0>(i) = i;
 		sum += src.At<0>(i);
 	}
 	// generate data and upload to gpu
-	sourceBuffer.Generate();
+	sourceBuffer.Generate(Src);
 	
 	{
 		// set shader uniform data
@@ -58,11 +59,11 @@ int main() {
 				
 		// fetch data
 		glMemoryBarrier(GL_ALL_BARRIER_BITS);
-		destinyBuffer.FetchAllDataToHostFromGPU();
+		destinyBuffer.FetchAll(Dst);
 		
 		// validate data
 		int correct=0, wrong=0;
-		gl::BufferAccessor::BufferRef<gl::Atr<uint32_t, 1>> dst(&destinyBuffer);
+		gl::BufferAccessor::BufferRef<gl::Atr<uint32_t, 1>> dst(&destinyBuffer, Dst);
 		for(int i=0; i<OBJECTS_COUNT; ++i) {
 			uint32_t a = src.At<0>(i);
 			uint32_t b = dst.At<0>(i);

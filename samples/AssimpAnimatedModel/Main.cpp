@@ -7,13 +7,6 @@
 
 namespace AssimpAniamatedModel {
 	
-template<typename T>
-void Copy(gl::VBO& vbo, std::vector<T>& v) {
-	std::vector<uint8_t>& b = vbo.Buffer();
-	b.resize(v.size()*sizeof(T));
-	memcpy(&(b[0]), &(v[0]), b.size());
-}
-	
 int main() {
 	DefaultsSetup();
 
@@ -40,30 +33,31 @@ int main() {
 	gl::VBO indices(4, gl::ELEMENT_ARRAY_BUFFER, gl::STATIC_DRAW);
 	
 	// Extract all desired attributes from mesh
-	mesh->ExtractPos(0, vbo.Buffer(), 0, stride,
+	std::vector<uint8_t> Vbo, Ebo;
+	mesh->ExtractPos(0, Vbo, 0, stride,
 			gl::BasicMeshLoader::ConverterFloatPlain<float, 3>);
 	
-	mesh->ExtractUV(0, vbo.Buffer(), 12, stride,
+	mesh->ExtractUV(0, Vbo, 12, stride,
 			gl::BasicMeshLoader::ConverterFloatPlain<float, 2>);
 	
-	mesh->ExtractColor(0, vbo.Buffer(), 20, stride,
+	mesh->ExtractColor(0, Vbo, 20, stride,
 			gl::BasicMeshLoader::ConverterIntPlainClampScale<uint8_t, 255, 0, 255, 4>);
 	
-	mesh->ExtractNormal(0, vbo.Buffer(), 24, stride,
+	mesh->ExtractNormal(0, Vbo, 24, stride,
 			gl::BasicMeshLoader::ConverterIntNormalized<uint8_t, 127, 3>);
 	
-	mesh->ExtractWeightsWithBones<uint8_t, uint8_t>(0, vbo.Buffer(), 28, 32, stride,
+	mesh->ExtractWeightsWithBones<uint8_t, uint8_t>(0, Vbo, 28, 32, stride,
 			gl::BasicMeshLoader::ConverterIntPlainClampScale<uint8_t, 255, 0, 255, 1>, 4);
 	
-	mesh->AppendIndices<uint32_t>(0, indices.Buffer());
+	mesh->AppendIndices<uint32_t>(0, Ebo);
 	
 	// Extract one frame
 	std::vector<glm::mat4> matrices;
 	l.animations[0]->GetModelBoneMatrices(matrices, 2, true);
 	
 	// Generate VBO & EBO
-	vbo.Generate();
-	indices.Generate();
+	vbo.Generate(Vbo);
+	indices.Generate(Ebo);
 	
 	// Initiate VAO with VBO attributes
 	gl::VAO vao(gl::TRIANGLES);
