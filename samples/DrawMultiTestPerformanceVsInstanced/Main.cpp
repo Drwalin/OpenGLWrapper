@@ -2,6 +2,7 @@
 #include "../DefaultCameraAndOtherConfig.hpp"
 #include "openglwrapper/basic_mesh_loader/AssimpLoader.hpp"
 #include "openglwrapper/basic_mesh_loader/Value.hpp"
+#include "../../include/openglwrapper/BufferAccessor.hpp"
 
 #include <cstring>
 
@@ -76,7 +77,7 @@ int main() {
 	// Init instance data buffer
 	gl::VBO instanceData(64, gl::ARRAY_BUFFER, gl::DYNAMIC_DRAW);
 	{
-		auto buf = instanceData.Buffer<gl::Atr<glm::mat4, 1>>();
+		gl::BufferAccessor::BufferRef<gl::Atr<glm::mat4, 1>> buf(&instanceData);
 		int i=0;
 		for(int y=0; y<100; ++y) {
 			for(int x=0; x<100; ++x) {
@@ -99,7 +100,7 @@ int main() {
 	};
 	gl::VBO indirectDrawBuffer(sizeof(DrawElementsIndirectCommand), gl::DRAW_INDIRECT_BUFFER, gl::DYNAMIC_DRAW);
 	{
-		auto buf = indirectDrawBuffer.Buffer<gl::Atr<DrawElementsIndirectCommand, 1>>();
+		gl::BufferAccessor::BufferRef<gl::Atr<DrawElementsIndirectCommand, 1>> buf(&indirectDrawBuffer);
 		for(int i=0; i<MAX_OBJECTS; ++i) {
 			auto& c = buf.At<0>(i);
 			c.instanceCount = 0;
