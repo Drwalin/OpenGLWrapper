@@ -15,7 +15,8 @@ int main() {
     
 	// Generate vertex data
     gl::VBO vbo(3*sizeof(float)+2*sizeof(uint16_t)+4*sizeof(uint8_t), gl::ARRAY_BUFFER, gl::STATIC_DRAW);
-    gl::BufferAccessor::BufferRef<gl::Atr<float, 3>, gl::Atr<short,2>, gl::Atr<uint8_t,4>> buf(&vbo);
+	std::vector<uint8_t> Vbo;
+    gl::BufferAccessor::BufferRef<gl::Atr<float, 3>, gl::Atr<short,2>, gl::Atr<uint8_t,4>> buf(&vbo, Vbo);
     for(int i = 0; i < 4; ++i) {
 		buf.At<0>(i, 0) = (i>>0)&1;
 		buf.At<0>(i, 1) = (i>>2)&1;
@@ -29,7 +30,7 @@ int main() {
 		buf.At<2>(i, 3) = 255;
 	}
 	// Generate VBO from vertex data
-    vbo.Generate();
+    vbo.Generate(Vbo);
     
 	// Initiate VAO with VBO attributes
     gl::VAO vao(gl::TRIANGLE_STRIP);

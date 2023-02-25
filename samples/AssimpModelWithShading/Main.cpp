@@ -7,13 +7,6 @@
 
 namespace AssimpModelWithShading {
 	
-template<typename T>
-void Copy(gl::VBO& vbo, std::vector<T>& v) {
-	std::vector<uint8_t>& b = vbo.Buffer();
-	b.resize(v.size()*sizeof(T));
-	memcpy(&(b[0]), &(v[0]), b.size());
-}
-	
 int main() {
 	DefaultsSetup();
     
@@ -39,23 +32,24 @@ int main() {
 	gl::VBO indices(4, gl::ELEMENT_ARRAY_BUFFER, gl::STATIC_DRAW);
 	
 	// Extract all desired attributes from mesh
-	mesh->ExtractPos<float>(0, vbo.Buffer(), 0, stride,
+	std::vector<uint8_t> Vbo, Ebo;
+	mesh->ExtractPos<float>(0, Vbo, 0, stride,
 			gl::BasicMeshLoader::ConverterFloatPlain<float, 3>);
 	
-	mesh->ExtractUV<float>(0, vbo.Buffer(), 12, stride,
+	mesh->ExtractUV<float>(0, Vbo, 12, stride,
 			gl::BasicMeshLoader::ConverterFloatPlain<float, 2>);
 	
-	mesh->ExtractColor<uint8_t>(0, vbo.Buffer(), 20, stride,
+	mesh->ExtractColor<uint8_t>(0, Vbo, 20, stride,
 			gl::BasicMeshLoader::ConverterIntPlainClampScale<uint8_t, 255, 0, 255, 4>);
 	
-	mesh->ExtractNormal(0, vbo.Buffer(), 24, stride,
+	mesh->ExtractNormal(0, Vbo, 24, stride,
 			gl::BasicMeshLoader::ConverterIntNormalized<uint8_t, 127, 3>);
 	
-	mesh->AppendIndices<uint32_t>(0, indices.Buffer());
+	mesh->AppendIndices<uint32_t>(0, Ebo);
 	
 	// Generate VBO & EBO
-	vbo.Generate();
-	indices.Generate();
+	vbo.Generate(Vbo);
+	indices.Generate(Ebo);
 	
 	// Initiate VAO with VBO attributes
     gl::VAO vao(gl::TRIANGLES);

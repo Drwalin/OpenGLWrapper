@@ -58,7 +58,8 @@ int main() {
 	
 	gl::VBO vbo(2*sizeof(float), gl::ARRAY_BUFFER, gl::STATIC_DRAW);
 	
-	gl::BufferAccessor::BufferRef<gl::Atr<glm::vec2, 1>> buf(&vbo);
+	std::vector<uint8_t> Vbo;
+	gl::BufferAccessor::BufferRef<gl::Atr<glm::vec2, 1>> buf(&vbo, Vbo);
 	int i=0;
 	float t=0;
 	for(; t<(2.0*3.141592f); t+=0.01, ++i) {
@@ -66,7 +67,7 @@ int main() {
 		glm::vec2 p(sin(t), cos(t));
 		buf.At<0>(i, 0) = p;
 	}
-	vbo.Generate();
+	vbo.Generate(Vbo);
 	
 	gl::VAO vao(gl::LINE_LOOP);
 	vao.SetAttribPointer(vbo, shaderLine.GetAttributeLocation("position"),

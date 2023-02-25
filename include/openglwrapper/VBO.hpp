@@ -54,12 +54,6 @@ namespace gl {
 		
 		friend class VAO;
 		
-		inline void ReserveResizeVertices(uint32_t verts) {
-			if(buffer.size()/vertexSize < verts) {
-				buffer.resize(verts*vertexSize);
-			}
-		}
-		
 		void SetType(uint32_t vertexSize, gl::BufferTarget target,
 				gl::BufferUsage usage);
 		
@@ -68,19 +62,14 @@ namespace gl {
 		~VBO();
 		
 		void Generate(const void* data, uint32_t vertexCount);
-		
-		void Generate();
-		void Update(uint32_t beg, uint32_t end);
-		void ClearHostBuffer();
-		void FetchAllDataToHostFromGPU();
+		void Generate(const std::vector<uint8_t>& data);
 		
 		void Fetch(void* data, uint32_t offset, uint32_t bytes);
+		void FetchAll(std::vector<uint8_t>& data);
+		void Update(const void* data, uint32_t offset, uint32_t bytes);
 		
 		void Resize(uint32_t newVertices);
 		void Copy(VBO* sourceBuffer, uint32_t sourceOffset, uint32_t destinyOffset, uint32_t bytes);
-		
-		inline std::vector<uint8_t>& Buffer() { return buffer; }
-		inline const std::vector<uint8_t>& Buffer() const { return buffer; }
 		
 		inline uint32_t VertexSize() const { return vertexSize; }
 		
@@ -90,15 +79,12 @@ namespace gl {
 		
 		void BindBufferBase(gl::BufferTarget target, int location);
 		
-		inline std::vector<uint8_t>& GetBuffer() { return buffer; }
-		
 	private:
 		
 		gl::BufferTarget target;
 		gl::BufferUsage usage;
 		uint32_t vboID;
 		uint32_t vertexSize, vertices;
-		std::vector<uint8_t> buffer;
 	};
 }
 

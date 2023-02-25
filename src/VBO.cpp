@@ -26,6 +26,7 @@ VBO::VBO(uint32_t vertexSize, gl::BufferTarget target, gl::BufferUsage usage) :
 	target(target), usage(usage), vertexSize(vertexSize) {
 	vboID = 0;
 	glCreateBuffers(1, &vboID);
+	glNamedBufferData(vboID, vertexSize, NULL, usage);
 }
 
 VBO::~VBO() {
@@ -33,31 +34,31 @@ VBO::~VBO() {
 		glDeleteBuffers(1, &vboID);
 }
 
-void VBO::Generate() {
-	Generate(&buffer.front(), buffer.size()/vertexSize);
-}
-
 void VBO::Generate(const void* data, uint32_t vertexCount) {
-	vertices = buffer.size()/vertexSize;
-	glNamedBufferData(vboID, vertices*vertexSize, data, usage);
+	vertices = vertexCount;
+	glNamedBufferData(vboID, vertexSize*vertexCount, data, usage);
 }
 
-void VBO::Update(uint32_t beg, uint32_t end) {
-	end = std::min<uint32_t>(end, vertices);
-	if(beg >= end)
-		return;
-	uint32_t offset = beg * vertexSize;
-	uint32_t size = (end - beg) * vertexSize;
-	if(buffer.size() < offset+size) {
-		printf("VBO::Update Return: beg=%u, end=%u, vertexSize=%u, offset=%u, size=%u, vertices=%u, buffer.size()=%lu\n",
-				beg, end, vertexSize, offset, size, vertices, buffer.size());
-		return;
+void VBO::Generate(const std::vector<uint8_t>& data) {
+	Generate(&data.front(), (data.size()+vertexSize-1)/vertexSize);
+}
+
+void VBO::Update(const void* data, uint32_t offset, uint32_t bytes) {
+	if(vertexSize*vertices < offset+bytes) {
+		Resize((offset+bytes+vertexSize-1)/vertexSize);
 	}
-	glBindVertexArray(0);
-	glBindBuffer(target, vboID);
-	glBufferSubData(target, offset, size, &(buffer[offset]));
-	glBindBuffer(target, 0);
-	GL_CHECK_PUSH_PRINT_ERROR;
+	glNamedBufferSubData(vboID, offset, bytes, data);
+}
+
+void VBO::Fetch(void* data, uint32_t offset, uint32_t bytes) {
+	if(vboID) {
+		glGetNamedBufferSubData(vboID, offset, bytes, data);
+	}
+}
+
+void VBO::FetchAll(std::vector<uint8_t>& data) {
+	data.resize(vertices*vertexSize);
+	Fetch(&data.front(), 0, data.size());
 }
 
 void VBO::SetType(uint32_t vertexSize, gl::BufferTarget target,
@@ -65,22 +66,6 @@ void VBO::SetType(uint32_t vertexSize, gl::BufferTarget target,
 	this->vertexSize = vertexSize;
 	this->target = target;
 	this->usage = usage;
-}
-
-void VBO::ClearHostBuffer() {
-	buffer.clear();
-	buffer.shrink_to_fit();
-}
-
-void VBO::FetchAllDataToHostFromGPU() {
-	buffer.resize(vertexSize*vertices);
-	Fetch(&(buffer.front()), 0, vertexSize*vertices);
-}
-
-void VBO::Fetch(void* data, uint32_t offset, uint32_t bytes) {
-	if(vboID) {
-		glGetNamedBufferSubData(vboID, offset, bytes, data);
-	}
 }
 
 void VBO::BindBufferBase(gl::BufferTarget target, int location) {

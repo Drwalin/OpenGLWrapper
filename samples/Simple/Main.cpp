@@ -44,10 +44,11 @@ int main() {
 
 
 	gl::VBO vbo(3*sizeof(float), gl::ARRAY_BUFFER, gl::STATIC_DRAW);
-	gl::BufferAccessor::BufferRef<gl::Atr<glm::vec3, 1>> buf(&vbo);
+	std::vector<uint8_t> Vbo;
+	gl::BufferAccessor::BufferRef<gl::Atr<glm::vec3, 1>> buf(&vbo, Vbo);
 	for(uint32_t i = 0; i < 8; ++i)
 		buf.At<0>(i) = glm::vec3(i, i/2.f, i/3.f);
-	vbo.Generate();
+	vbo.Generate(Vbo);
 
 	gl::VAO vao(gl::POINTS);
 	vao.SetAttribPointer(vbo, ourShader.GetAttributeLocation("position"), 3,
