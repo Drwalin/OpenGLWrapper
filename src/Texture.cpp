@@ -26,32 +26,28 @@ Texture::Texture() {
 	textureID = 0;
 	width = 0;
 	height = 0;
+	depth = 0;
 }
 
 Texture::~Texture() {
 	Destroy();
 }
 
-bool Texture::Loaded() const {
-	return (bool)textureID;
-}
-
-int Texture::GetWidth() const {
-	return width;
-}
-
-int Texture::GetHeight() const {
-	return height;
-}
-
 bool Texture::Load(const char* fileName,
 		bool generateMipMap, int forceChannelsCount) {
+	return Load(fileName, generateMipMap,
+			(gl::TextureSizedInternalFormat)gl::RGBA, forceChannelsCount);
+}
+
+bool Texture::Load(const char* fileName, bool generateMipMap,
+		gl::TextureSizedInternalFormat forceSizedInternalFormat,
+		int forceChannelsCount) {
 	int channels = 0;
-	unsigned char * image = LoadImageData(fileName, &width, &height, &channels,
+	uint8_t * image = LoadImageData(fileName, &width, &height, &channels,
 			forceChannelsCount);
 	if(image==NULL && textureID) {
 		glDeleteTextures(1, &textureID);
-		textureID = width = height = 0;
+		textureID = width = height = depth = 0;
 		return false;
 	}
 	
@@ -67,26 +63,28 @@ bool Texture::Load(const char* fileName,
 			return false;
 	}
 	
-	UpdateTextureData(image, width, height,
-			generateMipMap, gl::TEXTURE_2D, gl::RGBA, gl::RGBA, gl::UNSIGNED_BYTE);
+	UpdateTextureData(image, width, height, generateMipMap, gl::TEXTURE_2D,
+			forceSizedInternalFormat, gl::RGBA, gl::UNSIGNED_BYTE);
 	FreeImageData(image);
+	depth = 1;
 	return true;
 }
 
-void Texture::UpdateTextureData(const void* data, unsigned w, unsigned h,
+void Texture::UpdateTextureData(const void* data, uint32_t w, uint32_t h,
 		bool generateMipMap,
 		gl::TextureTarget target,
-		gl::TextureDataFormat internalformat,
+		gl::TextureSizedInternalFormat internalformat,
 		gl::TextureDataFormat dataformat,
 		gl::DataType datatype) {
 	
 	this->target = target;
 	if(!textureID)
-		glGenTextures(1, &textureID);
+		glCreateTextures(target, 1, &textureID);
 	glBindTexture(target, textureID);
 	
 	width = w;
 	height = h;
+	depth = 1;
 	
 	glTexImage2D(target, 0, internalformat, width, height, 0, dataformat,
 			datatype, data);
@@ -100,18 +98,53 @@ void Texture::UpdateTextureData(const void* data, unsigned w, unsigned h,
 
 void Texture::InitTextureEmpty(uint32_t w, uint32_t h, 
 		gl::TextureTarget target, gl::TextureSizedInternalFormat internalformat) {
+	UpdateTextureData(NULL, w, h, false, target, internalformat, gl::RGBA, gl::UNSIGNED_BYTE);
+	/*
 	this->target = target;
 	if(!textureID)
-		glGenTextures(1, &textureID);
+		glCreateTextures(target, 1, &textureID);
 	glBindTexture(target, textureID);
 	
 	width = w;
 	height = h;
+	depth = 1;
 	
 	glTexStorage2D(target, 1, internalformat, w, h);
 	
 	MinFilter(gl::NEAREST);
+	*/
 }
+
+
+		
+void Texture::UpdateTextureData3(const void* data, uint32_t w, uint32_t h, uint32_t d,
+		bool generateMipMap,
+		gl::TextureTarget target, gl::TextureSizedInternalFormat internalformat,
+		gl::TextureDataFormat dataformat, gl::DataType datatype) {
+}
+
+void Texture::InitTextureEmpty3(uint32_t w, uint32_t h, uint32_t d ,
+		gl::TextureTarget target, gl::TextureSizedInternalFormat internalformat) {
+	
+}
+
+
+
+void Texture::UpdateTextureData1(const void* data, uint32_t w,
+		bool generateMipMap,
+		gl::TextureTarget target, gl::TextureSizedInternalFormat internalformat,
+		gl::TextureDataFormat dataformat, gl::DataType datatype) {
+	
+	
+}
+
+void Texture::InitTextureEmpty1(uint32_t w, 
+		gl::TextureTarget target, gl::TextureSizedInternalFormat internalformat) {
+	
+}
+
+
+
 
 void Texture::MinFilter(TextureMinFilter filter) {
 	glTexParameteri(target, GL_TEXTURE_MIN_FILTER, filter);
@@ -144,7 +177,7 @@ void Texture::Bind() const {
 	glBindTexture(target, textureID);
 }
 
-unsigned int Texture::GetTexture() const {
+uint32_t Texture::GetTexture() const {
 	return textureID;
 }
 

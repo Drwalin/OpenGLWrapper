@@ -73,13 +73,13 @@ int main() {
 	// gen and setup FBO
 	gl::Texture renderTargetTexture;
 	renderTargetTexture.UpdateTextureData(NULL, RENDER_SIZE, RENDER_SIZE,
-			false, gl::TEXTURE_2D, gl::RGBA, gl::RGBA, gl::UNSIGNED_BYTE);
+			false, gl::TEXTURE_2D, (gl::TextureSizedInternalFormat)gl::RGBA, gl::RGBA, gl::UNSIGNED_BYTE);
 	renderTargetTexture.SetDefaultParamPixelartClampBorderNoMipmap();
 	
 	gl::Texture renderTargetDepth;
 	renderTargetDepth.UpdateTextureData(NULL, RENDER_SIZE, RENDER_SIZE, false,
 			gl::TEXTURE_2D,
-			(gl::TextureDataFormat)GL_DEPTH24_STENCIL8,
+			(gl::TextureSizedInternalFormat)GL_DEPTH24_STENCIL8,
 			(gl::TextureDataFormat)GL_DEPTH_STENCIL,
 			(gl::DataType)GL_UNSIGNED_INT_24_8);
 	
