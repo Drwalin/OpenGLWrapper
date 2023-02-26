@@ -158,23 +158,42 @@ namespace gl {
 	class Texture {
 	private:
 		
-		int width, height;
-		unsigned int textureID;
+		int width, height, depth;
+		uint32_t textureID;
 		gl::TextureTarget target;
 		
 	public:
 		
-		bool Loaded() const;
-		int GetWidth() const;
-		int GetHeight() const;
+		inline bool Loaded() const { return textureID; }
+		inline int GetWidth() const { return width; }
+		inline int GetHeight() const { return height; }
+		inline int GetDepth() const { return depth; }
 		
 		bool Load(const char* fileName, bool generateMipMap,
 				int forceChannelsCount=0);		// return 0 if no errors
-		void UpdateTextureData(const void* data, unsigned w, unsigned h,
+		bool Load(const char* fileName, bool generateMipMap,
+				gl::TextureSizedInternalFormat forceSizedInternalFormat,
+				int forceChannelsCount=0);		// return 0 if no errors
+
+		void UpdateTextureData(const void* data, uint32_t w, uint32_t h,
 				bool generateMipMap,
-				gl::TextureTarget target, gl::TextureDataFormat internalformat,
+				gl::TextureTarget target, gl::TextureSizedInternalFormat internalformat,
 				gl::TextureDataFormat dataformat, gl::DataType datatype);
 		void InitTextureEmpty(uint32_t w, uint32_t h, 
+				gl::TextureTarget target, gl::TextureSizedInternalFormat internalformat);
+		
+		void UpdateTextureData3(const void* data, uint32_t w, uint32_t h, uint32_t d,
+				bool generateMipMap,
+				gl::TextureTarget target, gl::TextureSizedInternalFormat internalformat,
+				gl::TextureDataFormat dataformat, gl::DataType datatype);
+		void InitTextureEmpty3(uint32_t w, uint32_t h, uint32_t d ,
+				gl::TextureTarget target, gl::TextureSizedInternalFormat internalformat);
+		
+		void UpdateTextureData1(const void* data, uint32_t w,
+				bool generateMipMap,
+				gl::TextureTarget target, gl::TextureSizedInternalFormat internalformat,
+				gl::TextureDataFormat dataformat, gl::DataType datatype);
+		void InitTextureEmpty1(uint32_t w, 
 				gl::TextureTarget target, gl::TextureSizedInternalFormat internalformat);
 		
 		void MinFilter(TextureMinFilter filter);
@@ -186,7 +205,7 @@ namespace gl {
 		void SetDefaultParamPixelartClampBorderNoMipmap();
 		
 		void Bind() const;
-		unsigned int GetTexture() const;
+		uint32_t GetTexture() const;
 		void Unbind();
 		
 		void Destroy();
