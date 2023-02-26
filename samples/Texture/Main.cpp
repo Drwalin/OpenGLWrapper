@@ -43,7 +43,7 @@ int main() {
     
 	// Load texture
 	gl::Texture texture;
-    texture.Load("../samples/Simple/image.jpg", false, 4);
+    texture.Load("../samples/image.jpg", false, 4);
 	
 	// Get uniform locations
 	int modelLoc = ourShader.GetUniformLocation("model");

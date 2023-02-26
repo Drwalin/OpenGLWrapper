@@ -174,27 +174,66 @@ namespace gl {
 		bool Load(const char* fileName, bool generateMipMap,
 				gl::TextureSizedInternalFormat forceSizedInternalFormat,
 				int forceChannelsCount=0);		// return 0 if no errors
-
-		void UpdateTextureData(const void* data, uint32_t w, uint32_t h,
+		
+		
+		void Generate1(gl::TextureTarget target,
+				uint32_t w,
+				gl::TextureSizedInternalFormat internalformat,
+				gl::TextureDataFormat dataformat=RGBA, gl::DataType datatype=UNSIGNED_BYTE);
+		void Update1(const void* pixels,
+				uint32_t x,
+				uint32_t w,
+				uint32_t level,
+				gl::TextureDataFormat dataformat, gl::DataType datatype);
+		void Fetch1(void* pixels,
+				uint32_t x,
+				uint32_t w,
+				uint32_t level,
+				gl::TextureDataFormat dataformat, gl::DataType datatype,
+				uint32_t pixelsBufferSize);
+		
+		void Generate2(gl::TextureTarget target,
+				uint32_t w, uint32_t h,
+				gl::TextureSizedInternalFormat internalformat,
+				gl::TextureDataFormat dataformat=RGBA, gl::DataType datatype=UNSIGNED_BYTE);
+		void Update2(const void* pixels,
+				uint32_t x, uint32_t y,
+				uint32_t w, uint32_t h,
+				uint32_t level,
+				gl::TextureDataFormat dataformat, gl::DataType datatype);
+		void Fetch2(void* pixels,
+				uint32_t x, uint32_t y,
+				uint32_t w, uint32_t h,
+				uint32_t level,
+				gl::TextureDataFormat dataformat, gl::DataType datatype,
+				uint32_t pixelsBufferSize);
+		
+		void Generate3(gl::TextureTarget target,
+				uint32_t w, uint32_t h, uint32_t d,
+				gl::TextureSizedInternalFormat internalformat,
+				gl::TextureDataFormat dataformat=RGBA, gl::DataType datatype=UNSIGNED_BYTE);
+		void Update3(const void* pixels,
+				uint32_t x, uint32_t y, uint32_t z,
+				uint32_t w, uint32_t h, uint32_t d,
+				uint32_t level,
+				gl::TextureDataFormat dataformat, gl::DataType datatype);
+		void Fetch3(void* pixels,
+				uint32_t x, uint32_t y, uint32_t z,
+				uint32_t w, uint32_t h, uint32_t d,
+				uint32_t level,
+				gl::TextureDataFormat dataformat, gl::DataType datatype,
+				uint32_t pixelsBufferSize);
+		
+		
+		void UpdateTextureData(const void* pixels, uint32_t w, uint32_t h,
 				bool generateMipMap,
 				gl::TextureTarget target, gl::TextureSizedInternalFormat internalformat,
 				gl::TextureDataFormat dataformat, gl::DataType datatype);
 		void InitTextureEmpty(uint32_t w, uint32_t h, 
 				gl::TextureTarget target, gl::TextureSizedInternalFormat internalformat);
 		
-		void UpdateTextureData3(const void* data, uint32_t w, uint32_t h, uint32_t d,
-				bool generateMipMap,
-				gl::TextureTarget target, gl::TextureSizedInternalFormat internalformat,
-				gl::TextureDataFormat dataformat, gl::DataType datatype);
-		void InitTextureEmpty3(uint32_t w, uint32_t h, uint32_t d ,
-				gl::TextureTarget target, gl::TextureSizedInternalFormat internalformat);
 		
-		void UpdateTextureData1(const void* data, uint32_t w,
-				bool generateMipMap,
-				gl::TextureTarget target, gl::TextureSizedInternalFormat internalformat,
-				gl::TextureDataFormat dataformat, gl::DataType datatype);
-		void InitTextureEmpty1(uint32_t w, 
-				gl::TextureTarget target, gl::TextureSizedInternalFormat internalformat);
+		void GenerateMipmaps();
 		
 		void MinFilter(TextureMinFilter filter);
 		void MagFilter(TextureMagFilter filter);
