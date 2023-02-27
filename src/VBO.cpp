@@ -74,10 +74,15 @@ void VBO::BindBufferBase(gl::BufferTarget target, int location) {
 
 void VBO::Resize(uint32_t newVertices) {
 	VBO temp(vertexSize, target, usage);
-	temp.Generate(NULL, vertices);
-	temp.Copy(this, 0, 0, vertices*vertexSize);
+	if(newVertices < vertices) {
+		temp.Generate(NULL, newVertices);
+		temp.Copy(this, 0, 0, newVertices*vertexSize);
+	} else if(newVertices > vertices) {
+		temp.Generate(NULL, vertices);
+		temp.Copy(this, 0, 0, vertices*vertexSize);
+	}
 	Generate(NULL, newVertices*vertexSize);
-	this->Copy(&temp, 0, 0, vertices*vertexSize);
+	this->Copy(&temp, 0, 0, (vertices < newVertices ? vertices : newVertices) * vertexSize);
 	vertices = newVertices;
 }
 
