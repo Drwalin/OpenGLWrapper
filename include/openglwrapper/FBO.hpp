@@ -71,11 +71,15 @@ namespace gl {
 		
 		GLenum CheckStatus();
 		
+		inline uint32_t FboId() const { return fbo; }
+		
 	private:
 		
 		uint32_t fbo;
 		uint32_t x, y, width, height;
 		glm::vec4 clearColor;
+		
+		
 		
 		static FBO* currentlyBoundFBO;
 	};

@@ -34,7 +34,7 @@ namespace gl {
 	}
 	
 	
-	void FBO::AttachTexture(Texture* texture, FboAttachmentType  attachmentType) {
+	void FBO::AttachTexture(Texture* texture, FboAttachmentType attachmentType) {
 		Bind();
 		glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, GL_TEXTURE_2D, texture->GetTexture(), 0);
 	}
