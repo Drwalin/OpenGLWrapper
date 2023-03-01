@@ -49,6 +49,10 @@ namespace CameraFBO {
 	int main();
 }
 
+namespace MultiRenderTargetTextureFBO {
+	int main();
+}
+
 
 
 struct Entry {
@@ -100,6 +104,10 @@ const Entry entries[] = {
 	{
 		"camera_fbo",
 		CameraFBO::main
+	},
+	{
+		"multi_render_target_texture_fbo",
+		MultiRenderTargetTextureFBO::main
 	}
 };
 
