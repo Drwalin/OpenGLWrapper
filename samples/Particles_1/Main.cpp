@@ -30,6 +30,7 @@ int main() {
 			"../samples/Particles_1/fragment.glsl");
 	
 	gl::VBO vbo(11*sizeof(float), gl::ARRAY_BUFFER, gl::STATIC_DRAW);
+	vbo.Init();
 	std::vector<uint8_t> Vbo;
 	gl::BufferAccessor::BufferRef<gl::Atr<glm::vec3, 2>, gl::Atr<float, 1>, gl::Atr<glm::vec4, 1>> buf(&vbo, Vbo);
 	for(int i = 100000; i >= 0; --i) {
@@ -48,6 +49,7 @@ int main() {
 	vbo.Generate(Vbo);
 	
 	gl::VAO vao(gl::POINTS);
+	vao.Init();
 	vao.SetAttribPointer(vbo, ourShader.GetAttributeLocation("position"), 3,
 			gl::FLOAT, false, 0);
 	vao.SetAttribPointer(vbo, ourShader.GetAttributeLocation("startVelocity"), 3,

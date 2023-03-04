@@ -28,7 +28,9 @@ int main() {
 	
 	// init data storage objects
 	gl::VBO sourceBuffer(sizeof(uint32_t), gl::ARRAY_BUFFER, gl::DYNAMIC_DRAW);
+	sourceBuffer.Init();
 	gl::VBO destinyBuffer(sizeof(uint32_t), gl::ARRAY_BUFFER, gl::DYNAMIC_DRAW);
+	destinyBuffer.Init();
 	std::vector<uint8_t> Src, Dst;
 	Src.resize(OBJECTS_COUNT*4);
 	Dst.resize(OBJECTS_COUNT*4);

@@ -15,6 +15,7 @@ int main() {
     
 	// Generate vertex data
     gl::VBO vbo(3*sizeof(float)+2*sizeof(uint16_t)+4*sizeof(uint8_t), gl::ARRAY_BUFFER, gl::STATIC_DRAW);
+	vbo.Init();
 	std::vector<uint8_t> Vbo;
     gl::BufferAccessor::BufferRef<gl::Atr<float, 3>, gl::Atr<short,2>, gl::Atr<uint8_t,4>> buf(&vbo, Vbo);
     for(int i = 0; i < 4; ++i) {
@@ -34,6 +35,7 @@ int main() {
     
 	// Initiate VAO with VBO attributes
     gl::VAO vao(gl::TRIANGLE_STRIP);
+	vao.Init();
 	vao.SetAttribPointer(vbo, ourShader.GetAttributeLocation("position"), 3,
 			gl::FLOAT, false, 0);
 	vao.SetAttribPointer(vbo, ourShader.GetAttributeLocation("uv"), 2,

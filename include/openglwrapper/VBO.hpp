@@ -54,12 +54,12 @@ namespace gl {
 		
 		friend class VAO;
 		
-		void SetType(uint32_t vertexSize, gl::BufferTarget target,
-				gl::BufferUsage usage);
-		
 		VBO(uint32_t vertexSize, gl::BufferTarget target,
 				gl::BufferUsage usage);
 		~VBO();
+		
+		void Init();
+		void Destroy();
 		
 		void Generate(const void* data, uint32_t vertexCount);
 		void Generate(const std::vector<uint8_t>& data);
