@@ -55,9 +55,9 @@ int main() {
 	renderTextureColor.SetDefaultParamPixelartClampBorderNoMipmap();
 	
 	gl::FBO fbo;
-	fbo.AttachTexture(&renderTextureColor, gl::ATTACHMENT_COLOR0);
-	fbo.AttachTexture(&renderTextureNormal, gl::ATTACHMENT_COLOR1);
-	fbo.AttachTexture(&renderTextureDepth, gl::ATTACHMENT_DEPTH_STENCIL);
+	fbo.AttachTexture(&renderTextureColor, gl::ATTACHMENT_COLOR0, 0);
+	fbo.AttachTexture(&renderTextureNormal, gl::ATTACHMENT_COLOR1, 1);
+	fbo.AttachTexture(&renderTextureDepth, gl::ATTACHMENT_DEPTH_STENCIL, 0);
 	
 	
 	GLenum Status = fbo.CheckStatus();
@@ -114,8 +114,8 @@ int main() {
 			shader->Use();
 			// Set up FBO
 			fbo.Bind();
-			GLenum es[] = {gl::ATTACHMENT_COLOR0, gl::ATTACHMENT_COLOR1};
-			glDrawBuffers(2, es);
+// 			GLenum es[] = {gl::ATTACHMENT_COLOR0, gl::ATTACHMENT_COLOR1};
+// 			glDrawBuffers(2, es);
 			shader->SetTexture(texLoc, NULL, 0);
 			
 			// Set Viewport

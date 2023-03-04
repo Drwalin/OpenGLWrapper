@@ -47,6 +47,7 @@ namespace gl {
 		ATTACHMENT_COLOR13 = GL_COLOR_ATTACHMENT13,
 		ATTACHMENT_COLOR14 = GL_COLOR_ATTACHMENT14,
 		ATTACHMENT_COLOR15 = GL_COLOR_ATTACHMENT15,
+		ATTACHMENT_NONE = GL_NONE,
 	};
 
 	class FBO {
@@ -57,9 +58,9 @@ namespace gl {
 		
 		void Destroy();
 		
-		void AttachTexture(Texture* texture, FboAttachmentType  attachmentType);
+		void AttachTexture(Texture* texture, FboAttachmentType  attachmentType, uint32_t bindLocation);
 		void DetachTexture(FboAttachmentType  attachmentType);
-		void AttachColor(Texture* texture, int colorId);
+		void AttachColor(Texture* texture, int colorId, uint32_t bindLocation);
 		void DetachColor(int colorId);
 		void AttachDepth(Texture* texture);
 		void DetachDepth();
@@ -68,6 +69,7 @@ namespace gl {
 		void Clear(bool color, bool depth);
 		void SetClearColor(glm::vec4 clearColor);
 		
+		void SimpleBind();
 		void Bind();
 		static void Unbind();
 		
@@ -81,6 +83,7 @@ namespace gl {
 		uint32_t x, y, width, height;
 		glm::vec4 clearColor;
 		
+		std::vector<FboAttachmentType> attachmentBuffers;
 		
 		
 		static FBO* currentlyBoundFBO;
