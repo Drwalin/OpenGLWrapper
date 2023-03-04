@@ -23,15 +23,28 @@
 namespace gl {
 
 VBO::VBO(uint32_t vertexSize, gl::BufferTarget target, gl::BufferUsage usage) :
-	target(target), usage(usage), vertexSize(vertexSize) {
+		target(target), usage(usage), vertexSize(vertexSize) {
 	vboID = 0;
-	glCreateBuffers(1, &vboID);
-	glNamedBufferData(vboID, vertexSize, NULL, usage);
+	this->vertexSize = vertexSize;
+	this->target = target;
+	this->usage = usage;
 }
 
 VBO::~VBO() {
+	Destroy();
+}
+
+void VBO::Init() {
+	if(vboID == 0) {
+		glCreateBuffers(1, &vboID);
+		glNamedBufferData(vboID, vertexSize, NULL, usage);
+	}
+}
+
+void VBO::Destroy() {
 	if(vboID)
 		glDeleteBuffers(1, &vboID);
+	vboID = 0;
 }
 
 void VBO::Generate(const void* data, uint32_t vertexCount) {
@@ -59,13 +72,6 @@ void VBO::Fetch(void* data, uint32_t offset, uint32_t bytes) {
 void VBO::FetchAll(std::vector<uint8_t>& data) {
 	data.resize(vertices*vertexSize);
 	Fetch(&data.front(), 0, data.size());
-}
-
-void VBO::SetType(uint32_t vertexSize, gl::BufferTarget target,
-		gl::BufferUsage usage) {
-	this->vertexSize = vertexSize;
-	this->target = target;
-	this->usage = usage;
 }
 
 void VBO::BindBufferBase(gl::BufferTarget target, int location) {

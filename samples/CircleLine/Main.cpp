@@ -57,6 +57,7 @@ int main() {
 			"../samples/CircleLine/fragment.glsl");
 	
 	gl::VBO vbo(2*sizeof(float), gl::ARRAY_BUFFER, gl::STATIC_DRAW);
+	vbo.Init();
 	
 	std::vector<uint8_t> Vbo;
 	gl::BufferAccessor::BufferRef<gl::Atr<glm::vec2, 1>> buf(&vbo, Vbo);
@@ -70,6 +71,7 @@ int main() {
 	vbo.Generate(Vbo);
 	
 	gl::VAO vao(gl::LINE_LOOP);
+	vao.Init();
 	vao.SetAttribPointer(vbo, shaderLine.GetAttributeLocation("position"),
 			2, gl::FLOAT, false, 0);
 	

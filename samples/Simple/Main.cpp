@@ -48,9 +48,11 @@ int main() {
 	gl::BufferAccessor::BufferRef<gl::Atr<glm::vec3, 1>> buf(&vbo, Vbo);
 	for(uint32_t i = 0; i < 8; ++i)
 		buf.At<0>(i) = glm::vec3(i, i/2.f, i/3.f);
+	vbo.Init();
 	vbo.Generate(Vbo);
 
 	gl::VAO vao(gl::POINTS);
+	vao.Init();
 	vao.SetAttribPointer(vbo, ourShader.GetAttributeLocation("position"), 3,
 			gl::FLOAT, false, 0);
 

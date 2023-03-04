@@ -30,7 +30,9 @@ int main() {
 		+ 4*sizeof(uint8_t) // normal
 		+ 4*(1 + 1);        // bones + weights
 	gl::VBO vbo(stride, gl::ARRAY_BUFFER, gl::STATIC_DRAW);
+	vbo.Init();
 	gl::VBO indices(4, gl::ELEMENT_ARRAY_BUFFER, gl::STATIC_DRAW);
+	indices.Init();
 	
 	// Extract all desired attributes from mesh
 	std::vector<uint8_t> Vbo, Ebo;
@@ -61,6 +63,7 @@ int main() {
 	
 	// Initiate VAO with VBO attributes
 	gl::VAO vao(gl::TRIANGLES);
+	vao.Init();
 	vao.SetAttribPointer(vbo, ourShader.GetAttributeLocation("pos"), 3, gl::FLOAT, false, 0);
 // 	vao.SetAttribPointer(vbo, ourShader.GetAttributeLocation("uv"), 2, gl::FLOAT, false, 12);
 	vao.SetAttribPointer(vbo, ourShader.GetAttributeLocation("color"), 4, gl::UNSIGNED_BYTE, true, 20);

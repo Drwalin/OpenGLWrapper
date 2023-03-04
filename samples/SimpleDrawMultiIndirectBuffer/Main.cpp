@@ -19,6 +19,7 @@ int main() {
 	
 	// Generate vertex data
     gl::VBO vbo(3*sizeof(float)+2*sizeof(uint16_t)+4*sizeof(uint8_t), gl::ARRAY_BUFFER, gl::STATIC_DRAW);
+	vbo.Init();
 	{
 		Vbo.clear();
 		gl::BufferAccessor::BufferRef<gl::Atr<float, 3>, gl::Atr<short,2>, gl::Atr<uint8_t,4>> buf(&vbo, Vbo);
@@ -40,6 +41,7 @@ int main() {
 	
 	// Generate element buffer
 	gl::VBO element(4, gl::ELEMENT_ARRAY_BUFFER, gl::STATIC_DRAW);
+	element.Init();
 	{
 		Vbo.clear();
 		gl::BufferAccessor::BufferRef<gl::Atr<uint32_t, 1>> buf(&element, Vbo);
@@ -55,6 +57,7 @@ int main() {
 	
 	// Init instance data buffer
 	gl::VBO instanceData(64, gl::ARRAY_BUFFER, gl::DYNAMIC_DRAW);
+	instanceData.Init();
 	{
 		Vbo.clear();
 		gl::BufferAccessor::BufferRef<gl::Atr<glm::mat4, 1>> buf(&instanceData, Vbo);
@@ -74,6 +77,7 @@ int main() {
 		uint32_t baseInstance;
 	};
 	gl::VBO indirectDrawBuffer(sizeof(DrawElementsIndirectCommand), gl::DRAW_INDIRECT_BUFFER, gl::DYNAMIC_DRAW);
+	indirectDrawBuffer.Init();
 	{
 		Vbo.clear();
 		gl::BufferAccessor::BufferRef<gl::Atr<DrawElementsIndirectCommand, 1>> buf(&indirectDrawBuffer, Vbo);
@@ -95,6 +99,7 @@ int main() {
     
 	// Initiate VAO with VBO attributes
     gl::VAO vao(gl::TRIANGLES);
+	vao.Init();
 	GL_CHECK_PUSH_ERROR;
 	
 	// Set vertex attributes

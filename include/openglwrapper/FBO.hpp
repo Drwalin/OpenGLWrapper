@@ -55,6 +55,8 @@ namespace gl {
 		FBO();
 		~FBO();
 		
+		void Destroy();
+		
 		void AttachTexture(Texture* texture, FboAttachmentType  attachmentType);
 		void DetachTexture(FboAttachmentType  attachmentType);
 		void AttachColor(Texture* texture, int colorId);

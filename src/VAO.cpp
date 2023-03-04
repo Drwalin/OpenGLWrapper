@@ -28,14 +28,21 @@ VAO::VAO(gl::VertexMode mode) : mode(mode) {
 	sizeI = 0;
 	sizeA = 0;
 	vaoID = 0;
-	glBindVertexArray(0);
-	glGenVertexArrays(1, &vaoID);
-	glBindVertexArray(0);
 	drawArrays = true;
 	instances = 0;
 }
 
 VAO::~VAO() {
+}
+
+void VAO::Init() {
+	glBindVertexArray(0);
+	glGenVertexArrays(1, &vaoID);
+	glBindVertexArray(0);
+}
+
+
+void VAO::Delete() {
 	glDeleteVertexArrays(1, &vaoID);
 }
 

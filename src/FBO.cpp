@@ -23,14 +23,19 @@
 namespace gl {
 
 	FBO::FBO() {
-		glGenFramebuffers(1, &fbo);
+		fbo = 0;
 	}
 	
-	FBO::~FBO() {
+	void FBO::Destroy() {
 		if(currentlyBoundFBO == this) {
 			Unbind();
 		}
 		glDeleteFramebuffers(1, &fbo);
+		fbo = 0;
+	}
+	
+	FBO::~FBO() {
+		Destroy();
 	}
 	
 	
@@ -79,9 +84,13 @@ namespace gl {
 	}
 
 	
+	
 	FBO* FBO::currentlyBoundFBO = NULL;
 	
 	void FBO::Bind() {
+		if(fbo == 0) {
+			glCreateFramebuffers(1, &fbo);
+		}
 		if(currentlyBoundFBO != this) {
 			glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 			currentlyBoundFBO = this;

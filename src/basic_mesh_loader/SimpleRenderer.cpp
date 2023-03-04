@@ -63,7 +63,9 @@ namespace BasicMeshLoader {
 			+ 4*sizeof(uint8_t)
 			+ 4*sizeof(uint8_t);
 		vbo = std::make_shared<VBO>(stride, gl::ARRAY_BUFFER, gl::STATIC_DRAW);
+		vbo->Init();
 		elements = std::make_shared<VBO>(4, gl::ELEMENT_ARRAY_BUFFER, gl::STATIC_DRAW);
+		elements->Init();
 		
 		std::vector<uint8_t> bufferVBO, elementsEBO;
 		mesh->ExtractPos<float>(0, bufferVBO, 0, stride,
@@ -85,6 +87,7 @@ namespace BasicMeshLoader {
 		
 		
 		vao = std::make_shared<VAO>(gl::TRIANGLES);
+		vao->Init();
 		vao->SetAttribPointer(*vbo, shader->GetAttributeLocation(positionName), 3, gl::FLOAT, false, 0);
 		vao->SetAttribPointer(*vbo, shader->GetAttributeLocation(uvName), 2, gl::FLOAT, false, 12);
 		vao->SetAttribPointer(*vbo, shader->GetAttributeLocation(colorName), 4, gl::UNSIGNED_BYTE, true, 20);

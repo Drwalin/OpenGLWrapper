@@ -49,8 +49,11 @@ int main() {
 	computeShader.Load("../samples/ComplexCompute/compute.glsl");
 	
 	gl::VBO indirectBuffer(32, gl::DRAW_INDIRECT_BUFFER, gl::STREAM_DRAW);
+	indirectBuffer.Init();
 	gl::VBO atomicBuffer(4, gl::SHADER_STORAGE_BUFFER, gl::DYNAMIC_DRAW);
+	atomicBuffer.Init();
 	gl::VBO infosBuffer(sizeof(Object), gl::ARRAY_BUFFER, gl::STREAM_DRAW);
+	infosBuffer.Init();
 	
 	std::vector<uint8_t> indirectVbo, atomicVbo, infosVbo;
 	

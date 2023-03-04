@@ -35,7 +35,9 @@ int main() {
 		+ 4*sizeof(uint8_t)
 		+ 4*sizeof(uint8_t);
 	gl::VBO vbo(stride, gl::ARRAY_BUFFER, gl::STATIC_DRAW);
+	vbo.Init();
 	gl::VBO indices(4, gl::ELEMENT_ARRAY_BUFFER, gl::STATIC_DRAW);
+	indices.Init();
 	
 	std::vector<uint8_t> Vbo, Ebo, instanceVbo, indirectVbo;
 	
@@ -71,6 +73,7 @@ int main() {
 	
 	// Init instance data buffer
 	gl::VBO instanceData(64, gl::ARRAY_BUFFER, gl::DYNAMIC_DRAW);
+	instanceData.Init();
 	{
 		gl::BufferAccessor::BufferRef<gl::Atr<glm::mat4, 1>> buf(&instanceData, instanceVbo);
 		int i=0;
@@ -94,6 +97,7 @@ int main() {
 		uint32_t baseInstance;
 	};
 	gl::VBO indirectDrawBuffer(sizeof(DrawElementsIndirectCommand), gl::DRAW_INDIRECT_BUFFER, gl::DYNAMIC_DRAW);
+	indirectDrawBuffer.Init();
 	{
 		gl::BufferAccessor::BufferRef<gl::Atr<DrawElementsIndirectCommand, 1>> buf(&indirectDrawBuffer, indirectVbo);
 		for(int i=0; i<MAX_OBJECTS; ++i) {
@@ -119,6 +123,7 @@ int main() {
 	
 	// Initiate VAO with VBO attributes
     gl::VAO vao(gl::TRIANGLES);
+	vao.Init();
 	vao.SetAttribPointer(vbo, ourShader.GetAttributeLocation("pos"), 3, gl::FLOAT, false, 0);
 	GL_CHECK_PUSH_ERROR;
 	vao.SetAttribPointer(vbo, ourShader.GetAttributeLocation("uv"), 2, gl::FLOAT, false, 12);
