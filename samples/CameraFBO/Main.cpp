@@ -84,8 +84,8 @@ int main() {
 			(gl::DataType)GL_UNSIGNED_INT_24_8);
 	
 	gl::FBO fbo;
-	fbo.AttachTexture(&renderTargetTexture, gl::ATTACHMENT_COLOR0);
-	fbo.AttachTexture(&renderTargetDepth, gl::ATTACHMENT_DEPTH_STENCIL);
+	fbo.AttachTexture(&renderTargetTexture, gl::ATTACHMENT_COLOR0, 0);
+	fbo.AttachTexture(&renderTargetDepth, gl::ATTACHMENT_DEPTH_STENCIL, 0);
 	
 	GLenum Status = fbo.CheckStatus();
 	if(Status != GL_FRAMEBUFFER_COMPLETE) {
