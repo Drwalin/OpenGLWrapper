@@ -79,10 +79,10 @@ static void DoMovement() {
 	{
 		float y = 0, x=0;
 		if(gl::openGL.IsKeyDown(GLFW_KEY_UP)) {
-			y = 1;
+			y = -1;
 		}
 		if(gl::openGL.IsKeyDown(GLFW_KEY_DOWN)) {
-			y = -1;
+			y = 1;
 		}
 		if(gl::openGL.IsKeyDown(GLFW_KEY_RIGHT)) {
 			x = 1;
@@ -96,7 +96,6 @@ static void DoMovement() {
 	camera.ProcessMouseMovement(gl::openGL.GetMouseDX(),
 			gl::openGL.GetMouseDY());
     camera.ProcessMouseScroll(gl::openGL.GetScrollDelta());
-	printf(" mouse dy = %f\n", gl::openGL.GetMouseDY());
 }
 
 const inline void *const*const ptrs = new void*[]{
