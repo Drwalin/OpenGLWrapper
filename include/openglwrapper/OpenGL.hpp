@@ -73,7 +73,7 @@ namespace gl {
 		std::vector<bool> bKeys;
 		double mouseLastX, mouseLastY;
 		double mouseCurrentX, mouseCurrentY;
-		double wheelDY;
+		double scrollLast, scrollCurrent;
 		int width, height;
 		int backupWinX, backupWinY;
 		int backupWidth, backupHeight;
@@ -112,7 +112,10 @@ namespace gl {
 		bool WasKeyReleased(const int id) const;
 		double GetMouseDX() const;
 		double GetMouseDY() const;
-		double GetWheelDY() const;
+		double GetScrollDelta() const;
+		double GetMouseX() const;
+		double GetMouseY() const;
+		double GetScroll() const;
 		
 		unsigned int GetWidth() const;
 		unsigned int GetHeight() const;

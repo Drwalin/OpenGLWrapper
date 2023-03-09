@@ -68,33 +68,24 @@ bool OpenGL::IsFullscreen() const {
 
 void OpenGL::SwapInput() {
 	bKeys = keys;
-	for(auto it : keys)
-		it = false;
 	mouseLastX = mouseCurrentX;
 	mouseLastY = mouseCurrentY;
+	scrollLast = scrollCurrent;
 }
 
 bool OpenGL::IsKeyDown(const int id) const {
-	if(id<0 || id>=keys.size())
-		return false;
 	return keys[id];
 }
 
 bool OpenGL::IsKeyUp(const int id) const {
-	if(id<0 || id>=keys.size())
-		return false;
 	return !keys[id];
 }
 
 bool OpenGL::WasKeyPressed(const int id) const {
-	if(id<0 || id>=keys.size())
-		return false;
 	return keys[id] && !bKeys[id];
 }
 
 bool OpenGL::WasKeyReleased(const int id) const {
-	if(id<0 || id>=keys.size())
-		return false;
 	return !keys[id] && bKeys[id];
 }
 
@@ -106,8 +97,20 @@ double OpenGL::GetMouseDY() const {
 	return mouseCurrentY - mouseLastY;
 }
 
-double OpenGL::GetWheelDY() const {
-	return wheelDY;
+double OpenGL::GetScrollDelta() const {
+	return scrollCurrent - scrollLast;
+}
+
+double OpenGL::GetMouseX() const {
+	return mouseCurrentX;
+}
+
+double OpenGL::GetMouseY() const {
+	return mouseCurrentY;
+}
+
+double OpenGL::GetScroll() const {
+	return scrollCurrent;
 }
 
 unsigned int OpenGL::GetWidth() const {
@@ -145,6 +148,13 @@ int OpenGL::Init(const char* windowName, unsigned int width,
 	
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwMakeContextCurrent(window);
+	
+	{
+		double x, y;
+		glfwGetCursorPos(window, &x, &y);
+		mouseLastX = mouseCurrentX = x;
+		mouseLastY = mouseCurrentY = y;
+	}
 	
 	if(!limitFrames) {
 		glfwSwapInterval(0);
@@ -204,7 +214,8 @@ void OpenGL::Destroy() {
 }
 
 OpenGL::OpenGL() {
-	mouseLastX = mouseLastY = mouseCurrentX = mouseCurrentY = wheelDY = 0.0;
+	mouseLastX = mouseLastY = mouseCurrentX = mouseCurrentY = scrollLast
+		= scrollCurrent = 0.0;
 	keys.resize(1024);
 	for(auto it : keys)
 		it = false;
@@ -228,7 +239,7 @@ void OpenGLKeyCallback(GLFWwindow* window, int key, int scancode, int action,
 }
 
 void OpenGLScrollCallback(GLFWwindow* window, double xOffset, double yOffset) {
-	openGL.wheelDY += yOffset;
+	openGL.scrollCurrent += yOffset;
 }
 
 void OpenGLMouseCallback(GLFWwindow* window, double xPos, double yPos) {

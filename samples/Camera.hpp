@@ -115,7 +115,7 @@ public:
 		xOffset *= this->mouseSensitivity;
 		yOffset *= this->mouseSensitivity;
 		this->yaw += xOffset;
-		this->pitch += yOffset;
+		this->pitch -= yOffset;
 		{
 			if(this->pitch > 89.0f)
 				this -> pitch= 89.0f;
