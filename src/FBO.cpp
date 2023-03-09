@@ -23,29 +23,43 @@
 namespace gl {
 
 	FBO::FBO() {
-		glGenFramebuffers(1, &fbo);
+		fbo = 0;
 	}
 	
-	FBO::~FBO() {
+	void FBO::Destroy() {
 		if(currentlyBoundFBO == this) {
 			Unbind();
 		}
 		glDeleteFramebuffers(1, &fbo);
+		fbo = 0;
+	}
+	
+	FBO::~FBO() {
+		Destroy();
 	}
 	
 	
-	void FBO::AttachTexture(Texture* texture, FboAttachmentType  attachmentType) {
-		Bind();
-		glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, GL_TEXTURE_2D, texture->GetTexture(), 0);
+	void FBO::AttachTexture(Texture* texture, FboAttachmentType attachmentType,
+			uint32_t bindLocation) {
+		SimpleBind();
+		glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, GL_TEXTURE_2D,
+				texture->GetTexture(), 0);
+		if(attachmentType >= ATTACHMENT_COLOR0
+				&& attachmentType <= ATTACHMENT_COLOR15) {
+			if(attachmentBuffers.size() <= bindLocation) {
+				attachmentBuffers.resize(bindLocation+1, ATTACHMENT_NONE);
+			}
+			attachmentBuffers[bindLocation] = attachmentType;
+		}
 	}
 	
 	void FBO::DetachTexture(FboAttachmentType attachmentType) {
-		Bind();
+		SimpleBind();
 		glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, GL_TEXTURE_2D, 0, 0);
 	}
 	
-	void FBO::AttachColor(Texture* texture, int colorId) {
-		AttachTexture(texture, (FboAttachmentType)(ATTACHMENT_COLOR0+colorId));
+	void FBO::AttachColor(Texture* texture, int colorId, uint32_t bindLocation) {
+		AttachTexture(texture, (FboAttachmentType)(ATTACHMENT_COLOR0+colorId), bindLocation);
 	}
 	
 	void FBO::DetachColor(int colorId) {
@@ -53,7 +67,7 @@ namespace gl {
 	}
 	
 	void FBO::AttachDepth(Texture* texture) {
-		AttachTexture(texture, ATTACHMENT_DEPTH);
+		AttachTexture(texture, ATTACHMENT_DEPTH, 0);
 	}
 	
 	void FBO::DetachDepth() {
@@ -79,13 +93,22 @@ namespace gl {
 	}
 
 	
+	
 	FBO* FBO::currentlyBoundFBO = NULL;
 	
-	void FBO::Bind() {
+	void FBO::SimpleBind() {
+		if(fbo == 0) {
+			glCreateFramebuffers(1, &fbo);
+		}
 		if(currentlyBoundFBO != this) {
 			glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 			currentlyBoundFBO = this;
 		}
+	}
+	
+	void FBO::Bind() {
+		SimpleBind();
+		glDrawBuffers(attachmentBuffers.size(), (GLenum*)&(attachmentBuffers[0]));
 	}
 	
 	void FBO::Unbind() {
@@ -97,7 +120,7 @@ namespace gl {
 	
 	
 	GLenum FBO::CheckStatus() {
-		Bind();
+		SimpleBind();
 		GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 		if(status != GL_FRAMEBUFFER_COMPLETE)
 			return status;	

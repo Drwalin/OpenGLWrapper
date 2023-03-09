@@ -48,6 +48,9 @@ namespace gl {
 		VAO(gl::VertexMode mode);
 		~VAO();
 		
+		void Init();
+		void Delete();
+		
 		// offset in bytes
 		void SetAttribPointer(VBO& vbo, int location, unsigned count,
 				gl::DataType type, bool normalized, unsigned offset,
