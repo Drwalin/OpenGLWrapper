@@ -12,6 +12,7 @@
 #include "../DefaultCameraAndOtherConfig.hpp"
 #include "openglwrapper/basic_mesh_loader/AssimpLoader.hpp"
 #include "openglwrapper/basic_mesh_loader/Value.hpp"
+#include "../../include/openglwrapper/BufferAccessor.hpp"
 
 namespace Particles_1 {
 
@@ -29,7 +30,9 @@ int main() {
 			"../samples/Particles_1/fragment.glsl");
 	
 	gl::VBO vbo(11*sizeof(float), gl::ARRAY_BUFFER, gl::STATIC_DRAW);
-	auto buf = vbo.Buffer<gl::Atr<glm::vec3, 2>, gl::Atr<float, 1>, gl::Atr<glm::vec4, 1>>();
+	vbo.Init();
+	std::vector<uint8_t> Vbo;
+	gl::BufferAccessor::BufferRef<gl::Atr<glm::vec3, 2>, gl::Atr<float, 1>, gl::Atr<glm::vec4, 1>> buf(&vbo, Vbo);
 	for(int i = 100000; i >= 0; --i) {
 		auto rnd = std::bind(randf, -0.1, 0.1);
 		buf.At<0>(i, 0) = glm::vec3(rnd(), rnd(), rnd())*0.4f;
@@ -43,9 +46,10 @@ int main() {
 				randf(0, 1)
 				);
 	}
-	vbo.Generate();
+	vbo.Generate(Vbo);
 	
 	gl::VAO vao(gl::POINTS);
+	vao.Init();
 	vao.SetAttribPointer(vbo, ourShader.GetAttributeLocation("position"), 3,
 			gl::FLOAT, false, 0);
 	vao.SetAttribPointer(vbo, ourShader.GetAttributeLocation("startVelocity"), 3,

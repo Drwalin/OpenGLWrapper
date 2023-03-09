@@ -63,27 +63,31 @@ namespace BasicMeshLoader {
 			+ 4*sizeof(uint8_t)
 			+ 4*sizeof(uint8_t);
 		vbo = std::make_shared<VBO>(stride, gl::ARRAY_BUFFER, gl::STATIC_DRAW);
+		vbo->Init();
 		elements = std::make_shared<VBO>(4, gl::ELEMENT_ARRAY_BUFFER, gl::STATIC_DRAW);
+		elements->Init();
 		
-		mesh->ExtractPos<float>(0, vbo->Buffer(), 0, stride,
+		std::vector<uint8_t> bufferVBO, elementsEBO;
+		mesh->ExtractPos<float>(0, bufferVBO, 0, stride,
 				gl::BasicMeshLoader::ConverterFloatPlain<float, 3>);
 		
-		mesh->ExtractUV<float>(0, vbo->Buffer(), 12, stride,
+		mesh->ExtractUV<float>(0, bufferVBO, 12, stride,
 				gl::BasicMeshLoader::ConverterFloatPlain<float, 2>);
 		
-		mesh->ExtractColor<uint8_t>(0, vbo->Buffer(), 20, stride,
+		mesh->ExtractColor<uint8_t>(0, bufferVBO, 20, stride,
 				gl::BasicMeshLoader::ConverterIntPlainClampScale<uint8_t, 255, 0, 255, 4>);
 		
-		mesh->ExtractNormal(0, vbo->Buffer(), 24, stride,
+		mesh->ExtractNormal(0, bufferVBO, 24, stride,
 				gl::BasicMeshLoader::ConverterIntNormalized<uint8_t, 127, 3>);
 		
-		vbo->Generate();
+		vbo->Generate(bufferVBO);
 		
-		mesh->AppendIndices<uint32_t>(0, elements->Buffer());
-		elements->Generate();
+		mesh->AppendIndices<uint32_t>(0, elementsEBO);
+		elements->Generate(elementsEBO);
 		
 		
 		vao = std::make_shared<VAO>(gl::TRIANGLES);
+		vao->Init();
 		vao->SetAttribPointer(*vbo, shader->GetAttributeLocation(positionName), 3, gl::FLOAT, false, 0);
 		vao->SetAttribPointer(*vbo, shader->GetAttributeLocation(uvName), 2, gl::FLOAT, false, 12);
 		vao->SetAttribPointer(*vbo, shader->GetAttributeLocation(colorName), 4, gl::UNSIGNED_BYTE, true, 20);

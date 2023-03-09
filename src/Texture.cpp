@@ -20,38 +20,38 @@
 
 #include "../thirdparty/SOIL2/src/SOIL2/SOIL2.h"
 
+#include <cstdio>
+#include <string>
+
 namespace gl {
 
 Texture::Texture() {
 	textureID = 0;
 	width = 0;
 	height = 0;
+	depth = 0;
 }
 
 Texture::~Texture() {
 	Destroy();
 }
 
-bool Texture::Loaded() const {
-	return (bool)textureID;
-}
-
-int Texture::GetWidth() const {
-	return width;
-}
-
-int Texture::GetHeight() const {
-	return height;
-}
-
 bool Texture::Load(const char* fileName,
 		bool generateMipMap, int forceChannelsCount) {
+	return Load(fileName, generateMipMap,
+			(gl::TextureSizedInternalFormat)gl::RGBA, forceChannelsCount);
+}
+
+bool Texture::Load(const char* fileName, bool generateMipMap,
+		gl::TextureSizedInternalFormat forceSizedInternalFormat,
+		int forceChannelsCount) {
 	int channels = 0;
-	unsigned char * image = LoadImageData(fileName, &width, &height, &channels,
+	int32_t w, h;
+	uint8_t * image = LoadImageData(fileName, &w, &h, &channels,
 			forceChannelsCount);
 	if(image==NULL && textureID) {
 		glDeleteTextures(1, &textureID);
-		textureID = width = height = 0;
+		textureID = width = height = depth = 0;
 		return false;
 	}
 	
@@ -67,50 +67,203 @@ bool Texture::Load(const char* fileName,
 			return false;
 	}
 	
-	UpdateTextureData(image, width, height,
-			generateMipMap, gl::TEXTURE_2D, gl::RGBA, gl::RGBA, gl::UNSIGNED_BYTE);
+	Generate2(TEXTURE_2D, w, h, forceSizedInternalFormat);
+	Update2(image, 0, 0, w, h, 0, format, gl::UNSIGNED_BYTE);
+	if(generateMipMap)
+		GenerateMipmaps();
+	
 	FreeImageData(image);
+	depth = 1;
 	return true;
 }
 
-void Texture::UpdateTextureData(const void* data, unsigned w, unsigned h,
-		bool generateMipMap,
-		gl::TextureTarget target,
-		gl::TextureDataFormat internalformat,
-		gl::TextureDataFormat dataformat,
-		gl::DataType datatype) {
+
+
+void Texture::Generate1(gl::TextureTarget target,
+		uint32_t w,
+		gl::TextureSizedInternalFormat internalformat,
+		gl::TextureDataFormat dataformat, gl::DataType datatype) {
+	if(textureID && target != this->target) {
+		glDeleteTextures(1, &textureID);
+		textureID = 0;
+	}
+	GL_CHECK_PUSH_PRINT_ERROR;
+	
+	if(!textureID)
+		glCreateTextures(target, 1, &textureID);
+	GL_CHECK_PUSH_PRINT_ERROR;
+	this->target = target;
+	glBindTexture(target, textureID);
+	GL_CHECK_PUSH_PRINT_ERROR;
+	
+	this->width = w;
+	this->height = 1;
+	this->depth = 1;
+	
+	glTexImage1D(target, 0, internalformat, w, 0,
+			dataformat, datatype, NULL);
+	GL_CHECK_PUSH_PRINT_ERROR;
+	
+	MinFilter(gl::NEAREST);
+	GL_CHECK_PUSH_PRINT_ERROR;
+}
+
+void Texture::Update1(const void* pixels,
+		uint32_t x,
+		uint32_t w,
+		uint32_t level,
+		gl::TextureDataFormat dataformat, gl::DataType datatype) {
+	glTextureSubImage1D(textureID, level, x, w,
+			dataformat, datatype, pixels);
+	GL_CHECK_PUSH_PRINT_ERROR;
+}
+
+void Texture::Fetch1(void* pixels,
+		uint32_t x,
+		uint32_t w,
+		uint32_t level,
+		gl::TextureDataFormat dataformat, gl::DataType datatype,
+		uint32_t pixelsBufferSize) {
+	glGetTextureSubImage(textureID, level, x, 0, 0, w, 1, 1,
+			dataformat, datatype, pixelsBufferSize, pixels);
+	GL_CHECK_PUSH_PRINT_ERROR;
+}
+
+
+void Texture::Generate2(gl::TextureTarget target,
+		uint32_t w, uint32_t h,
+		gl::TextureSizedInternalFormat internalformat,
+		gl::TextureDataFormat dataformat, gl::DataType datatype) {
+	if(textureID && target != this->target) {
+		glDeleteTextures(1, &textureID);
+		textureID = 0;
+	}
+	GL_CHECK_PUSH_PRINT_ERROR;
 	
 	this->target = target;
 	if(!textureID)
-		glGenTextures(1, &textureID);
+		glCreateTextures(target, 1, &textureID);
+	GL_CHECK_PUSH_PRINT_ERROR;
 	glBindTexture(target, textureID);
+	GL_CHECK_PUSH_PRINT_ERROR;
 	
-	width = w;
-	height = h;
+	this->width = w;
+	this->height = h;
+	this->depth = 1;
 	
-	glTexImage2D(target, 0, internalformat, width, height, 0, dataformat,
-			datatype, data);
 	
-	if(generateMipMap)
-		glGenerateMipmap(target);
-	else {
+	glTexImage2D(target, 0, internalformat, w, h, 0,
+			dataformat, datatype, NULL);
+	GL_CHECK_PUSH_PRINT_ERROR;
+	
+	MinFilter(gl::NEAREST);
+	MagFilter(gl::MAG_NEAREST);
+	GL_CHECK_PUSH_PRINT_ERROR;
+}
+
+void Texture::Update2(const void* pixels,
+		uint32_t x, uint32_t y,
+		uint32_t w, uint32_t h,
+		uint32_t level,
+		gl::TextureDataFormat dataformat, gl::DataType datatype) {
+	glTextureSubImage2D(textureID, level, x, y, w, h,
+			dataformat, datatype, pixels);
+	GL_CHECK_PUSH_PRINT_ERROR;
+}
+
+void Texture::Fetch2(void* pixels,
+		uint32_t x, uint32_t y,
+		uint32_t w, uint32_t h,
+		uint32_t level,
+		gl::TextureDataFormat dataformat, gl::DataType datatype,
+		uint32_t pixelsBufferSize) {
+	glGetTextureSubImage(textureID, level, x, y, 0, w, h, 1,
+			dataformat, datatype, pixelsBufferSize, pixels);
+	GL_CHECK_PUSH_PRINT_ERROR;
+}
+
+
+void Texture::Generate3(gl::TextureTarget target,
+		uint32_t w, uint32_t h, uint32_t d,
+		gl::TextureSizedInternalFormat internalformat,
+		gl::TextureDataFormat dataformat, gl::DataType datatype) {
+	if(textureID && target != this->target) {
+		glDeleteTextures(1, &textureID);
+		textureID = 0;
+	}
+	GL_CHECK_PUSH_PRINT_ERROR;
+	
+	if(!textureID)
+		glCreateTextures(target, 1, &textureID);
+	GL_CHECK_PUSH_PRINT_ERROR;
+	this->target = target;
+	glBindTexture(target, textureID);
+	GL_CHECK_PUSH_PRINT_ERROR;
+	
+	this->width = w;
+	this->height = h;
+	this->depth = d;
+	
+	glTexImage3D(target, 0, internalformat, w, h, d, 0,
+			dataformat, datatype, NULL);
+	GL_CHECK_PUSH_PRINT_ERROR;
+	
+	MinFilter(gl::NEAREST);
+	MagFilter(gl::MAG_NEAREST);
+	GL_CHECK_PUSH_PRINT_ERROR;
+}
+
+void Texture::Update3(const void* pixels,
+		uint32_t x, uint32_t y, uint32_t z,
+		uint32_t w, uint32_t h, uint32_t d,
+		uint32_t level,
+		gl::TextureDataFormat dataformat, gl::DataType datatype) {
+	glTextureSubImage3D(textureID, level, x, y, z, w, h, d,
+			dataformat, datatype, pixels);
+	GL_CHECK_PUSH_PRINT_ERROR;
+}
+
+void Texture::Fetch3(void* pixels,
+		uint32_t x, uint32_t y, uint32_t z,
+		uint32_t w, uint32_t h, uint32_t d,
+		uint32_t level,
+		gl::TextureDataFormat dataformat, gl::DataType datatype,
+		uint32_t pixelsBufferSize) {
+	glGetTextureSubImage(textureID, level, x, y, z, w, h, d,
+			dataformat, datatype, pixelsBufferSize, pixels);
+	GL_CHECK_PUSH_PRINT_ERROR;
+}
+
+
+
+void Texture::UpdateTextureData(const void* pixels, uint32_t w, uint32_t h,
+		bool generateMipMap,
+		gl::TextureTarget target,
+		gl::TextureSizedInternalFormat internalformat,
+		gl::TextureDataFormat dataformat,
+		gl::DataType datatype) {
+	Generate2(target, w, h, internalformat, dataformat, datatype);
+	if(pixels) {
+		Update2(pixels, 0, 0, w, h, 0, dataformat, datatype);
+	}
+	
+	if(generateMipMap) {
+		GenerateMipmaps();
+	} else {
 		MinFilter(gl::NEAREST);
+		MagFilter(gl::MAG_NEAREST);
 	}
 }
 
 void Texture::InitTextureEmpty(uint32_t w, uint32_t h, 
 		gl::TextureTarget target, gl::TextureSizedInternalFormat internalformat) {
-	this->target = target;
-	if(!textureID)
-		glGenTextures(1, &textureID);
-	glBindTexture(target, textureID);
-	
-	width = w;
-	height = h;
-	
-	glTexStorage2D(target, 1, internalformat, w, h);
-	
-	MinFilter(gl::NEAREST);
+	UpdateTextureData(NULL, w, h, false, target, internalformat, gl::RGBA, gl::UNSIGNED_BYTE);
+}
+
+
+
+void Texture::GenerateMipmaps() {
+	glGenerateTextureMipmap(textureID);
 }
 
 void Texture::MinFilter(TextureMinFilter filter) {
@@ -134,8 +287,8 @@ void Texture::WrapZ(TextureWrapParam param) {
 }
 
 void Texture::SetDefaultParamPixelartClampBorderNoMipmap() {
-	WrapX(gl::CLAMP_TO_BORDER);
-	WrapY(gl::CLAMP_TO_BORDER);
+	WrapX(gl::MIRRORED_REPEAT);
+	WrapY(gl::MIRRORED_REPEAT);
 	MinFilter(gl::NEAREST);
 	MagFilter(gl::MAG_NEAREST);
 }
@@ -144,7 +297,7 @@ void Texture::Bind() const {
 	glBindTexture(target, textureID);
 }
 
-unsigned int Texture::GetTexture() const {
+uint32_t Texture::GetTexture() const {
 	return textureID;
 }
 
@@ -161,8 +314,8 @@ void Texture::Destroy() {
 	}
 }
 
-uint8_t* Texture::LoadImageData(const char* fileName, int* width, int* channels,
-		int* height, int forceChannelsCount) {
+uint8_t* Texture::LoadImageData(const char* fileName, int* width, int* height,
+		int* channels, int forceChannelsCount) {
 	return SOIL_load_image(fileName, width, height, channels,
 			forceChannelsCount);
 }

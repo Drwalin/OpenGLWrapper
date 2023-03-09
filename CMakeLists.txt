@@ -41,6 +41,7 @@ if(BUILD_EXAMPLES)
 		samples/ComplexCompute/Main
 		samples/SimpleDrawMultiIndirectBuffer/Main
 		samples/DrawMultiTestPerformanceVsInstanced/Main
+		samples/MultiRenderTargetTextureFBO/Main
 		samples/Particles_1/Main
 		samples/CircleLine/Main
 		samples/Texture/Main

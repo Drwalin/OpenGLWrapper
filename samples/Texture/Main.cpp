@@ -1,5 +1,6 @@
 
 #include "../DefaultCameraAndOtherConfig.hpp"
+#include "../../include/openglwrapper/BufferAccessor.hpp"
 
 namespace Texture {
 int main() {
@@ -14,7 +15,9 @@ int main() {
     
 	// Generate vertex data
     gl::VBO vbo(3*sizeof(float)+2*sizeof(uint16_t)+4*sizeof(uint8_t), gl::ARRAY_BUFFER, gl::STATIC_DRAW);
-    auto buf = vbo.Buffer<gl::Atr<float, 3>, gl::Atr<short,2>, gl::Atr<uint8_t,4>>();
+	vbo.Init();
+	std::vector<uint8_t> Vbo;
+    gl::BufferAccessor::BufferRef<gl::Atr<float, 3>, gl::Atr<short,2>, gl::Atr<uint8_t,4>> buf(&vbo, Vbo);
     for(int i = 0; i < 4; ++i) {
 		buf.At<0>(i, 0) = (i>>0)&1;
 		buf.At<0>(i, 1) = (i>>2)&1;
@@ -28,10 +31,11 @@ int main() {
 		buf.At<2>(i, 3) = 255;
 	}
 	// Generate VBO from vertex data
-    vbo.Generate();
+    vbo.Generate(Vbo);
     
 	// Initiate VAO with VBO attributes
     gl::VAO vao(gl::TRIANGLE_STRIP);
+	vao.Init();
 	vao.SetAttribPointer(vbo, ourShader.GetAttributeLocation("position"), 3,
 			gl::FLOAT, false, 0);
 	vao.SetAttribPointer(vbo, ourShader.GetAttributeLocation("uv"), 2,
@@ -41,7 +45,7 @@ int main() {
     
 	// Load texture
 	gl::Texture texture;
-    texture.Load("../samples/Simple/image.jpg", false, 4);
+    texture.Load("../samples/image.jpg", false, 4);
 	
 	// Get uniform locations
 	int modelLoc = ourShader.GetUniformLocation("model");

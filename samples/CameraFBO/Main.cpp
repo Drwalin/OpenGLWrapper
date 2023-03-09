@@ -10,13 +10,6 @@
 
 namespace CameraFBO {
 	
-template<typename T>
-void Copy(gl::VBO& vbo, std::vector<T>& v) {
-	std::vector<uint8_t>& b = vbo.Buffer();
-	b.resize(v.size()*sizeof(T));
-	memcpy(&(b[0]), &(v[0]), b.size());
-}
-	
 int main() {
 	{
 		auto path = std::filesystem::current_path();
@@ -80,19 +73,19 @@ int main() {
 	// gen and setup FBO
 	gl::Texture renderTargetTexture;
 	renderTargetTexture.UpdateTextureData(NULL, RENDER_SIZE, RENDER_SIZE,
-			false, gl::TEXTURE_2D, gl::RGBA, gl::RGBA, gl::UNSIGNED_BYTE);
+			false, gl::TEXTURE_2D, (gl::TextureSizedInternalFormat)gl::RGBA, gl::RGBA, gl::UNSIGNED_BYTE);
 	renderTargetTexture.SetDefaultParamPixelartClampBorderNoMipmap();
 	
 	gl::Texture renderTargetDepth;
 	renderTargetDepth.UpdateTextureData(NULL, RENDER_SIZE, RENDER_SIZE, false,
 			gl::TEXTURE_2D,
-			(gl::TextureDataFormat)GL_DEPTH24_STENCIL8,
+			(gl::TextureSizedInternalFormat)GL_DEPTH24_STENCIL8,
 			(gl::TextureDataFormat)GL_DEPTH_STENCIL,
 			(gl::DataType)GL_UNSIGNED_INT_24_8);
 	
 	gl::FBO fbo;
-	fbo.AttachTexture(&renderTargetTexture, gl::ATTACHMENT_COLOR0);
-	fbo.AttachTexture(&renderTargetDepth, gl::ATTACHMENT_DEPTH_STENCIL);
+	fbo.AttachTexture(&renderTargetTexture, gl::ATTACHMENT_COLOR0, 0);
+	fbo.AttachTexture(&renderTargetDepth, gl::ATTACHMENT_DEPTH_STENCIL, 0);
 	
 	GLenum Status = fbo.CheckStatus();
 	if(Status != GL_FRAMEBUFFER_COMPLETE) {
