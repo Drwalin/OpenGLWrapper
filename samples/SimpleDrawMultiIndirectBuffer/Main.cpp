@@ -135,7 +135,7 @@ int main() {
 	int texLoc = ourShader.GetUniformLocation("tex");
 	
 	// Init camera position
-    camera.ProcessMouseMovement(150, -200);
+    camera.ProcessMouseMovement(150, 200);
 	
     while(!glfwWindowShouldClose(gl::openGL.window)) {
 		DefaultIterationStart();

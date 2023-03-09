@@ -12,29 +12,12 @@
 
 #include "../Camera.hpp"
 
+#include "../DefaultCameraAndOtherConfig.hpp"
+
 namespace Simple {
 
-void KeyCallback(GLFWwindow * window, int key, int scancode, int action, int mode);
-void ScrollCallback(GLFWwindow * window, double xOffset, double yOffset);
-void MouseCallback(GLFWwindow * window, double xPos, double yPos);
-void DoMovement();
-
-Camera camera(glm::vec3(0.0f,0.0f, 0.0f));
-GLfloat lastX = 0.0;//WIDTH/2.0;
-GLfloat lastY = 0.0;//WIDTH/2.0;
-bool keys[1024];
-bool firstMouse = true;
-
-GLfloat deltaTime = 0.0f;
-GLfloat lastFrame = 0.0f;
-
 int main() {
-	gl::openGL.Init("Window test name 311", 800, 600, true, false);
-	gl::openGL.InitGraphic();
-
-	glfwSetKeyCallback(gl::openGL.window, KeyCallback);
-	glfwSetCursorPosCallback(gl::openGL.window, MouseCallback);
-	glfwSetScrollCallback(gl::openGL.window, ScrollCallback);
+	DefaultsSetup();
 
 	gl::Shader ourShader;
 	ourShader.Load(
@@ -74,14 +57,7 @@ int main() {
 	GLint projLoc = ourShader.GetUniformLocation("projection");
 
 	while(!glfwWindowShouldClose(gl::openGL.window)) {
-		GLfloat currentFrame = glfwGetTime();
-		deltaTime = currentFrame - lastFrame;
-		lastFrame = currentFrame;
-
-		glfwPollEvents();
-		DoMovement();
-
-		gl::openGL.InitFrame();
+		DefaultIterationStart();
 
 		ourShader.Use();
 
@@ -110,7 +86,7 @@ int main() {
 			}
 		}
 
-		gl::openGL.SwapBuffer();
+		DefaultIterationEnd();
 	}
 
 	gl::openGL.Destroy();
@@ -118,60 +94,5 @@ int main() {
 
 	return EXIT_SUCCESS;
 }
-
-void DoMovement() {
-	if(keys[GLFW_KEY_W] || keys[GLFW_KEY_UP]) {
-		camera.ProcessKeyboard(FORWARD, deltaTime);
-	}
-	if(keys[GLFW_KEY_S] || keys[GLFW_KEY_DOWN]) {
-		camera.ProcessKeyboard(BACKWARD, deltaTime);
-	}
-	if(keys[GLFW_KEY_D] || keys[GLFW_KEY_RIGHT]) {
-		camera.ProcessKeyboard(RIGHT, deltaTime);
-	}
-	if(keys[GLFW_KEY_A] || keys[GLFW_KEY_LEFT]) {
-		camera.ProcessKeyboard(LEFT, deltaTime);
-	}
-	if(keys[GLFW_KEY_Q]) {
-		camera.Up(-1, deltaTime);
-	}
-	if(keys[GLFW_KEY_E]) {
-		camera.Up(1, deltaTime);
-	}
-}
-
-void KeyCallback(GLFWwindow * window, int key, int scancode, int action, int mode) {
-	if(GLFW_KEY_ESCAPE == key && action == GLFW_PRESS) {
-		glfwSetWindowShouldClose(window, GL_TRUE);
-	}
-	if(key >= 0 && key <= 1024) {
-		if(GLFW_PRESS == action) {
-			keys[key] = true;
-		} else if(GLFW_RELEASE == action) {
-			keys[key] = false;
-		}
-	}
-}
-
-void MouseCallback(GLFWwindow * window, double xPos, double yPos) {
-	if(firstMouse) {
-		lastX = xPos;
-		lastY = yPos;
-		firstMouse = false;
-	}
-
-	GLfloat xOfsset = xPos - lastX;
-	GLfloat yOfsset = lastY - yPos;
-
-	lastX = xPos;
-	lastY = yPos;
-
-	camera.ProcessMouseMovement(xOfsset, yOfsset);
-}
-
-void ScrollCallback(GLFWwindow * window, double xOffset, double yOffset) {
-	camera.ProcessMouseScroll(yOffset);
-}
-
 }
 
