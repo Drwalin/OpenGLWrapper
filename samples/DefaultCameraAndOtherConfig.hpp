@@ -28,7 +28,7 @@ static void DefaultsSetup() {
 }
 
 static bool WasPressed(int key) {
-	gl::openGL.WasKeyPressed(key);
+	return gl::openGL.WasKeyPressed(key);
 }
 
 static void DefaultIterationStart() {
