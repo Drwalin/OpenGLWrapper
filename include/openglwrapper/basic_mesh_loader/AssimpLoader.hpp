@@ -61,8 +61,10 @@ namespace BasicMeshLoader {
 		std::unordered_map<std::string, uint32_t> animationNameToId;
 		std::vector<std::shared_ptr<Animation>> animations;
 		
-		void Load(const char* file);
-		void Load(std::string file);
+		void DDD();
+		
+		bool Load(const char* file);
+		bool Load(std::string file);
 	};
 	
 } // namespace BasicMeshLoader

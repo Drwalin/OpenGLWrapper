@@ -29,13 +29,15 @@
 
 namespace gl {
 namespace BasicMeshLoader {
-	void AssimpLoader::Load(std::string file) {
+	bool AssimpLoader::Load(std::string file) {
 		return Load(file.c_str());
 	}
 	
-	void AssimpLoader::Load(const char* file) {
+	bool AssimpLoader::Load(const char* file) {
 		importer = std::make_shared<Assimp::Importer>();
 		const ::aiScene* s = importer->ReadFile(file, aiProcess_Triangulate | aiProcess_JoinIdenticalVertices);
+		if(s == nullptr)
+			return false;
 		scene = s;
 		
 		meshNameToId.clear();
@@ -66,6 +68,8 @@ namespace BasicMeshLoader {
 			animations[i]->LoadAnimation(this, s->mAnimations[i], meshes[0]);
 			animationNameToId.emplace(animations[i]->name, i);
 		}
+		
+		return true;
 	}
 } // namespace BasicMeshLoader
 } // namespace gl
