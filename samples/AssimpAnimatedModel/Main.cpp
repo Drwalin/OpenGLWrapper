@@ -14,7 +14,7 @@ int main() {
 	gl::Shader ourShader;
 	ourShader.Load(
 			"../samples/AssimpAnimatedModel/vertex.glsl",
-			NULL,
+			"",
 			"../samples/AssimpAnimatedModel/fragment.glsl");
 	
 	// Load model

@@ -53,7 +53,7 @@ int main() {
 	gl::Shader shaderLine;
 	shaderLine.Load(
 			"../samples/CircleLine/vertex.glsl",
-			NULL,
+			"",
 			"../samples/CircleLine/fragment.glsl");
 	
 	gl::VBO vbo(2*sizeof(float), gl::ARRAY_BUFFER, gl::STATIC_DRAW);

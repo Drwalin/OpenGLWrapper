@@ -16,26 +16,27 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "../include/openglwrapper/Shader.hpp"
-#include "../include/openglwrapper/Texture.hpp"
-
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 #include <fstream>
 #include <cstdio>
 
+#include "../include/openglwrapper/Texture.hpp"
+
+#include "../include/openglwrapper/Shader.hpp"
+
 namespace gl {
 
 unsigned Shader::currentProgram = 0;
 
-int Shader::Load(const char* vertexPath, const char* geometryPath,
-		const char* fragmentPath) {
+int Shader::Compile(const std::string& vertexCode, const std::string& geometryCode,
+		const std::string& fragmentCode) {
 	Destroy();
 	
-	unsigned vertex = Shader::CompileShaderObject(vertexPath, gl::VERTEX_SHADER, "VERTEX");
-	unsigned geometry = Shader::CompileShaderObject(geometryPath, gl::GEOMETRY_SHADER, "GEOMETRY");
-	unsigned fragment = Shader::CompileShaderObject(fragmentPath, gl::FRAGMENT_SHADER, "FRAGMENT");
+	unsigned vertex = Shader::CompileGLSL(vertexCode, gl::VERTEX_SHADER);
+	unsigned geometry = Shader::CompileGLSL(geometryCode, gl::GEOMETRY_SHADER);
+	unsigned fragment = Shader::CompileGLSL(fragmentCode, gl::FRAGMENT_SHADER);
 	
 	program = glCreateProgram();
 	if(geometry)
@@ -54,10 +55,10 @@ int Shader::Load(const char* vertexPath, const char* geometryPath,
 	return CheckBuildStatus();
 }
 
-int Shader::Load(const char* computePath) {
+int Shader::Compile(const std::string& computeCode) {
 	Destroy();
 	
-	unsigned compute = Shader::CompileShaderObject(computePath, gl::COMPUTE_SHADER, "COMPUTE");
+	unsigned compute = Shader::CompileGLSL(computeCode, gl::COMPUTE_SHADER);
 	
 	program = glCreateProgram();
 	glAttachShader(program, compute);
@@ -71,6 +72,15 @@ int Shader::Load(const char* computePath) {
 		glGetProgramiv(program, GL_COMPUTE_WORK_GROUP_SIZE, workgroupSize);
 	}
 	return ret;
+}
+
+int Shader::Load(const std::string& vertexPath, const std::string& geometryPath,
+		const std::string& fragmentPath) {
+	return Compile(LoadFile(vertexPath), LoadFile(geometryPath), LoadFile(fragmentPath));
+}
+
+int Shader::Load(const std::string& computePath) {
+	return Compile(LoadFile(computePath));
 }
 
 void Shader::Dispatch(uint32_t numGroupsX, uint32_t numGroupsY,
@@ -100,36 +110,32 @@ unsigned Shader::CheckBuildStatus() {
 	return 0;
 }
 
-unsigned Shader::CompileShaderObject(const char* fileName, gl::ShaderType type, const char* shaderStrType) {
-	char* code = NULL;
+unsigned Shader::CompileGLSL(const std::string& code, gl::ShaderType type) {
+	char const* shaderStrType = 0;
+	switch(type) {
+		case VERTEX_SHADER:
+			shaderStrType = "VERTEX";
+			break;
+		case FRAGMENT_SHADER:
+			shaderStrType = "FRAGMENT";
+			break;
+		case GEOMETRY_SHADER:
+			shaderStrType = "GEOMETRY";
+			break;
+		case COMPUTE_SHADER:
+			shaderStrType = "COMPUTE";
+			break;
+		default:
+			throw "Unknown shader type in Shader::CompileGLSL";
+			return 0;
+	}
 	
-	std::ifstream file(fileName, std::ios::binary);
-	if(!file.good())
-		return 0;
-	
-	size_t fileSize = file.tellg();
-	file.seekg(0, std::ios::end);
-	fileSize = (size_t)file.tellg() - fileSize;
-	file.seekg(0, std::ios::beg);
-	
-	code = (char*)malloc(fileSize+1);
-	file.read(code, fileSize);
-	code[fileSize] = 0;
-	
-	file.close();
-	
-	unsigned shaderId = Shader::CompileGLSL(code, type, shaderStrType);
-	free(code);
-	return shaderId;
-}
-
-unsigned Shader::CompileGLSL(const char* code, gl::ShaderType type,
-		const char* shaderStrType) {
-	if(code) {
+	if(code != "") {
 		int success;
 		char infoLog[5120];
 		unsigned program = glCreateShader(type);
-		glShaderSource(program, 1, &code, NULL);
+		const char* pcode = code.c_str();
+		glShaderSource(program, 1, &pcode, NULL);
 		glCompileShader(program);
 		glGetShaderiv(program, GL_COMPILE_STATUS, &success);
 		if(!success) {
@@ -146,11 +152,30 @@ unsigned Shader::CompileGLSL(const char* code, gl::ShaderType type,
 	return 0;
 }
 
-void Shader::PrintCode(const char* code) {
+std::string Shader::LoadFile(const std::string& filePath) {
+	std::string code;
+	std::ifstream file(filePath, std::ios::binary|std::ios::in);
+	if(!file.good())
+		return "";
+	
+	size_t fileSize = file.tellg();
+	file.seekg(0, std::ios::end);
+	fileSize = (size_t)file.tellg() - fileSize;
+	file.seekg(0, std::ios::beg);
+	
+	code.resize(fileSize+1);
+	file.read(code.data(), fileSize);
+	code[fileSize] = 0;
+	
+	file.close();
+	return code;
+}
+
+void Shader::PrintCode(const std::string& code) {
 	printf("\n Code: \n    1: ");
 	int line = 1;
 	int x=0;
-	for(char const* i = code; *i; ++i) {
+	for(char const* i = code.c_str(); *i; ++i) {
 		switch(*i) {
 			case '\n':
 				x = 0;
@@ -193,11 +218,11 @@ int Shader::GetAttributeLocation(const char * name) const {
 	return v;
 }
 
-int Shader::GetUniformLocation(std::string name) const {
+int Shader::GetUniformLocation(const std::string& name) const {
 	return GetUniformLocation(name.c_str());
 }
 
-int Shader::GetAttributeLocation(std::string name) const {
+int Shader::GetAttributeLocation(const std::string& name) const {
 	return GetAttributeLocation(name.c_str());
 }
 
@@ -296,13 +321,12 @@ void Shader::SetMat4(int location, const std::vector<glm::mat4>& array) {
 }
 
 void Shader::Destroy() {
-	if(currentProgram == program)
-		currentProgram = 0;
 	if(program) {
+		currentProgram = 0;
 		glUseProgram(0);
 		glDeleteProgram(program);
+		program = 0;
 	}
-	program = 0;
 }
 
 Shader::Shader() {

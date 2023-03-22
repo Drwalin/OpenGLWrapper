@@ -22,7 +22,7 @@ int main() {
 	std::shared_ptr<gl::Shader> shader = std::make_shared<gl::Shader>();
 	shader->Load(
 			"../../samples/MultiRenderTargetTextureFBO/vertex.glsl",
-			NULL,
+			"",
 			"../../samples/MultiRenderTargetTextureFBO/fragment.glsl");
 	
 	gl::BasicMeshLoader::StaticMeshRenderable
