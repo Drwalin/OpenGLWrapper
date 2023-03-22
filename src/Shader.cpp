@@ -34,16 +34,23 @@ int Shader::Compile(const std::string& vertexCode, const std::string& geometryCo
 		const std::string& fragmentCode) {
 	Destroy();
 	
-	unsigned vertex = Shader::CompileGLSL(vertexCode, gl::VERTEX_SHADER);
+	unsigned vertex   = Shader::CompileGLSL(vertexCode, gl::VERTEX_SHADER);
 	unsigned geometry = Shader::CompileGLSL(geometryCode, gl::GEOMETRY_SHADER);
 	unsigned fragment = Shader::CompileGLSL(fragmentCode, gl::FRAGMENT_SHADER);
+	
+	GL_CHECK_PUSH_ERROR;
 	
 	program = glCreateProgram();
 	if(geometry)
 		glAttachShader(program, geometry);
 	glAttachShader(program, vertex);
 	glAttachShader(program, fragment);
+	
+	GL_CHECK_PUSH_ERROR;
+	
 	glLinkProgram(program);
+	
+	GL_CHECK_PUSH_ERROR;
 	
 	if(vertex)
 		glDeleteShader(vertex);
@@ -51,6 +58,8 @@ int Shader::Compile(const std::string& vertexCode, const std::string& geometryCo
 		glDeleteShader(geometry);
 	if(fragment)
 		glDeleteShader(fragment);
+	
+	GL_CHECK_PUSH_ERROR;
 	
 	return CheckBuildStatus();
 }
@@ -71,6 +80,7 @@ int Shader::Compile(const std::string& computeCode) {
 	if(ret == 0) {
 		glGetProgramiv(program, GL_COMPUTE_WORK_GROUP_SIZE, workgroupSize);
 	}
+	GL_CHECK_PUSH_ERROR;
 	return ret;
 }
 
@@ -130,21 +140,28 @@ unsigned Shader::CompileGLSL(const std::string& code, gl::ShaderType type) {
 			return 0;
 	}
 	
+	GL_CHECK_PUSH_ERROR;
 	if(code != "") {
 		int success;
 		char infoLog[5120];
 		unsigned program = glCreateShader(type);
+	GL_CHECK_PUSH_ERROR;
 		const char* pcode = code.c_str();
 		glShaderSource(program, 1, &pcode, NULL);
+	GL_CHECK_PUSH_ERROR;
 		glCompileShader(program);
+	GL_CHECK_PUSH_ERROR;
 		glGetShaderiv(program, GL_COMPILE_STATUS, &success);
+	GL_CHECK_PUSH_ERROR;
 		if(!success) {
 			GLsizei size;
 			glGetShaderInfoLog(program, 5120, &size, infoLog);
+	GL_CHECK_PUSH_ERROR;
 			printf("\n ERROR::SHADER::%s::COMPILATION_FAILED\n %s",
 					shaderStrType, infoLog);
 			PrintCode(code);
 			glDeleteShader(program);
+	GL_CHECK_PUSH_ERROR;
 			return 0;
 		}
 		return program;
@@ -322,10 +339,12 @@ void Shader::SetMat4(int location, const std::vector<glm::mat4>& array) {
 
 void Shader::Destroy() {
 	if(program) {
+	GL_CHECK_PUSH_ERROR;
 		currentProgram = 0;
 		glUseProgram(0);
 		glDeleteProgram(program);
 		program = 0;
+	GL_CHECK_PUSH_ERROR;
 	}
 }
 

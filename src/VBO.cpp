@@ -48,6 +48,7 @@ void VBO::Destroy() {
 }
 
 void VBO::Generate(const void* data, uint32_t vertexCount) {
+	Init();
 	vertices = vertexCount;
 	glNamedBufferData(vboID, vertexSize*vertexCount, data, usage);
 }
@@ -75,6 +76,7 @@ void VBO::FetchAll(std::vector<uint8_t>& data) {
 }
 
 void VBO::BindBufferBase(gl::BufferTarget target, int location) {
+	Init();
 	glBindBufferBase(target, location, vboID);
 }
 
