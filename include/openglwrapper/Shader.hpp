@@ -36,9 +36,14 @@ namespace gl {
 	class Shader {
 	public:
 		
-		int Load(const char* vertexPath, const char* geometryPath,
-				const char* fragmentPath);		// return 0 if no errors
-		int Load(const char* computePath);		// return 0 if no error
+		int Compile(const std::string& vertexCode, const std::string& geometryCode,
+				const std::string& fragmentCode);		// return 0 if no errors
+		int Compile(const std::string& computeCode);	// return 0 if no errors
+		
+		int Load(const std::string& vertexPath, const std::string& geometryPath,
+				const std::string& fragmentPath);		// return 0 if no errors
+		int Load(const std::string& computePath);		// return 0 if no error
+
 		void Use();
 		unsigned GetProgram();
 		void Dispatch(uint32_t numGroupsX, uint32_t numGroupsY, uint32_t numGroupsZ);
@@ -46,8 +51,8 @@ namespace gl {
 		
 		int GetUniformLocation(const char* name) const;
 		int GetAttributeLocation(const char* name) const;
-		int GetUniformLocation(std::string name) const;
-		int GetAttributeLocation(std::string name) const;
+		int GetUniformLocation(const std::string& name) const;
+		int GetAttributeLocation(const std::string& name) const;
 		
 		void SetTexture(int location, class Texture* texture, unsigned textureId);
 		void SetBool(int location, bool value);
@@ -76,13 +81,14 @@ namespace gl {
 		
 	private:
 		
+		std::string LoadFile(const std::string& filePath);
+		
 		unsigned CheckBuildStatus();
 		
 		static unsigned currentProgram;
 		
-		static unsigned CompileShaderObject(const char* fileName, gl::ShaderType type, const char* shaderStrType);
-		static unsigned CompileGLSL(const char* code, gl::ShaderType type, const char* shaderStrType);
-		static void PrintCode(const char* code);
+		static unsigned CompileGLSL(const std::string& code, gl::ShaderType type);
+		static void PrintCode(const std::string& code);
 		
 		unsigned int program;
 	};

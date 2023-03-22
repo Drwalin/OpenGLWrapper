@@ -12,7 +12,7 @@ int main() {
     gl::Shader ourShader;
 	ourShader.Load(
 			"../samples/SimpleDrawMultiIndirectBuffer/vertex.glsl",
-			NULL,
+			"",
 			"../samples/SimpleDrawMultiIndirectBuffer/fragment.glsl");
     
 	std::vector<uint8_t> Vbo;

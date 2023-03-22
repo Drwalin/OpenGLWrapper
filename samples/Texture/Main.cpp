@@ -10,7 +10,7 @@ int main() {
     gl::Shader ourShader;
 	ourShader.Load(
 			"../samples/Texture/vertex.glsl",
-			NULL,
+			"",
 			"../samples/Texture/fragment.glsl");
     
 	// Generate vertex data

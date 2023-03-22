@@ -18,7 +18,7 @@ int main() {
     gl::Shader ourShader;
 	ourShader.Load(
 			"../samples/DrawMultiTestPerformanceVsInstanced/vertex.glsl",
-			NULL,
+			"",
 			"../samples/DrawMultiTestPerformanceVsInstanced/fragment.glsl");
 	
 	// Load model
