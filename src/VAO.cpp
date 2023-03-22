@@ -39,11 +39,13 @@ void VAO::Init() {
 	glBindVertexArray(0);
 	glGenVertexArrays(1, &vaoID);
 	glBindVertexArray(0);
+	GL_CHECK_PUSH_ERROR;
 }
 
 
 void VAO::Delete() {
 	glDeleteVertexArrays(1, &vaoID);
+	GL_CHECK_PUSH_ERROR;
 }
 
 void VAO::SetAttribPointer(VBO& vbo, int location, unsigned count,
