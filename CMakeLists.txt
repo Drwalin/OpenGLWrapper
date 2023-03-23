@@ -10,6 +10,7 @@ option(BUILD_DEBUG "Build debug" ON)
 option(BUILD_RELEASE "Build release" OFF)
 
 add_subdirectory(thirdparty/SOIL2)
+option(ASSIMP_BUILD_TESTS, OFF)
 add_subdirectory(thirdparty/assimp)
 
 include_directories(./include/)

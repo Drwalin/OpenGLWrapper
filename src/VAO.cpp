@@ -50,6 +50,9 @@ void VAO::Delete() {
 
 void VAO::SetAttribPointer(VBO& vbo, int location, unsigned count,
 		gl::DataType type, bool normalized, unsigned offset, unsigned divisor) {
+	GL_CHECK_PUSH_ERROR;
+	vbo.Init();
+	GL_CHECK_PUSH_ERROR;
 	glBindVertexArray(vaoID);
 	GL_CHECK_PUSH_ERROR;
 	glBindBuffer(vbo.target, vbo.vboID);
@@ -77,19 +80,25 @@ void VAO::SetAttribPointer(VBO& vbo, int location, unsigned count,
 	}
 }
 
-void VAO::BindElementBuffer(VBO& elementBO, gl::DataType type) {
+void VAO::BindElementBuffer(VBO& ebo, gl::DataType type) {
+	GL_CHECK_PUSH_ERROR;
+	ebo.Init();
+	GL_CHECK_PUSH_ERROR;
 	glBindVertexArray(vaoID);
 	GL_CHECK_PUSH_ERROR;
-	glBindBuffer(gl::ELEMENT_ARRAY_BUFFER, elementBO.vboID);
+	glBindBuffer(gl::ELEMENT_ARRAY_BUFFER, ebo.vboID);
 	GL_CHECK_PUSH_ERROR;
 	glBindVertexArray(0);
 	glBindBuffer(gl::ELEMENT_ARRAY_BUFFER, 0);
 	drawArrays = false;
-	sizeI = std::max(elementBO.vertices, sizeI);
+	sizeI = std::max(ebo.vertices, sizeI);
 	typeElements = type;
 }
 
 void VAO::BindIndirectBuffer(VBO& indirectBO) {
+	GL_CHECK_PUSH_ERROR;
+	indirectBO.Init();
+	GL_CHECK_PUSH_ERROR;
 	indirectDrawBuffer = &indirectBO;
 }
 

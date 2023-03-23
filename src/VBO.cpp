@@ -16,8 +16,6 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <cstdio>
-
 #include "../include/openglwrapper/VBO.hpp"
 
 namespace gl {
@@ -54,10 +52,11 @@ void VBO::Destroy() {
 }
 
 void VBO::Generate(const void* data, uint32_t vertexCount) {
+	GL_CHECK_PUSH_ERROR;
 	Init();
+	GL_CHECK_PUSH_ERROR;
 	vertices = vertexCount;
 	glNamedBufferData(vboID, vertexSize*vertexCount, data, usage);
-	printf(" vbo generate(%i)\n", vertices);
 	GL_CHECK_PUSH_ERROR;
 }
 
@@ -67,10 +66,13 @@ void VBO::Generate(const std::vector<uint8_t>& data) {
 }
 
 void VBO::Update(const void* data, uint32_t offset, uint32_t bytes) {
+	GL_CHECK_PUSH_ERROR;
 	Init();
+	GL_CHECK_PUSH_ERROR;
 	if(vertexSize*vertices < offset+bytes) {
 		Resize((offset+bytes+vertexSize-1)/vertexSize);
 	}
+	GL_CHECK_PUSH_ERROR;
 	glNamedBufferSubData(vboID, offset, bytes, data);
 	GL_CHECK_PUSH_ERROR;
 }
@@ -98,6 +100,12 @@ void VBO::Resize(uint32_t newVertices) {
 	if(vertices == newVertices) {
 		return;
 	}
+	std::vector<uint8_t> buffer;
+	FetchAll(buffer);
+	Generate(nullptr, newVertices);
+	Update(&buffer.front(), 0, std::min(newVertices, vertices));
+	vertices = newVertices;
+	return;
 	GL_CHECK_PUSH_ERROR;
 	Init();
 	GL_CHECK_PUSH_ERROR;
@@ -119,13 +127,14 @@ void VBO::Resize(uint32_t newVertices) {
 	GL_CHECK_PUSH_ERROR;
 	this->Copy(&temp, 0, 0, std::min(vertices, newVertices) * vertexSize);
 	GL_CHECK_PUSH_ERROR;
-	printf(" vbo.resize(%u -> %u)\n", vertices, newVertices);
+	gl::openGL.PrintLastError();
 	vertices = newVertices;
 }
 
 void VBO::Copy(VBO* readBuffer, uint32_t readOffset, uint32_t writeOffset, uint32_t bytes) {
 	if(readBuffer) {
 		if(vboID && readBuffer->vboID) {
+			glMemoryBarrier(GL_ALL_BARRIER_BITS);
 			glCopyNamedBufferSubData(readBuffer->vboID, vboID, readOffset, writeOffset, bytes);
 		}
 	}
