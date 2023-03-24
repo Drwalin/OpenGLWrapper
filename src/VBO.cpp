@@ -100,41 +100,17 @@ void VBO::Resize(uint32_t newVertices) {
 	if(vertices == newVertices) {
 		return;
 	}
+	uint32_t toCopyBytes = std::min(newVertices, vertices)*vertexSize;
 	std::vector<uint8_t> buffer;
-	FetchAll(buffer);
+	buffer.resize(toCopyBytes);
+	Fetch(buffer.data(), 0, toCopyBytes);
 	Generate(nullptr, newVertices);
-	Update(&buffer.front(), 0, std::min(newVertices, vertices));
-	vertices = newVertices;
-	return;
-	GL_CHECK_PUSH_ERROR;
-	Init();
-	GL_CHECK_PUSH_ERROR;
-	VBO temp(vertexSize, target, usage);
-	GL_CHECK_PUSH_ERROR;
-	if(newVertices < vertices) {
-		temp.Generate(NULL, newVertices);
-	GL_CHECK_PUSH_ERROR;
-		temp.Copy(this, 0, 0, newVertices*vertexSize);
-	GL_CHECK_PUSH_ERROR;
-	} else if(newVertices > vertices) {
-		temp.Generate(NULL, vertices);
-	GL_CHECK_PUSH_ERROR;
-		temp.Copy(this, 0, 0, vertices*vertexSize);
-	GL_CHECK_PUSH_ERROR;
-	}
-	GL_CHECK_PUSH_ERROR;
-	Generate(NULL, newVertices*vertexSize);
-	GL_CHECK_PUSH_ERROR;
-	this->Copy(&temp, 0, 0, std::min(vertices, newVertices) * vertexSize);
-	GL_CHECK_PUSH_ERROR;
-	gl::openGL.PrintLastError();
-	vertices = newVertices;
+	Update(&buffer.front(), 0, toCopyBytes);
 }
 
 void VBO::Copy(VBO* readBuffer, uint32_t readOffset, uint32_t writeOffset, uint32_t bytes) {
 	if(readBuffer) {
 		if(vboID && readBuffer->vboID) {
-			glMemoryBarrier(GL_ALL_BARRIER_BITS);
 			glCopyNamedBufferSubData(readBuffer->vboID, vboID, readOffset, writeOffset, bytes);
 		}
 	}
