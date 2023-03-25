@@ -96,6 +96,9 @@ namespace BasicMeshLoader {
 		std::shared_ptr<Skeleton> skeleton;
 		
 		
+		void MergeWithOtherMesh(std::shared_ptr<Mesh> otherMesh);
+		
+		
 		int GetBoneIndex(std::string boneName);
 		
 		

@@ -86,6 +86,13 @@ namespace BasicMeshLoader {
 	
 	
 	
+	void Mesh::MergeWithOtherMesh(std::shared_ptr<Mesh> otherMesh) {
+		throw "gl::BasicMeshLoader::Mesh::MergeWithOtherMesh is not implemented.";
+	}
+	
+	
+	
+	
 	int Mesh::GetBoneIndex(std::string boneName) {
 		if(skeleton.get()) {
 			return skeleton->GetBoneIndex(boneName);

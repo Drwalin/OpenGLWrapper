@@ -33,12 +33,34 @@ namespace BasicMeshLoader {
 		return Load(file.c_str());
 	}
 	
+	void PrintNode(const aiScene* scene, const aiNode* node, const int depth) {
+		for(int i=0; i<depth; ++i) {
+			printf("    ");
+		}
+		printf("'%s':\n", node->mName.C_Str());
+		for(int i=0; i<node->mNumMeshes; ++i) {
+			for(int i=0; i<=depth; ++i) printf("    ");
+			printf("   :: mesh '%s'\n", scene->mMeshes[node->mMeshes[i]]->mName.C_Str());
+		}
+		for(int i=0; i<node->mNumChildren; ++i) {
+			PrintNode(scene, node->mChildren[i], depth+1);
+		}
+	}
+	
 	bool AssimpLoader::Load(const char* file) {
 		importer = std::make_shared<Assimp::Importer>();
-		const ::aiScene* s = importer->ReadFile(file, aiProcess_Triangulate | aiProcess_JoinIdenticalVertices);
+		const ::aiScene* s = importer->ReadFile(file, aiProcess_Triangulate
+				| aiProcess_JoinIdenticalVertices
+				| aiProcess_CalcTangentSpace
+				| aiProcess_GenSmoothNormals
+				| aiProcess_ImproveCacheLocality
+				| aiProcess_RemoveRedundantMaterials
+				);
 		if(s == nullptr)
 			return false;
 		scene = s;
+		
+		PrintNode(scene, scene->mRootNode, 0);
 		
 		meshNameToId.clear();
 		meshes.clear();
