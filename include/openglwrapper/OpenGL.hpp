@@ -137,6 +137,10 @@ namespace gl {
 		OpenGL();
 		~OpenGL();
 		
+	public:
+		
+		bool firstMouse;
+		
 	private:
 		
 		std::vector<ErrorStruct> errors;

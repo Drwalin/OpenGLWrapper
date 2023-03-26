@@ -124,6 +124,7 @@ unsigned int OpenGL::GetHeight() const {
 int OpenGL::Init(const char* windowName, unsigned int width,
 		unsigned int height, bool resizable, bool fullscreen, bool limitFrames,
 		int majorOpenglVersion, int minorOpenglVersion) {
+	firstMouse = true;
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, majorOpenglVersion);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, minorOpenglVersion);
@@ -161,6 +162,7 @@ int OpenGL::Init(const char* windowName, unsigned int width,
 	} else {
 		glfwSwapInterval(1);
 	}
+	
 	
 	glewExperimental = GL_TRUE;
 	if(GLEW_OK != glewInit()) {
@@ -243,11 +245,15 @@ void OpenGLScrollCallback(GLFWwindow* window, double xOffset, double yOffset) {
 }
 
 void OpenGLMouseCallback(GLFWwindow* window, double xPos, double yPos) {
-	static bool firstMouse = true;
-	if(firstMouse) {
+	int w, h;
+	glfwGetWindowSize(window, &w, &h);
+	if(w!=openGL.width || h!=openGL.height) {
+		openGL.firstMouse = true;
+	}
+	if(openGL.firstMouse) {
 		openGL.mouseLastX = openGL.mouseCurrentX;
 		openGL.mouseLastY = openGL.mouseCurrentY;
-		firstMouse = false;
+		openGL.firstMouse = false;
 	}
 	openGL.mouseCurrentX = xPos;
 	openGL.mouseCurrentY = yPos;
@@ -257,6 +263,10 @@ void OpenGLWindowResizeCallback(GLFWwindow* window, int width, int height) {
 	glViewport(0, 0, width, height);
 	openGL.width = width;
 	openGL.height = height;
+	glfwGetCursorPos(window, &openGL.mouseCurrentX, &openGL.mouseCurrentY);
+	openGL.mouseLastX = openGL.mouseCurrentX;
+	openGL.mouseLastY = openGL.mouseCurrentY;
+	openGL.firstMouse = true;
 }
 
 void OpenGLMouseButtonCallback(GLFWwindow* window, int button,
