@@ -18,6 +18,8 @@
 
 #include "../include/openglwrapper/VBO.hpp"
 
+#include <cstdio>
+
 namespace gl {
 
 VBO::VBO(uint32_t vertexSize, gl::BufferTarget target, gl::BufferUsage usage) :
@@ -40,6 +42,7 @@ void VBO::Init() {
 		GL_CHECK_PUSH_ERROR;
 		Generate(nullptr, 1);
 		vertices = 1;
+		GL_CHECK_PUSH_ERROR;
 	}
 }
 
@@ -91,7 +94,9 @@ void VBO::FetchAll(std::vector<uint8_t>& data) {
 }
 
 void VBO::BindBufferBase(gl::BufferTarget target, int location) {
+	GL_CHECK_PUSH_ERROR;
 	Init();
+	GL_CHECK_PUSH_ERROR;
 	glBindBufferBase(target, location, vboID);
 	GL_CHECK_PUSH_ERROR;
 }
@@ -112,6 +117,7 @@ void VBO::Copy(VBO* readBuffer, uint32_t readOffset, uint32_t writeOffset, uint3
 	if(readBuffer) {
 		if(vboID && readBuffer->vboID) {
 			glCopyNamedBufferSubData(readBuffer->vboID, vboID, readOffset, writeOffset, bytes);
+			GL_CHECK_PUSH_ERROR;
 		}
 	}
 }

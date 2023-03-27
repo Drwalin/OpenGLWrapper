@@ -56,9 +56,10 @@ namespace gl {
 		
 		void SetTexture(int location, class Texture* texture, unsigned textureId);
 		void SetBool(int location, bool value);
+		void SetUInt(int location, uint32_t value);
 		void SetInt(int location, int value);
 		void SetInt(int location, const std::vector<int>& array);
-		void SetInt(int location, const std::vector<unsigned int>& array);
+		void SetUInt(int location, const std::vector<uint32_t>& array);
 		void SetFloat(int location, float value);
 		void SetFloat(int location, const std::vector<float>& array);
 		void SetVec2(int location, const glm::vec2 &value);
