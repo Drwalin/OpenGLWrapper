@@ -81,7 +81,7 @@ int Shader::Compile(const std::string& computeCode) {
 		glGetProgramiv(program, GL_COMPUTE_WORK_GROUP_SIZE, workgroupSize);
 	}
 	GL_CHECK_PUSH_ERROR;
-	return ret;
+	return CheckBuildStatus();
 }
 
 int Shader::Load(const std::string& vertexPath, const std::string& geometryPath,
@@ -96,6 +96,7 @@ int Shader::Load(const std::string& computePath) {
 void Shader::Dispatch(uint32_t numGroupsX, uint32_t numGroupsY,
 		uint32_t numGroupsZ) {
 	glDispatchCompute(numGroupsX, numGroupsY, numGroupsZ);
+	GL_CHECK_PUSH_ERROR;
 }
 
 void Shader::DispatchRoundGroupNumbers(uint32_t numGroupsX, uint32_t numGroupsY,
@@ -105,16 +106,19 @@ void Shader::DispatchRoundGroupNumbers(uint32_t numGroupsX, uint32_t numGroupsY,
 			this->workgroupSize[1]*((numGroupsY-1+this->workgroupSize[1])/this->workgroupSize[1]),
 			this->workgroupSize[2]*((numGroupsZ-1+this->workgroupSize[2])/this->workgroupSize[2])
 			);
+	GL_CHECK_PUSH_ERROR;
 }
 
 unsigned Shader::CheckBuildStatus() {
 	int success;
 	glGetProgramiv(program, GL_LINK_STATUS, &success);
+		GL_CHECK_PUSH_ERROR;
 	if(!success) {
 		char infoLog[512];
 		int size;
 		glGetProgramInfoLog(program, 512, &size, infoLog);
 		printf("\n ERROR::SHADER::PROGRAM::LINKING_FAILED\n %s", infoLog);
+		GL_CHECK_PUSH_ERROR;
 		return 3;
 	}
 	return 0;
@@ -218,6 +222,7 @@ void Shader::Use() {
 	if(program) {
 		if(currentProgram != program)
 			glUseProgram(program);
+		GL_CHECK_PUSH_ERROR;
 		currentProgram = program;
 	}
 }
@@ -246,95 +251,125 @@ int Shader::GetAttributeLocation(const std::string& name) const {
 void Shader::SetTexture(int location, class Texture* texture,
 		unsigned textureId) {
 	glActiveTexture(GL_TEXTURE0+textureId);
+		GL_CHECK_PUSH_ERROR;
 	if(texture) {
 		texture->Bind();
+		GL_CHECK_PUSH_ERROR;
 		SetInt(location, textureId);
+		GL_CHECK_PUSH_ERROR;
 	} else {
 		glBindTexture(GL_TEXTURE_2D, 0);
+		GL_CHECK_PUSH_ERROR;
 	}
 	SetInt(location, textureId);
+		GL_CHECK_PUSH_ERROR;
 }
 
 void Shader::SetBool(int location, bool value) {
 	Use();
 	glUniform1i(location, (int)value); 
+		GL_CHECK_PUSH_ERROR;
+}
+
+void Shader::SetUInt(int location, uint32_t value) {
+		GL_CHECK_PUSH_ERROR;
+	Use();
+		GL_CHECK_PUSH_ERROR;
+	glProgramUniform1ui(program, location, value);
+		GL_CHECK_PUSH_ERROR;
 }
 
 void Shader::SetInt(int location, int value) {
+		GL_CHECK_PUSH_ERROR;
+	Use();
+		GL_CHECK_PUSH_ERROR;
 	glProgramUniform1i(program, location, value);
-// 	Use();
-// 	glUniform1i(location, value); 
+		GL_CHECK_PUSH_ERROR;
 }
 
 void Shader::SetInt(int location, const std::vector<int>& array) {
 	Use();
 	glUniform1uiv(location, array.size(), (unsigned int*)&array.front());
+		GL_CHECK_PUSH_ERROR;
 }
 
-void Shader::SetInt(int location, const std::vector<unsigned int>& array) {
+void Shader::SetUInt(int location, const std::vector<unsigned int>& array) {
 	Use();
 	glUniform1uiv(location, array.size(), &array.front());
+		GL_CHECK_PUSH_ERROR;
 }
 
 void Shader::SetFloat(int location, float value) { 
 	Use();
 	glUniform1f(location, value); 
+		GL_CHECK_PUSH_ERROR;
 }
 
 void Shader::SetFloat(int location, const std::vector<float>& array) {
 	Use();
 	glUniform1fv(location, array.size(), &array.front());
+		GL_CHECK_PUSH_ERROR;
 }
 
 void Shader::SetVec2(int location, const glm::vec2 &value) {
 	Use();
 	glUniform2fv(location, 1, glm::value_ptr(value));
+		GL_CHECK_PUSH_ERROR;
 }
 
 void Shader::SetVec3(int location, const glm::vec3 &value) {
 	Use();
 	glUniform3fv(location, 1, glm::value_ptr(value));
+		GL_CHECK_PUSH_ERROR;
 }
 
 void Shader::SetVec2(int location, const std::vector<glm::vec2>& array) {
 	Use();
 	glUniform2fv(location, array.size(), (float*)&array.front());
+		GL_CHECK_PUSH_ERROR;
 }
 
 void Shader::SetVec3(int location, const std::vector<glm::vec3>& array) {
 	Use();
 	glUniform3fv(location, array.size(), (float*)&array.front());
+		GL_CHECK_PUSH_ERROR;
 }
 
 void Shader::SetVec4(int location, const std::vector<glm::vec4>& array) {
 	Use();
 	glUniform4fv(location, array.size(), (float*)&array.front());
+		GL_CHECK_PUSH_ERROR;
 }
 
 void Shader::SetVec4(int location, const glm::vec4 &value) {
 	Use();
 	glUniform4fv(location, 1, glm::value_ptr(value));
+		GL_CHECK_PUSH_ERROR;
 }
 
 void Shader::SetMat2(int location, const glm::mat2 &mat) {
 	Use();
 	glUniformMatrix2fv(location, 1, GL_FALSE, glm::value_ptr(mat));
+		GL_CHECK_PUSH_ERROR;
 }
 
 void Shader::SetMat3(int location, const glm::mat3 &mat) {
 	Use();
 	glUniformMatrix3fv(location, 1, GL_FALSE, glm::value_ptr(mat));
+		GL_CHECK_PUSH_ERROR;
 }
 
 void Shader::SetMat4(int location, const glm::mat4 &mat) {
 	Use();
 	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(mat));
+		GL_CHECK_PUSH_ERROR;
 }
 
 void Shader::SetMat4(int location, const std::vector<glm::mat4>& array) {
 	Use();
 	glUniformMatrix4fv(location, array.size()*16*4, GL_FALSE,
 			(float*)&array.front());
+		GL_CHECK_PUSH_ERROR;
 }
 
 void Shader::Destroy() {
