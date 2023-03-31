@@ -41,6 +41,12 @@ namespace BasicMeshLoader {
 	template<uint32_t dim>
 	struct Value {
 		float v[dim];
+		operator glm::vec3() const {
+			return {v[0], v[1], v[2]};
+		}
+		operator glm::vec4() const {
+			return {v[0], v[1], v[2], v[3]};
+		}
 	};
 	
 	
