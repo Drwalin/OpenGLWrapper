@@ -95,6 +95,12 @@ namespace BasicMeshLoader {
 		
 		std::shared_ptr<Skeleton> skeleton;
 		
+		glm::vec3 boundingSphereCenter;
+		float boundingSphereRadius;
+		glm::vec3 boundingBoxMin, boundingBoxMax;
+		
+		
+		void GetBoundingSphereInfo(float* center, float& radius);
 		
 		void MergeWithOtherMesh(std::shared_ptr<Mesh> otherMesh);
 		

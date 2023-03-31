@@ -26,9 +26,6 @@
 #include <assimp/postprocess.h>
 #include <assimp/matrix4x4.h>
 
-#include "../../include/openglwrapper/basic_mesh_loader/Mesh.hpp"
-#include "../../include/openglwrapper/basic_mesh_loader/Skeleton.hpp"
-
 #include <glm/ext/quaternion_trigonometric.hpp>
 #include <glm/fwd.hpp>
 #include <glm/geometric.hpp>
@@ -37,6 +34,8 @@
 #include <glm/vector_relational.hpp>
 #include <glm/mat4x4.hpp>
 
+#include "../../include/openglwrapper/basic_mesh_loader/Skeleton.hpp"
+#include "../../include/openglwrapper/basic_mesh_loader/Mesh.hpp"
 
 namespace gl {
 namespace BasicMeshLoader {
@@ -92,6 +91,12 @@ namespace BasicMeshLoader {
 	
 	
 	
+	void Mesh::GetBoundingSphereInfo(float* center, float& radius) {
+		center[0] = boundingSphereCenter[0];
+		center[1] = boundingSphereCenter[1];
+		center[2] = boundingSphereCenter[2];
+		radius = boundingSphereRadius;
+	}
 	
 	int Mesh::GetBoneIndex(std::string boneName) {
 		if(skeleton.get()) {
@@ -114,6 +119,22 @@ namespace BasicMeshLoader {
 						mesh->mVertices[i].z
 				};
 			}
+			boundingBoxMax = boundingBoxMin = pos[0];
+			for(glm::vec3 v : pos) {
+				boundingBoxMin.x = std::min(boundingBoxMin.x, v.x);
+				boundingBoxMin.y = std::min(boundingBoxMin.y, v.y);
+				boundingBoxMin.z = std::min(boundingBoxMin.z, v.z);
+				boundingBoxMax.x = std::max(boundingBoxMax.x, v.x);
+				boundingBoxMax.y = std::max(boundingBoxMax.y, v.y);
+				boundingBoxMax.z = std::max(boundingBoxMax.z, v.z);
+			}
+			boundingSphereCenter = (boundingBoxMin + boundingBoxMax) * 0.5f;
+			float r2 = 0;
+			for(glm::vec3 v : pos) {
+				r2 = std::max(r2, glm::dot(v-boundingSphereCenter,
+							v-boundingSphereCenter));
+			}
+			boundingSphereRadius = r2;
 		}
 		
 		if(mesh->HasVertexColors(0)) {
