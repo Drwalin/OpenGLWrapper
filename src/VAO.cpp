@@ -152,6 +152,8 @@ void VAO::DrawElements(unsigned start, unsigned count) {
 }
 
 void VAO::DrawMultiElementsIndirect(void* indirect, int drawCount) {
+	if(drawCount == 0)
+		return;
 	if(indirectDrawBuffer == NULL) {
 		printf(" error in VAO::DrawMultiElementsIndirect: indirect draw buffer is not bound to VAO\n");
 	}

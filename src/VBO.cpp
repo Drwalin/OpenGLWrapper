@@ -82,6 +82,12 @@ void VBO::Update(const void* data, uint32_t offset, uint32_t bytes) {
 
 void VBO::Fetch(void* data, uint32_t offset, uint32_t bytes) {
 	if(vboID) {
+		if(offset+bytes > vertexSize*vertices) {
+			if(offset >= vertexSize*vertices) {
+				return;
+			}
+			bytes = vertexSize*vertices - offset;
+		}
 		glGetNamedBufferSubData(vboID, offset, bytes, data);
 		GL_CHECK_PUSH_ERROR;
 	}
