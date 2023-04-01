@@ -95,12 +95,16 @@ int Shader::Load(const std::string& computePath) {
 
 void Shader::Dispatch(uint32_t numGroupsX, uint32_t numGroupsY,
 		uint32_t numGroupsZ) {
+	if(numGroupsX==0 || numGroupsY==0 || numGroupsZ==0)
+		return;
 	glDispatchCompute(numGroupsX, numGroupsY, numGroupsZ);
 	GL_CHECK_PUSH_ERROR;
 }
 
 void Shader::DispatchRoundGroupNumbers(uint32_t numGroupsX, uint32_t numGroupsY,
 		uint32_t numGroupsZ) {
+	if(numGroupsX==0 || numGroupsY==0 || numGroupsZ==0)
+		return;
 	glDispatchCompute(
 			this->workgroupSize[0]*((numGroupsX-1+this->workgroupSize[0])/this->workgroupSize[0]),
 			this->workgroupSize[1]*((numGroupsY-1+this->workgroupSize[1])/this->workgroupSize[1]),
