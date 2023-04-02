@@ -48,6 +48,11 @@ void OpenGL::SetFullscreen(bool fullscreen) {
 	if(fullscreen == IsFullscreen())
 		return;
 	if(fullscreen) {
+		glfwGetCursorPos(window, &openGL.mouseCurrentX, &openGL.mouseCurrentY);
+		openGL.mouseLastX = openGL.mouseCurrentX;
+		openGL.mouseLastY = openGL.mouseCurrentY;
+		openGL.firstMouse = true;
+		
 		glfwGetWindowPos(window, &backupWinX, &backupWinY);
 		glfwGetWindowSize(window, &backupWidth, &backupHeight);
 		
@@ -56,9 +61,24 @@ void OpenGL::SetFullscreen(bool fullscreen) {
 		
 		glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height,
 				0);
+		
+		glfwGetCursorPos(window, &openGL.mouseCurrentX, &openGL.mouseCurrentY);
+		openGL.mouseLastX = openGL.mouseCurrentX;
+		openGL.mouseLastY = openGL.mouseCurrentY;
+		openGL.firstMouse = true;
 	} else {
+		glfwGetCursorPos(window, &openGL.mouseCurrentX, &openGL.mouseCurrentY);
+		openGL.mouseLastX = openGL.mouseCurrentX;
+		openGL.mouseLastY = openGL.mouseCurrentY;
+		openGL.firstMouse = true;
+		
 		glfwSetWindowMonitor(window, nullptr, backupWinX, backupWinY,
 				backupWidth, backupHeight, 0);
+		
+		glfwGetCursorPos(window, &openGL.mouseCurrentX, &openGL.mouseCurrentY);
+		openGL.mouseLastX = openGL.mouseCurrentX;
+		openGL.mouseLastY = openGL.mouseCurrentY;
+		openGL.firstMouse = true;
 	}
 }
 
@@ -260,6 +280,8 @@ void OpenGLMouseCallback(GLFWwindow* window, double xPos, double yPos) {
 }
 
 void OpenGLWindowResizeCallback(GLFWwindow* window, int width, int height) {
+	printf(" resize callback %u x %u\n", width, height);
+	
 	glViewport(0, 0, width, height);
 	openGL.width = width;
 	openGL.height = height;
