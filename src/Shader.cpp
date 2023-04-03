@@ -23,6 +23,7 @@
 #include <cstdio>
 
 #include "../include/openglwrapper/Texture.hpp"
+#include "../include/openglwrapper/VBO.hpp"
 
 #include "../include/openglwrapper/Shader.hpp"
 
@@ -111,6 +112,11 @@ void Shader::DispatchRoundGroupNumbers(uint32_t numGroupsX, uint32_t numGroupsY,
 			this->workgroupSize[2]*((numGroupsZ-1+this->workgroupSize[2])/this->workgroupSize[2])
 			);
 	GL_CHECK_PUSH_ERROR;
+}
+
+void Shader::DispatchBuffer(VBO& dispatchBuffer, uint32_t dispatchOffset) {
+	glBindBuffer(gl::DISPATCH_INDIRECT_BUFFER, dispatchBuffer.GetIdGL());
+	glDispatchComputeIndirect(dispatchOffset);
 }
 
 unsigned Shader::CheckBuildStatus() {

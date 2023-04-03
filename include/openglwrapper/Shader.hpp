@@ -32,6 +32,8 @@ namespace gl {
 		FRAGMENT_SHADER = GL_FRAGMENT_SHADER,
 		COMPUTE_SHADER = GL_COMPUTE_SHADER
 	};
+	
+	class VBO;
 
 	class Shader {
 	public:
@@ -48,6 +50,7 @@ namespace gl {
 		unsigned GetProgram();
 		void Dispatch(uint32_t numGroupsX, uint32_t numGroupsY, uint32_t numGroupsZ);
 		void DispatchRoundGroupNumbers(uint32_t numGroupsX, uint32_t numGroupsY, uint32_t numGroupsZ);
+		void DispatchBuffer(VBO& dispatchBuffer, uint32_t dispatchOffset);
 		
 		int GetUniformLocation(const char* name) const;
 		int GetAttributeLocation(const char* name) const;
