@@ -48,7 +48,25 @@ namespace gl {
 		DYNAMIC_DRAW = GL_DYNAMIC_DRAW,
 		STREAM_DRAW = GL_STREAM_DRAW
 	};
-
+	
+	enum ImmuatableFlagBits : GLbitfield {
+		DYNAMIC_STORAGE_BIT = GL_DYNAMIC_STORAGE_BIT,
+		MAP_READ_BIT = GL_MAP_READ_BIT,
+		MAP_WRITE_BIT = GL_MAP_WRITE_BIT,
+		MAP_PERSISTENT_BIT = GL_MAP_PERSISTENT_BIT,
+		MAP_COHERENT_BIT = GL_MAP_COHERENT_BIT,
+		CLIENT_STORAGE_BIT = GL_CLIENT_STORAGE_BIT,
+	};
+	
+	enum TypicalImmutableStorageFlagSets : GLbitfield {
+		IMMUTABLE_STORAGE_MAPPED_ASYNC_MANUAL_FLUSH
+			= DYNAMIC_STORAGE_BIT | MAP_READ_BIT | MAP_WRITE_BIT
+			| MAP_PERSISTENT_BIT,
+		IMMUTABLE_STORAGE_MAPPED_SYNC_AUTOMATIC_FLUSH
+			= DYNAMIC_STORAGE_BIT | MAP_READ_BIT | MAP_WRITE_BIT
+			| MAP_PERSISTENT_BIT | MAP_COHERENT_BIT,
+	};
+	
 	class VBO {
 	public:
 		
@@ -58,6 +76,8 @@ namespace gl {
 				gl::BufferUsage usage);
 		~VBO();
 		
+		void InitImmutable(const void* data, uint32_t vertexCount,
+				GLbitfield flags);
 		void Init();
 		void Destroy();
 		
@@ -85,6 +105,8 @@ namespace gl {
 		gl::BufferUsage usage;
 		uint32_t vboID;
 		uint32_t vertexSize, vertices;
+		bool immutable;
+		GLbitfield immutableFlags;
 	};
 }
 

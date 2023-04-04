@@ -24,39 +24,67 @@ namespace gl {
 
 VBO::VBO(uint32_t vertexSize, gl::BufferTarget target, gl::BufferUsage usage) :
 		target(target), usage(usage), vertexSize(vertexSize) {
-	vboID = 0;
 	this->vertexSize = vertexSize;
 	this->target = target;
 	this->usage = usage;
-	this->vertices = 0;
+	vboID = 0;
+	vertices = 0;
+	immutable = false;
 }
 
 VBO::~VBO() {
 	Destroy();
 }
 
-void VBO::Init() {
-	if(vboID == 0) {
-		glCreateBuffers(1, &vboID);
-		glNamedBufferData(vboID, vertexSize, NULL, usage);
-		GL_CHECK_PUSH_ERROR;
-		Generate(nullptr, 1);
-		vertices = 1;
-		GL_CHECK_PUSH_ERROR;
+void VBO::InitImmutable(const void* data, uint32_t vertexCount,
+		GLbitfield flags) {
+	if(vboID) {
+		GL_PUSH_CUSTOM_ERROR(999999999, "Cannot initialize object that is already initialized.");
+		return;
 	}
+	vertices = vertexCount;
+	GL_CHECK_PUSH_ERROR;
+	glCreateBuffers(1, &vboID);
+	GL_CHECK_PUSH_ERROR;
+	glNamedBufferStorage(vboID, vertexSize*vertices, data, flags);
+	GL_CHECK_PUSH_ERROR;
+	immutable = true;
+}
+
+void VBO::Init() {
+	if(vboID) {
+		GL_PUSH_CUSTOM_ERROR(999999999, "Cannot initialize object that is already initialized.");
+		return;
+	}
+	GL_CHECK_PUSH_ERROR;
+	glCreateBuffers(1, &vboID);
+	GL_CHECK_PUSH_ERROR;
+	glNamedBufferData(vboID, vertexSize, NULL, usage);
+	GL_CHECK_PUSH_ERROR;
+	Generate(nullptr, 1);
+	vertices = 1;
+	GL_CHECK_PUSH_ERROR;
+	immutable = false;
 }
 
 void VBO::Destroy() {
 	if(vboID) {
 		glDeleteBuffers(1, &vboID);
-		vboID = 0;
 		GL_CHECK_PUSH_ERROR;
+		vboID = 0;
+		immutable = false;
 	}
 }
 
 void VBO::Generate(const void* data, uint32_t vertexCount) {
 	GL_CHECK_PUSH_ERROR;
-	Init();
+	if(immutable) {
+		GL_PUSH_CUSTOM_ERROR(999999999, "Cannot call VBO::Generate on immutable object.");
+		return;
+	}
+	if(!vboID) {
+		Init();
+	}
 	GL_CHECK_PUSH_ERROR;
 	vertices = vertexCount;
 	glNamedBufferData(vboID, vertexSize*vertexCount, data, usage);
@@ -70,9 +98,15 @@ void VBO::Generate(const std::vector<uint8_t>& data) {
 
 void VBO::Update(const void* data, uint32_t offset, uint32_t bytes) {
 	GL_CHECK_PUSH_ERROR;
-	Init();
+	if(!vboID) {
+		Init();
+	}
 	GL_CHECK_PUSH_ERROR;
 	if(vertexSize*vertices < offset+bytes) {
+		if(immutable) {
+			GL_PUSH_CUSTOM_ERROR(999999999, "Cannot resize immutable VBO object.");
+			return;
+		}
 		Resize((offset+bytes+vertexSize-1)/vertexSize);
 	}
 	GL_CHECK_PUSH_ERROR;
@@ -101,13 +135,19 @@ void VBO::FetchAll(std::vector<uint8_t>& data) {
 
 void VBO::BindBufferBase(gl::BufferTarget target, int location) {
 	GL_CHECK_PUSH_ERROR;
-	Init();
+	if(!vboID) {
+		Init();
+	}
 	GL_CHECK_PUSH_ERROR;
 	glBindBufferBase(target, location, vboID);
 	GL_CHECK_PUSH_ERROR;
 }
 
 void VBO::Resize(uint32_t newVertices) {
+	if(immutable) {
+		GL_PUSH_CUSTOM_ERROR(999999999, "Cannot resize immutable VBO object.");
+		return;
+	}
 	if(vertices == newVertices) {
 		return;
 	}
