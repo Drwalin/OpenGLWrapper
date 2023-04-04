@@ -19,8 +19,9 @@
 #include <cstdio>
 
 #include "../include/openglwrapper/OpenGL.hpp"
-#include "../include/openglwrapper/VAO.hpp"
 #include "../include/openglwrapper/VBO.hpp"
+
+#include "../include/openglwrapper/VAO.hpp"
 
 namespace gl {
 
@@ -51,7 +52,9 @@ void VAO::Delete() {
 void VAO::SetAttribPointer(VBO& vbo, int location, unsigned count,
 		gl::DataType type, bool normalized, unsigned offset, unsigned divisor) {
 	GL_CHECK_PUSH_ERROR;
-	vbo.Init();
+	if(!vbo.GetIdGL()) {
+		vbo.Init();
+	}
 	GL_CHECK_PUSH_ERROR;
 	glBindVertexArray(vaoID);
 	GL_CHECK_PUSH_ERROR;
@@ -82,7 +85,9 @@ void VAO::SetAttribPointer(VBO& vbo, int location, unsigned count,
 
 void VAO::BindElementBuffer(VBO& ebo, gl::DataType type) {
 	GL_CHECK_PUSH_ERROR;
-	ebo.Init();
+	if(!ebo.GetIdGL()) {
+		ebo.Init();
+	}
 	GL_CHECK_PUSH_ERROR;
 	glBindVertexArray(vaoID);
 	GL_CHECK_PUSH_ERROR;
@@ -97,7 +102,9 @@ void VAO::BindElementBuffer(VBO& ebo, gl::DataType type) {
 
 void VAO::BindIndirectBuffer(VBO& indirectBO) {
 	GL_CHECK_PUSH_ERROR;
-	indirectBO.Init();
+	if(!indirectBO.GetIdGL()) {
+		indirectBO.Init();
+	}
 	GL_CHECK_PUSH_ERROR;
 	indirectDrawBuffer = &indirectBO;
 }

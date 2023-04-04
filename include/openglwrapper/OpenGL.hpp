@@ -61,8 +61,6 @@ namespace gl {
 		UNSIGNED_INT_2_10_10_10_REV = GL_UNSIGNED_INT_2_10_10_10_REV,
 		
 		UNSIGNED_INT_24_8 = GL_UNSIGNED_INT_24_8,
-		
-		
 	};
 
 	class OpenGL {
@@ -78,7 +76,6 @@ namespace gl {
 		int backupWinX, backupWinY;
 		int backupWidth, backupHeight;
 		GLFWwindow* window;
-		
 		
 	public:
 		
@@ -155,6 +152,7 @@ namespace gl {
 #define GL_CHECK_PUSH_PRINT_ERROR {if(gl::openGL.StackError(__LINE__, __FILE__)){gl::openGL.PrintError(gl::openGL.GetLastError());}}
 #define GL_CHECK_PUSH_ERROR gl::openGL.StackError(__LINE__, __FILE__)
 #define GL_PUSH_CUSTOM_ERROR(code, msg) gl::openGL.PushCustomError({code, msg, __FILE__, __LINE__})
+#define GL_PUSH_DEBUG_MESSAGE GL_PUSH_CUSTOM_ERROR(0, "Debug")
 
 #endif
 
