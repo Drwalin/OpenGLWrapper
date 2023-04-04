@@ -16,8 +16,8 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef TEXTURE_H
-#define TEXTURE_H
+#ifndef OGLW_TEXTURE_HPP
+#define OGLW_TEXTURE_HPP
 
 #include <GL/glew.h>
 

@@ -16,8 +16,8 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef FBO_H
-#define FBO_H
+#ifndef OGLW_FBO_HPP
+#define OGLW_FBO_HPP
 
 #include <GL/glew.h>
 

@@ -16,8 +16,8 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef VBO_H
-#define VBO_H
+#ifndef OGLW_VBO_HPP
+#define OGLW_VBO_HPP
 
 #include <GL/glew.h>
 

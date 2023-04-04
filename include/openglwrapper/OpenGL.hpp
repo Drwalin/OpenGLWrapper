@@ -16,8 +16,8 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef OPEN_GL_ENGINE_H
-#define OPEN_GL_ENGINE_H
+#ifndef OGLW_OPEN_GL_ENGINE_HPP
+#define OGLW_OPEN_GL_ENGINE_HPP
 
 #include <vector>
 
@@ -145,6 +145,9 @@ namespace gl {
 		
 		std::vector<ErrorStruct> errors;
 	};
+	
+	void Flush();
+	void Finish();
 
 	extern OpenGL openGL;
 }

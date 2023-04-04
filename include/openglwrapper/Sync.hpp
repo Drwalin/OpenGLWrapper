@@ -1,6 +1,6 @@
 /*
  *  This file is part of OpenGLWrapper.
- *  Copyright (C) 2023 Marek Zalewski aka Drwalin
+ *  Copyright (C) 2021-2023 Marek Zalewski aka Drwalin
  *
  *  OpenGLWrapper is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -16,22 +16,42 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#ifndef OGLW_SYNC_HPP
+#define OGLW_SYNC_HPP
 
-#ifndef OGLW_ASSIMP_LOADER_INL_HPP
-#define OGLW_ASSIMP_LOADER_INL_HPP
-
-#include "AssimpLoader.hpp"
-
-#include <limits>
-#include <cmath>
+#include <cinttypes>
 
 namespace gl {
-namespace BasicMeshLoader {
-
+	enum SyncWaitResult {
+		SYNC_FAILED = 0,
+		SYNC_DONE = 1,
+		SYNC_TIMEOUT = 2,
+		SYNC_NOT_EXISTS = 3,
+	};
 	
-} // namespace BasicMeshLoader
-} // namespace gl
+	class Sync final {
+	public:
+		
+		Sync(Sync&&) = default;
+		Sync& operator=(Sync&&) = default;
+		~Sync();
+		
+		Sync(Sync&) = delete;
+		Sync(const Sync&) = delete;
+		Sync& operator=(Sync&) = delete;
+		Sync& operator=(const Sync&) = delete;
+		
+		static Sync Fence();
+		void Destroy();
+		bool IsDone();
+		SyncWaitResult WaitClient(uint64_t timeoutNanoseconds);
+		void WaitServer(); // what ever it does??
+		
+	private:
+		
+		Sync(void* glsync);
+		void* sync;
+	};
+}
 
 #endif
-
