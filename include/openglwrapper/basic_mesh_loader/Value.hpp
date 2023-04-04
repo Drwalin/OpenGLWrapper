@@ -18,8 +18,8 @@
 
 #pragma once
 
-#ifndef OPEN_GL_BASIC_MESH_LOADER_VALUE_HPP
-#define OPEN_GL_BASIC_MESH_LOADER_VALUE_HPP
+#ifndef OGLW_BASIC_MESH_LOADER_VALUE_HPP
+#define OGLW_BASIC_MESH_LOADER_VALUE_HPP
 
 #include <cinttypes>
 #include <cmath>

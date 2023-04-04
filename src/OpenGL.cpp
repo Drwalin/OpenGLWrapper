@@ -225,7 +225,7 @@ void OpenGL::InitFrame() {
 }
 
 void OpenGL::SwapBuffer() {
-	glFlush();
+	gl::Flush();
 	glfwSwapBuffers(window);
 }
 
@@ -365,6 +365,14 @@ GLenum errorCheck(int line, const char* file) {
 		exit(311);
 	}
 	return code;
+}
+
+void Flush() {
+	glFlush();
+}
+
+void Finish() {
+	glFinish();
 }
 
 }

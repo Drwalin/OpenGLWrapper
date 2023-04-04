@@ -16,8 +16,8 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef VAO_H
-#define VAO_H
+#ifndef OGLW_VAO_HPP
+#define OGLW_VAO_HPP
 
 #include <GL/glew.h>
 

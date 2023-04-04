@@ -16,8 +16,8 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef BUFFER_ACCESSOR_H
-#define BUFFER_ACCESSOR_H
+#ifndef OGLW_BUFFER_ACCESSOR_HPP
+#define OGLW_BUFFER_ACCESSOR_HPP
 
 #include <vector>
 #include <tuple>

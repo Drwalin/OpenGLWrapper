@@ -16,8 +16,8 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef SHADER_H
-#define SHADER_H
+#ifndef OGLW_SHADER_HPP
+#define OGLW_SHADER_HPP
 
 #include <vector>
 #include <string>
