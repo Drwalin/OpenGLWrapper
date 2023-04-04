@@ -158,8 +158,9 @@ void VAO::DrawElements(unsigned start, unsigned count) {
 	glBindVertexArray(0);
 }
 
-void VAO::DrawMultiElementsIndirect(void* indirect, int drawCount) {
-	if(drawCount == 0)
+void VAO::DrawMultiElementsIndirect(void* indirect, int drawCount,
+		const int limitObjectDrawnPerSingleInvocation) {
+	if(drawCount <= 0)
 		return;
 	if(indirectDrawBuffer == NULL) {
 		printf(" error in VAO::DrawMultiElementsIndirect: indirect draw buffer is not bound to VAO\n");
@@ -178,7 +179,12 @@ void VAO::DrawMultiElementsIndirect(void* indirect, int drawCount) {
 	if(indirectDrawBuffer)
 		glBindBuffer(gl::DRAW_INDIRECT_BUFFER, indirectDrawBuffer->vboID);
 	GL_CHECK_PUSH_ERROR;
-	glMultiDrawElementsIndirect(mode, typeElements, indirect, drawCount, 0);
+	for(; drawCount>0;) {
+		const int currentDrawCount = std::min(limitObjectDrawnPerSingleInvocation, drawCount);
+		glMultiDrawElementsIndirect(mode, typeElements, indirect, currentDrawCount, 0);
+		drawCount -= currentDrawCount;
+		indirect = (void*)((size_t)indirect + currentDrawCount*20);
+	}
 	GL_CHECK_PUSH_ERROR;
 	glBindVertexArray(0);
 	GL_CHECK_PUSH_ERROR;

@@ -134,7 +134,7 @@ namespace BasicMeshLoader {
 				r2 = std::max(r2, glm::dot(v-boundingSphereCenter,
 							v-boundingSphereCenter));
 			}
-			boundingSphereRadius = r2;
+			boundingSphereRadius = sqrt(r2);
 		}
 		
 		if(mesh->HasVertexColors(0)) {

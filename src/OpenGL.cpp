@@ -166,10 +166,8 @@ int OpenGL::Init(const char* windowName, unsigned int width,
 	glfwSetWindowSizeCallback(window, OpenGLWindowResizeCallback);
 	glfwSetMouseButtonCallback(window, OpenGLMouseButtonCallback);
 	
-	
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwMakeContextCurrent(window);
-	
 	{
 		double x, y;
 		glfwGetCursorPos(window, &x, &y);
@@ -182,7 +180,6 @@ int OpenGL::Init(const char* windowName, unsigned int width,
 	} else {
 		glfwSwapInterval(1);
 	}
-	
 	
 	glewExperimental = GL_TRUE;
 	if(GLEW_OK != glewInit()) {
@@ -280,8 +277,6 @@ void OpenGLMouseCallback(GLFWwindow* window, double xPos, double yPos) {
 }
 
 void OpenGLWindowResizeCallback(GLFWwindow* window, int width, int height) {
-	printf(" resize callback %u x %u\n", width, height);
-	
 	glViewport(0, 0, width, height);
 	openGL.width = width;
 	openGL.height = height;
