@@ -18,19 +18,19 @@
 
 #include <cstdio>
 
-#include "../../include/openglwrapper/basic_mesh_loader/AssimpLoader.hpp"
-#include "../../include/openglwrapper/basic_mesh_loader/Mesh.hpp"
-
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <assimp/matrix4x4.h>
 #include <assimp/vector3.h>
 
+#include "../../include/openglwrapper/basic_mesh_loader/AssimpLoader.hpp"
+#include "../../include/openglwrapper/basic_mesh_loader/Mesh.hpp"
+
 namespace gl {
 namespace BasicMeshLoader {
-	bool AssimpLoader::Load(std::string file) {
-		return Load(file.c_str());
+	bool AssimpLoader::Load(std::string file, LoadingFlags flags) {
+		return Load(file.c_str(), flags);
 	}
 	
 	void PrintNode(const aiScene* scene, const aiNode* node, const int depth) {
@@ -47,7 +47,19 @@ namespace BasicMeshLoader {
 		}
 	}
 	
-	bool AssimpLoader::Load(const char* file) {
+	void AssimpLoader::ForEachNode(const aiNode* node,
+				void(*function)(const aiScene*, const aiNode*), bool reverse) {
+		for(int i=0; i<node->mNumChildren; ++i) {
+			const aiNode* n = node->mChildren[reverse?node->mNumChildren-1-i:i];
+			if(reverse) {
+			} else {
+				ForEachNode(n, function, reverse);
+
+			}
+		}
+	}
+	
+	bool AssimpLoader::Load(const char* file, LoadingFlags flags) {
 		importer = std::make_shared<Assimp::Importer>();
 		const ::aiScene* s = importer->ReadFile(file, aiProcess_Triangulate
 				| aiProcess_JoinIdenticalVertices
@@ -89,6 +101,13 @@ namespace BasicMeshLoader {
 			animations[i] = std::make_shared<Animation>();
 			animations[i]->LoadAnimation(this, s->mAnimations[i], meshes[0]);
 			animationNameToId.emplace(animations[i]->name, i);
+		}
+		
+		if(RENAME_MESH_BY_FIRST_NODE_WITH_ITS_NAME & flags) {
+			ForEachNode(scene->mRootNode,
+				[](const aiScene*scene, const aiNode*node){
+					
+				}, true);
 		}
 		
 		return true;
