@@ -48,8 +48,17 @@ namespace Assimp {
 namespace gl {
 namespace BasicMeshLoader {
 	
+	enum LoadingFlags : uint64_t {
+		NONE = 0,
+		RENAME_MESH_BY_FIRST_NODE_WITH_ITS_NAME = 1,
+	};
+	
 	class AssimpLoader {
 	public:
+		
+		void ForEachNode(const aiNode* node,
+				void(*function)(const aiScene*, const aiNode*),
+				bool reverse=false);
 		
 		std::shared_ptr<Assimp::Importer> importer;
 		aiScene const* scene;
@@ -61,10 +70,8 @@ namespace BasicMeshLoader {
 		std::unordered_map<std::string, uint32_t> animationNameToId;
 		std::vector<std::shared_ptr<Animation>> animations;
 		
-		void DDD();
-		
-		bool Load(const char* file);
-		bool Load(std::string file);
+		bool Load(const char* file, LoadingFlags flags = NONE);
+		bool Load(std::string file, LoadingFlags flags = NONE);
 	};
 	
 } // namespace BasicMeshLoader
