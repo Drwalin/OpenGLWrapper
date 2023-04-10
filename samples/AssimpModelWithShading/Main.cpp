@@ -105,21 +105,14 @@ int main() {
 		ourShader.SetVec2(renderTargetDimLoc, winDim);
 		
 		// Calulate model matrix
-		glm::mat4 model = 
-			glm::scale(
-					glm::rotate(
-						glm::rotate(
-							glm::translate(
-								glm::mat4(1.0f),
-								glm::vec3(2, -1, 0)
-							),
-							-3.141592f/2,
-							glm::vec3(0,1,0)
+		glm::mat4 model =
+				glm::rotate(
+					glm::translate(
+						glm::mat4(1.0f),
+						glm::vec3(2, 0, 0)
 						),
-						3.141592f/2.0f,
-						glm::vec3(-1,0,0)
-					),
-					glm::vec3(1.0f)
+					-3.141592f/2,
+					glm::vec3(0,1,0)
 				);
 
 			// Set shader uniform model matrice

@@ -44,16 +44,10 @@ int main() {
 		shader_->SetBool(useTexLoc, false);
 		gl::openGL.FaceCulling(true, false);
 		
-		shader_->SetMat4(modelLoc,
-				glm::rotate(
-					glm::mat4(1),
-					3.141592f/2.0f,
-					glm::vec3(-1, 0, 0)
-					));
+		shader_->SetMat4(modelLoc, glm::mat4(1));
 		terrain.Draw();
 		
 		shader_->SetMat4(modelLoc,
-				glm::rotate(
 					glm::rotate(
 						glm::translate(
 							glm::mat4(1),
@@ -61,9 +55,6 @@ int main() {
 							),
 						(lastFrame*0.7f)/1.0f,
 						glm::vec3(0,1,0)
-						),
-					3.141592f/2.0f,
-					glm::vec3(-1, 0, 0)
 					));
 		monkey.Draw();
 	};
@@ -153,17 +144,13 @@ int main() {
 			shader->SetTexture(texLoc, &renderTargetTexture, 0);
 			shader->SetMat4(modelLoc,
 					glm::scale(
-						glm::translate(
-							glm::rotate(
-								glm::rotate(
-									glm::mat4(1),
-									3.141592f/2.f,
-									{0,1,0}
-								),
-								3.141592f/2.f,
-								{0,0,1}
+						glm::rotate(
+							glm::translate(
+								glm::mat4(1),
+								{6, 0, 0}
 							),
-							{0, 0, 5}
+							3.141592f/2.f,
+							{0,0,1}
 						),
 						{5,-5,5}
 					));

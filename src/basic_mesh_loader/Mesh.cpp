@@ -34,7 +34,9 @@
 #include <glm/vector_relational.hpp>
 #include <glm/mat4x4.hpp>
 
+#include "../../include/openglwrapper/basic_mesh_loader/AssimpLoader.hpp"
 #include "../../include/openglwrapper/basic_mesh_loader/Skeleton.hpp"
+
 #include "../../include/openglwrapper/basic_mesh_loader/Mesh.hpp"
 
 namespace gl {
@@ -60,7 +62,7 @@ namespace BasicMeshLoader {
 					s.d1, s.d2, s.d3, s.d4));
 	}
 
-	void print(glm::vec4	v) {
+	void print(glm::vec4 v) {
 		printf("{%f %f %f %f}", v.x, v.y, v.z, v.w);
 	}
 
@@ -105,7 +107,8 @@ namespace BasicMeshLoader {
 		return -1;
 	}
 	
-	void Mesh::LoadMesh(const aiScene* scene, const aiMesh* mesh) {
+	void Mesh::LoadMesh(class AssimpLoader* loader, const aiMesh* mesh,
+			LoaderFlagsBitfield flags) {
 		uint32_t vertices = mesh->mNumVertices;
 		uint32_t colors = mesh->GetNumColorChannels();
 		uint32_t uvs = mesh->GetNumUVChannels();
@@ -113,10 +116,21 @@ namespace BasicMeshLoader {
 		if(mesh->HasPositions()) {
 			pos.resize(vertices);
 			for(int i=0; i<mesh->mNumVertices; ++i) {
+				glm::vec3 vvv = {
+					mesh->mVertices[i].x,
+					mesh->mVertices[i].y,
+					mesh->mVertices[i].z
+				};
+				if(!mesh->HasBones()) {
+					if(flags & CORRECT_NOT_ANIMATED_MESH_ORIENTATION) {
+						vvv = loader->rootTransformationMatrix
+							* glm::vec4(vvv, 1);
+					}
+				}
 				pos[i] = {
-						mesh->mVertices[i].x,
-						mesh->mVertices[i].y,
-						mesh->mVertices[i].z
+					vvv.x,
+					vvv.y,
+					vvv.z
 				};
 			}
 			boundingBoxMax = boundingBoxMin = pos[0];
@@ -143,10 +157,10 @@ namespace BasicMeshLoader {
 				color[j].resize(vertices);
 				for(int i=0; i<mesh->mNumVertices; ++i) {
 					color[j][i] = {
-							mesh->mColors[j][i].r,
-							mesh->mColors[j][i].g,
-							mesh->mColors[j][i].b,
-							mesh->mColors[j][i].a
+						mesh->mColors[j][i].r,
+						mesh->mColors[j][i].g,
+						mesh->mColors[j][i].b,
+						mesh->mColors[j][i].a
 					};
 				}
 			}
@@ -158,8 +172,8 @@ namespace BasicMeshLoader {
 				uv[j].resize(vertices);
 				for(int i=0; i<mesh->mNumVertices; ++i) {
 					uv[j][i] = {
-							mesh->mTextureCoords[j][i].x,
-							mesh->mTextureCoords[j][i].y
+						mesh->mTextureCoords[j][i].x,
+						mesh->mTextureCoords[j][i].y
 					};
 				}
 			}
@@ -168,10 +182,21 @@ namespace BasicMeshLoader {
 		if(mesh->HasNormals()) {
 			normal.resize(vertices);
 			for(int i=0; i<mesh->mNumVertices; ++i) {
+				glm::vec3 vvv = {
+					mesh->mNormals[i].x,
+					mesh->mNormals[i].y,
+					mesh->mNormals[i].z
+				};
+				if(!mesh->HasBones()) {
+					if(flags & CORRECT_NOT_ANIMATED_MESH_ORIENTATION) {
+						vvv = loader->rootTransformationMatrix
+							* glm::vec4(vvv, 0);
+					}
+				}
 				normal[i] = {
-						mesh->mNormals[i].x,
-						mesh->mNormals[i].y,
-						mesh->mNormals[i].z
+					vvv.x,
+					vvv.y,
+					vvv.z
 				};
 			}
 		}
@@ -189,7 +214,7 @@ namespace BasicMeshLoader {
 		
 		if(mesh->HasBones()) {
 			skeleton = std::make_shared<Skeleton>();
-			skeleton->LoadSkeleton(this, mesh, scene);
+			skeleton->LoadSkeleton(this, mesh, loader->scene);
 		
 			weight.resize(vertices);
 			for(int b=0; b<mesh->mNumBones; ++b) {

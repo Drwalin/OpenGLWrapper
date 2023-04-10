@@ -32,6 +32,8 @@
 
 #include <glm/glm.hpp>
 
+#include "LoaderFlags.hpp"
+
 #include "Value.hpp"
 #include "Mesh.hpp"
 #include "Skeleton.hpp"
@@ -48,17 +50,10 @@ namespace Assimp {
 namespace gl {
 namespace BasicMeshLoader {
 	
-	enum LoadingFlags : uint64_t {
-		NONE = 0,
-		RENAME_MESH_BY_FIRST_NODE_WITH_ITS_NAME = 1,
-	};
-	
 	class AssimpLoader {
 	public:
 		
-		void ForEachNode(const aiNode* node,
-				void(*function)(const aiScene*, const aiNode*),
-				bool reverse=false);
+		glm::mat4 rootTransformationMatrix;
 		
 		std::shared_ptr<Assimp::Importer> importer;
 		aiScene const* scene;
@@ -70,8 +65,18 @@ namespace BasicMeshLoader {
 		std::unordered_map<std::string, uint32_t> animationNameToId;
 		std::vector<std::shared_ptr<Animation>> animations;
 		
-		bool Load(const char* file, LoadingFlags flags = NONE);
-		bool Load(std::string file, LoadingFlags flags = NONE);
+		
+		void ForEachNode(const aiNode* node,
+				void(*function)(AssimpLoader*, const aiNode*),
+				bool reverse=false);
+		
+		bool Load(const char* file, LoaderFlagsBitfield flags = CORRECT_NOT_ANIMATED_MESH_ORIENTATION);
+		bool Load(std::string file, LoaderFlagsBitfield flags = CORRECT_NOT_ANIMATED_MESH_ORIENTATION);
+		
+		void RenameMeshIfAvailable(std::string oldName, std::string newName);
+		
+		void PrintProperties();
+		void ConstructTransformationMatrix();
 	};
 	
 } // namespace BasicMeshLoader

@@ -29,7 +29,7 @@
 
 namespace gl {
 namespace BasicMeshLoader {
-	bool AssimpLoader::Load(std::string file, LoadingFlags flags) {
+	bool AssimpLoader::Load(std::string file, LoaderFlagsBitfield flags) {
 		return Load(file.c_str(), flags);
 	}
 	
@@ -48,18 +48,20 @@ namespace BasicMeshLoader {
 	}
 	
 	void AssimpLoader::ForEachNode(const aiNode* node,
-				void(*function)(const aiScene*, const aiNode*), bool reverse) {
+				void(*function)(AssimpLoader*, const aiNode*), bool reverse) {
 		for(int i=0; i<node->mNumChildren; ++i) {
 			const aiNode* n = node->mChildren[reverse?node->mNumChildren-1-i:i];
 			if(reverse) {
-			} else {
 				ForEachNode(n, function, reverse);
-
+				function(this, n);
+			} else {
+				function(this, n);
+				ForEachNode(n, function, reverse);
 			}
 		}
 	}
 	
-	bool AssimpLoader::Load(const char* file, LoadingFlags flags) {
+	bool AssimpLoader::Load(const char* file, LoaderFlagsBitfield flags) {
 		importer = std::make_shared<Assimp::Importer>();
 		const ::aiScene* s = importer->ReadFile(file, aiProcess_Triangulate
 				| aiProcess_JoinIdenticalVertices
@@ -71,6 +73,9 @@ namespace BasicMeshLoader {
 		if(s == nullptr)
 			return false;
 		scene = s;
+		ConstructTransformationMatrix();
+		
+// 		PrintProperties();
 		
 		PrintNode(scene, scene->mRootNode, 0);
 		
@@ -79,7 +84,7 @@ namespace BasicMeshLoader {
 		meshes.resize(s->mNumMeshes);
 		for(int i=0; i<s->mNumMeshes; ++i) {
 			meshes[i] = std::make_shared<Mesh>();
-			meshes[i]->LoadMesh(s, s->mMeshes[i]);
+			meshes[i]->LoadMesh(this, s->mMeshes[i], flags);
 			meshNameToId.emplace(meshes[i]->name, i);
 		}
 		
@@ -105,13 +110,106 @@ namespace BasicMeshLoader {
 		
 		if(RENAME_MESH_BY_FIRST_NODE_WITH_ITS_NAME & flags) {
 			ForEachNode(scene->mRootNode,
-				[](const aiScene*scene, const aiNode*node){
-					
-				}, true);
+				[](AssimpLoader*l, const aiNode*node) {
+					std::string meshName, objectName;
+					if(node->mNumMeshes > 0) {
+						meshName = l->scene->mMeshes[node->mMeshes[0]]
+							->mName.C_Str();
+						objectName = node->mName.C_Str();
+					}
+					l->RenameMeshIfAvailable(objectName, meshName);
+				}, false);
 		}
 		
 		return true;
 	}
+	
+	void AssimpLoader::RenameMeshIfAvailable(std::string oldName,
+			std::string newName) {
+		if(meshNameToId.find(newName) == meshNameToId.end()) {
+			auto old = meshNameToId.find(oldName);
+			if(old == meshNameToId.end()) {
+				
+			}
+		}
+	}
+	
+	void AssimpLoader::PrintProperties() {
+		for(int i=0; i<scene->mMetaData->mNumProperties; ++i) {
+			auto v = scene->mMetaData->mValues[i];
+			printf(" '%s': ", scene->mMetaData->mKeys[i].C_Str());
+			switch(v.mType) {
+				case aiMetadataType::AI_AISTRING:
+					printf("'%s'", (char*)v.mData);
+					break;
+				case aiMetadataType::AI_BOOL:
+					printf("%s", *(int32_t*)v.mData?"TRUE":"FALSE");
+					break;
+				case aiMetadataType::AI_INT32:
+					printf("%i", *(int32_t*)v.mData);
+					break;
+				case aiMetadataType::AI_UINT64:
+					printf("%lu", *(uint64_t*)v.mData);
+					break;
+				case aiMetadataType::AI_FLOAT:
+					printf("%f", *(float*)v.mData);
+					break;
+				case aiMetadataType::AI_DOUBLE:
+					printf("%f", *(double*)v.mData);
+					break;
+				case aiMetadataType::AI_AIVECTOR3D: {
+						float* l = (float*)v.mData;
+						printf("{%f , %f , %f}", l[0], l[1], l[2]);
+					} break;
+				default:
+					printf("other type");
+			}
+			printf("\n");
+		}
+	}
+	
+	void AssimpLoader::ConstructTransformationMatrix() {
+		rootTransformationMatrix = glm::mat4(1);
+		
+		// blender orientation correction
+		{
+			int up, ups, oup, oups, f, fs, c, cs;
+			if(!scene->mMetaData->Get<int>("UpAxis", up))
+				return;
+			if(!scene->mMetaData->Get<int>("UpAxisSign", ups))
+				return;
+			if(!scene->mMetaData->Get<int>("OriginalUpAxis", oup))
+				return;
+			if(!scene->mMetaData->Get<int>("OriginalUpAxisSign", oups))
+				return;
+			if(!scene->mMetaData->Get<int>("FrontAxis", f))
+				return;
+			if(!scene->mMetaData->Get<int>("FrontAxisSign", fs))
+				return;
+			if(!scene->mMetaData->Get<int>("CoordAxis", c))
+				return;
+			if(!scene->mMetaData->Get<int>("CoordAxisSign", cs))
+				return;
+
+			if(up != 1
+					&& ups != 1
+					&& oup != -1
+					&& oups != 1
+					&& f != 2
+					&& fs != 1
+					&& c != 0
+					&& cs != 1)
+				return;
+
+			rootTransformationMatrix =
+				glm::mat4(
+						{1,0,0,0},
+						{0,0,-1,0},
+						{0,1,0,0},
+						{0,0,0,1});
+		}
+	}
+	
 } // namespace BasicMeshLoader
 } // namespace gl
 
