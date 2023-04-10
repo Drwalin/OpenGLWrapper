@@ -33,6 +33,8 @@
 
 #include <glm/glm.hpp>
 
+#include "LoaderFlags.hpp"
+
 #include "Value.hpp"
 #include "Skeleton.hpp"
 
@@ -108,7 +110,8 @@ namespace BasicMeshLoader {
 		int GetBoneIndex(std::string boneName);
 		
 		
-		void LoadMesh(const aiScene* scene, const aiMesh* mesh);
+		void LoadMesh(class AssimpLoader* loader, const aiMesh* mesh,
+				LoaderFlagsBitfield flags);
 		
 		
 		template<typename T>
