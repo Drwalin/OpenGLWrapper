@@ -24,7 +24,7 @@
 namespace gl {
 namespace BasicMeshLoader {
 	
-	enum LoadingFlags : uint64_t {
+	enum LoaderFlags : uint64_t {
 		NONE = 0,
 		RENAME_MESH_BY_FIRST_NODE_WITH_ITS_NAME = 1,
 		CORRECT_NOT_ANIMATED_MESH_ORIENTATION = 2,

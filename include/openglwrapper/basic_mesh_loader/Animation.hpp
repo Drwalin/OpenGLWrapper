@@ -34,6 +34,7 @@
 #include <glm/gtc/quaternion.hpp>
 
 #include "Mesh.hpp"
+#include "LoaderFlags.hpp"
 
 class aiAnimation;
 class aiScene;
@@ -50,14 +51,19 @@ namespace BasicMeshLoader {
 		float duration;
 		float framesPerSecond;
 		
+		LoaderFlagsBitfield flags;
+		class AssimpLoader* loader;
 		std::shared_ptr<Skeleton> skeleton;
 		aiAnimation const* aiAnim;
 		aiScene const* scene;
 		
-		void LoadAnimation(class AssimpLoader* loader, const aiAnimation* animation, std::shared_ptr<Mesh> mesh);
+		void LoadAnimation(class AssimpLoader* loader,
+				const aiAnimation* animation, std::shared_ptr<Mesh> mesh,
+				LoaderFlagsBitfield flags);
 		
 		
-		void GetModelBoneMatrices(std::vector<glm::mat4>& matrices, float time, bool loop);
+		void GetModelBoneMatrices(std::vector<glm::mat4>& matrices, float time,
+				bool loop);
 		
 		void ReadNodeHierarchy(std::vector<glm::mat4>& matrices,
 				float time, const aiNode* pNode, 
