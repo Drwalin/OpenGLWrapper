@@ -104,7 +104,7 @@ namespace BasicMeshLoader {
 		animations.resize(s->mNumAnimations);
 		for(int i=0; i<s->mNumAnimations; ++i) {
 			animations[i] = std::make_shared<Animation>();
-			animations[i]->LoadAnimation(this, s->mAnimations[i], meshes[0]);
+			animations[i]->LoadAnimation(this, s->mAnimations[i], meshes[0], flags);
 			animationNameToId.emplace(animations[i]->name, i);
 		}
 		

@@ -35,15 +35,20 @@
 #include <assimp/matrix4x4.h>
 #include <assimp/vector3.h>
 
-#include "../../include/openglwrapper/basic_mesh_loader/Animation.hpp"
 #include "../../include/openglwrapper/basic_mesh_loader/AssimpLoader.hpp"
+
+#include "../../include/openglwrapper/basic_mesh_loader/Animation.hpp"
 
 namespace gl {
 namespace BasicMeshLoader {
-	void Animation::LoadAnimation(class AssimpLoader* loader, const aiAnimation* anim, std::shared_ptr<Mesh> mesh) {
+	void Animation::LoadAnimation(class AssimpLoader* loader,
+			const aiAnimation* anim, std::shared_ptr<Mesh> mesh,
+			LoaderFlagsBitfield flags) {
 		this->scene = loader->scene;
 		this->skeleton = mesh->skeleton;
 		this->aiAnim = anim;
+		this->loader = loader;
+		this->flags = flags;
 		duration = anim->mDuration;
 		framesPerSecond = 24.0f;
 		name = anim->mName.C_Str();
@@ -59,7 +64,13 @@ namespace BasicMeshLoader {
 		time *= framesPerSecond;
 		matrices.resize(skeleton->bones.size());
 		
-		ReadNodeHierarchy(matrices, time, scene->mRootNode, glm::mat4(1));
+		ReadNodeHierarchy(matrices, time, scene->mRootNode,
+				flags
+					& CORRECT_ANIMATED_MESH_ORIENTATION_INSIDE_ROOT_BONE_TRANSFORMATION
+				?
+				loader->rootTransformationMatrix
+				:
+				glm::mat4(1));
 	}
 	
 	static const aiNodeAnim* FindNodeAnim(const aiAnimation* anim, std::string name) {

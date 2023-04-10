@@ -70,8 +70,13 @@ namespace BasicMeshLoader {
 				void(*function)(AssimpLoader*, const aiNode*),
 				bool reverse=false);
 		
-		bool Load(const char* file, LoaderFlagsBitfield flags = CORRECT_NOT_ANIMATED_MESH_ORIENTATION);
-		bool Load(std::string file, LoaderFlagsBitfield flags = CORRECT_NOT_ANIMATED_MESH_ORIENTATION);
+		bool Load(const char* file,
+				LoaderFlagsBitfield flags =
+				CORRECT_NOT_ANIMATED_MESH_ORIENTATION
+				| CORRECT_ANIMATED_MESH_ORIENTATION_INSIDE_ROOT_BONE_TRANSFORMATION);
+		bool Load(std::string file, LoaderFlagsBitfield flags =
+				CORRECT_NOT_ANIMATED_MESH_ORIENTATION
+				| CORRECT_ANIMATED_MESH_ORIENTATION_INSIDE_ROOT_BONE_TRANSFORMATION);
 		
 		void RenameMeshIfAvailable(std::string oldName, std::string newName);
 		
