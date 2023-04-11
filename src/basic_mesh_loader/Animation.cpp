@@ -85,7 +85,7 @@ namespace BasicMeshLoader {
 	
 	
 	static int FindRotation(float animationTime, const aiNodeAnim* nodeAnim) {
-		for(uint i=0; i<nodeAnim->mNumRotationKeys-1; i++)
+		for(uint32_t i=0; i<nodeAnim->mNumRotationKeys-1; i++)
 			if(animationTime < (float)nodeAnim->mRotationKeys[i + 1].mTime)
 				return i;
 		return -5;
@@ -98,10 +98,10 @@ namespace BasicMeshLoader {
 		} else if(nodeAnim->mNumRotationKeys == 0) {
 			return glm::mat4(1);
 		} else {
-			uint index = FindRotation(animationTime, nodeAnim);
+			uint32_t index = FindRotation(animationTime, nodeAnim);
 			if(index < 0)
 				index = nodeAnim->mNumRotationKeys;
-			uint nextIndex = (index + 1);
+			uint32_t nextIndex = (index + 1);
 			if(nextIndex >= nodeAnim->mNumRotationKeys) {
 				out = nodeAnim->mRotationKeys[nodeAnim->mNumRotationKeys-1].mValue;
 			} else {
@@ -135,10 +135,10 @@ namespace BasicMeshLoader {
 		} else if(numKeys == 0) {
 			return Default;
 		} else {
-			uint index = FindVector(AnimationTime, numKeys, vectorKeys);
+			uint32_t index = FindVector(AnimationTime, numKeys, vectorKeys);
 			if(index < 0)
 				index = numKeys;
-			uint nextIndex = (index + 1);
+			uint32_t nextIndex = (index + 1);
 			if(nextIndex >= numKeys) {
 				out = vectorKeys[numKeys-1].mValue;
 			} else {
@@ -208,11 +208,10 @@ namespace BasicMeshLoader {
 		}
 
 		// Traverse child nodes
-		for(uint i=0; i<pNode->mNumChildren; ++i) {
+		for(uint32_t i=0; i<pNode->mNumChildren; ++i) {
 			ReadNodeHierarchy(matrices, time, pNode->mChildren[i], globalTransformation);
 		}
 	}
 } // namespace BasicMeshLoader
 } // namespace gl
-
 
