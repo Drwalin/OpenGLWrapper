@@ -162,8 +162,11 @@ void VAO::DrawMultiElementsIndirect(void* indirect, int drawCount,
 		const int limitObjectDrawnPerSingleInvocation) {
 	if(drawCount <= 0)
 		return;
-	if(indirectDrawBuffer == nullptr) {
-		printf(" error in VAO::DrawMultiElementsIndirect: indirect draw buffer is not bound to VAO\n");
+	if(indirectDrawBuffer == nullptr && indirect == nullptr) {
+		GL_PUSH_CUSTOM_ERROR(-311, " error in VAO::DrawMultiElementsIndirect: "
+				"indirect draw buffer is not bound to VAO nor there is no "
+				"indirect host buffer passed\n");
+		return;
 	}
 	glBindVertexArray(vaoID);
 	GL_CHECK_PUSH_ERROR;
@@ -180,10 +183,37 @@ void VAO::DrawMultiElementsIndirect(void* indirect, int drawCount,
 		glBindBuffer(gl::DRAW_INDIRECT_BUFFER, indirectDrawBuffer->vboID);
 	GL_CHECK_PUSH_ERROR;
 	for(; drawCount>0;) {
-		const int currentDrawCount = std::min(limitObjectDrawnPerSingleInvocation, drawCount);
-		glMultiDrawElementsIndirect(mode, typeElements, indirect, currentDrawCount, 0);
+		const int currentDrawCount
+			= std::min(limitObjectDrawnPerSingleInvocation, drawCount);
+		glMultiDrawElementsIndirect(mode, typeElements, indirect,
+				currentDrawCount, 0);
 		drawCount -= currentDrawCount;
 		indirect = (void*)((size_t)indirect + currentDrawCount*20);
+	}
+	GL_CHECK_PUSH_ERROR;
+	glBindVertexArray(0);
+	GL_CHECK_PUSH_ERROR;
+}
+
+void VAO::DrawMultiArraysIndirect(void* indirect, int drawCount,
+		const int limitObjectDrawnPerSingleInvocation) {
+	if(drawCount <= 0)
+		return;
+	if(indirectDrawBuffer == nullptr && indirect == nullptr) {
+		GL_PUSH_CUSTOM_ERROR(-311, " error in VAO::DrawMultiArraysIndirect: "
+				"indirect draw buffer is not bound to VAO nor there is no "
+				"indirect host buffer passed\n");
+	}
+	glBindVertexArray(vaoID);
+	GL_CHECK_PUSH_ERROR;
+	if(indirectDrawBuffer)
+		glBindBuffer(gl::DRAW_INDIRECT_BUFFER, indirectDrawBuffer->vboID);
+	GL_CHECK_PUSH_ERROR;
+	for(; drawCount>0;) {
+		const int currentDrawCount = std::min(limitObjectDrawnPerSingleInvocation, drawCount);
+		glMultiDrawArraysIndirect(mode, indirect, currentDrawCount, 0);
+		drawCount -= currentDrawCount;
+		indirect = (void*)((size_t)indirect + currentDrawCount*16);
 	}
 	GL_CHECK_PUSH_ERROR;
 	glBindVertexArray(0);
