@@ -22,7 +22,7 @@ static float lastFrame = 0.0f;
 
 template<typename T=int>
 static void DefaultsSetup() {
-	srand(time(NULL));
+	srand(time(nullptr));
 	gl::openGL.Init("Window test name 311", 800, 600, true, false);
     gl::openGL.InitGraphic();
 }

@@ -194,7 +194,7 @@ int main() {
 
 		
 		// Draw VAO
-		vao.DrawMultiElementsIndirect(NULL, MAX_OBJECTS);
+		vao.DrawMultiElementsIndirect(nullptr, MAX_OBJECTS);
 		// Draw VAO
 // 		vao.SetInstances(objectsToRender);
 // 		vao.Draw();

@@ -159,7 +159,7 @@ int main() {
         ourShader.SetMat4(projLoc, projection);
 		
 		// Draw VAO
-		vao.DrawMultiElementsIndirect(NULL, objectsToRender);
+		vao.DrawMultiElementsIndirect(nullptr, objectsToRender);
 		
 		DefaultIterationEnd();
     }

@@ -135,7 +135,7 @@ void VAO::DrawArrays(unsigned start, unsigned count) {
 
 void VAO::DrawElements(unsigned start, unsigned count) {
 	glBindVertexArray(vaoID);
-	void* offset = NULL;
+	void* offset = nullptr;
 	switch(typeElements) {
 		case gl::UNSIGNED_BYTE:
 			offset = (void*)(size_t)(start*1);
@@ -162,7 +162,7 @@ void VAO::DrawMultiElementsIndirect(void* indirect, int drawCount,
 		const int limitObjectDrawnPerSingleInvocation) {
 	if(drawCount <= 0)
 		return;
-	if(indirectDrawBuffer == NULL) {
+	if(indirectDrawBuffer == nullptr) {
 		printf(" error in VAO::DrawMultiElementsIndirect: indirect draw buffer is not bound to VAO\n");
 	}
 	glBindVertexArray(vaoID);

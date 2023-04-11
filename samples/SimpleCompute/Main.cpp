@@ -16,7 +16,7 @@ namespace SimpleCompute {
 const uint32_t OBJECTS_COUNT = 1024*32;
 
 int main() {
-	srand(time(NULL));
+	srand(time(nullptr));
 	
 	// init open gl
     gl::openGL.Init("Window test name 311", 800, 600, true, false);

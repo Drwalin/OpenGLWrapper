@@ -94,7 +94,7 @@ namespace gl {
 
 	
 	
-	FBO* FBO::currentlyBoundFBO = NULL;
+	FBO* FBO::currentlyBoundFBO = nullptr;
 	
 	void FBO::SimpleBind() {
 		if(fbo == 0) {
@@ -114,7 +114,7 @@ namespace gl {
 	void FBO::Unbind() {
 		if(currentlyBoundFBO) {
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
-			currentlyBoundFBO = NULL;
+			currentlyBoundFBO = nullptr;
 		}
 	}
 	

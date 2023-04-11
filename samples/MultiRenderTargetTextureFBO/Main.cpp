@@ -41,15 +41,15 @@ int main() {
 	// gen and setup FBO
 	gl::Texture renderTextureColor, renderTextureNormal, renderTextureDepth;
 	
-	renderTextureColor.UpdateTextureData(NULL, gl::openGL.GetWidth(), gl::openGL.GetHeight(),
+	renderTextureColor.UpdateTextureData(nullptr, gl::openGL.GetWidth(), gl::openGL.GetHeight(),
 			false, gl::TEXTURE_2D, (gl::TextureSizedInternalFormat)gl::RGBA, gl::RGBA, gl::UNSIGNED_BYTE);
 	renderTextureColor.SetDefaultParamPixelartClampBorderNoMipmap();
 	
-	renderTextureNormal.UpdateTextureData(NULL, gl::openGL.GetWidth(), gl::openGL.GetHeight(),
+	renderTextureNormal.UpdateTextureData(nullptr, gl::openGL.GetWidth(), gl::openGL.GetHeight(),
 			false, gl::TEXTURE_2D, (gl::TextureSizedInternalFormat)gl::RGBA, gl::RGBA, gl::UNSIGNED_BYTE);
 	renderTextureNormal.SetDefaultParamPixelartClampBorderNoMipmap();
 	
-	renderTextureDepth.UpdateTextureData(NULL, gl::openGL.GetWidth(), gl::openGL.GetHeight(),
+	renderTextureDepth.UpdateTextureData(nullptr, gl::openGL.GetWidth(), gl::openGL.GetHeight(),
 			false, gl::TEXTURE_2D, (gl::TextureSizedInternalFormat)GL_DEPTH24_STENCIL8,
 			(gl::TextureDataFormat)GL_DEPTH_STENCIL, (gl::DataType)GL_UNSIGNED_INT_24_8);
 	renderTextureColor.SetDefaultParamPixelartClampBorderNoMipmap();
@@ -74,15 +74,15 @@ int main() {
 		
 		if(renderTextureColor.GetWidth() != gl::openGL.GetWidth() ||
 				renderTextureColor.GetHeight() != gl::openGL.GetHeight()) {
-			renderTextureColor.UpdateTextureData(NULL, gl::openGL.GetWidth(), gl::openGL.GetHeight(),
+			renderTextureColor.UpdateTextureData(nullptr, gl::openGL.GetWidth(), gl::openGL.GetHeight(),
 					false, gl::TEXTURE_2D, (gl::TextureSizedInternalFormat)gl::RGBA, gl::RGBA, gl::UNSIGNED_BYTE);
 // 			renderTextureColor.SetDefaultParamPixelartClampBorderNoMipmap();
 			
-			renderTextureNormal.UpdateTextureData(NULL, gl::openGL.GetWidth(), gl::openGL.GetHeight(),
+			renderTextureNormal.UpdateTextureData(nullptr, gl::openGL.GetWidth(), gl::openGL.GetHeight(),
 					false, gl::TEXTURE_2D, (gl::TextureSizedInternalFormat)gl::RGBA, gl::RGBA, gl::UNSIGNED_BYTE);
 // 			renderTextureNormal.SetDefaultParamPixelartClampBorderNoMipmap();
 			
-			renderTextureDepth.UpdateTextureData(NULL, gl::openGL.GetWidth(), gl::openGL.GetHeight(),
+			renderTextureDepth.UpdateTextureData(nullptr, gl::openGL.GetWidth(), gl::openGL.GetHeight(),
 					false, gl::TEXTURE_2D, (gl::TextureSizedInternalFormat)GL_DEPTH24_STENCIL8,
 					(gl::TextureDataFormat)GL_DEPTH_STENCIL, (gl::DataType)GL_UNSIGNED_INT_24_8);
 // 			renderTextureColor.SetDefaultParamPixelartClampBorderNoMipmap();
@@ -116,7 +116,7 @@ int main() {
 			fbo.Bind();
 // 			GLenum es[] = {gl::ATTACHMENT_COLOR0, gl::ATTACHMENT_COLOR1};
 // 			glDrawBuffers(2, es);
-			shader->SetTexture(texLoc, NULL, 0);
+			shader->SetTexture(texLoc, nullptr, 0);
 			
 			// Set Viewport
 			fbo.SetClearColor({0.2,0.3,8,0.5});

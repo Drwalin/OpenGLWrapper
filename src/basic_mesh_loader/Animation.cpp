@@ -79,7 +79,7 @@ namespace BasicMeshLoader {
 				return anim->mChannels[i];
 			}
 		}
-		return NULL;
+		return nullptr;
 	}
 	
 	

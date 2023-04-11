@@ -83,7 +83,7 @@ void OpenGL::SetFullscreen(bool fullscreen) {
 }
 
 bool OpenGL::IsFullscreen() const {
-	return glfwGetWindowMonitor(window) != NULL;
+	return glfwGetWindowMonitor(window) != nullptr;
 }
 
 void OpenGL::SwapInput() {
@@ -152,8 +152,8 @@ int OpenGL::Init(const char* windowName, unsigned int width,
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_RESIZABLE, resizable);
 	window = glfwCreateWindow(width, height, windowName,
-			fullscreen ? glfwGetPrimaryMonitor() : NULL, NULL);
-	if(window == NULL) {
+			fullscreen ? glfwGetPrimaryMonitor() : nullptr, nullptr);
+	if(window == nullptr) {
 		printf("\n Failed to create GLFW window! ");
 	GL_CHECK_PUSH_ERROR;
 		return 1;
@@ -228,7 +228,7 @@ void OpenGL::SwapBuffer() {
 
 void OpenGL::Destroy() {
 	glfwDestroyWindow(window);
-	window = NULL;
+	window = nullptr;
 	width = height = 0;
 }
 

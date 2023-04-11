@@ -49,7 +49,7 @@ bool Texture::Load(const char* fileName, bool generateMipMap,
 	int32_t w, h;
 	uint8_t * image = LoadImageData(fileName, &w, &h, &channels,
 			forceChannelsCount);
-	if(image==NULL && textureID) {
+	if(image==nullptr && textureID) {
 		glDeleteTextures(1, &textureID);
 		textureID = width = height = depth = 0;
 		return false;
@@ -101,7 +101,7 @@ void Texture::Generate1(gl::TextureTarget target,
 	this->depth = 1;
 	
 	glTexImage1D(target, 0, internalformat, w, 0,
-			dataformat, datatype, NULL);
+			dataformat, datatype, nullptr);
 	GL_CHECK_PUSH_PRINT_ERROR;
 	
 	MinFilter(gl::NEAREST);
@@ -153,7 +153,7 @@ void Texture::Generate2(gl::TextureTarget target,
 	
 	
 	glTexImage2D(target, 0, internalformat, w, h, 0,
-			dataformat, datatype, NULL);
+			dataformat, datatype, nullptr);
 	GL_CHECK_PUSH_PRINT_ERROR;
 	
 	MinFilter(gl::NEAREST);
@@ -205,7 +205,7 @@ void Texture::Generate3(gl::TextureTarget target,
 	this->depth = d;
 	
 	glTexImage3D(target, 0, internalformat, w, h, d, 0,
-			dataformat, datatype, NULL);
+			dataformat, datatype, nullptr);
 	GL_CHECK_PUSH_PRINT_ERROR;
 	
 	MinFilter(gl::NEAREST);
@@ -257,7 +257,7 @@ void Texture::UpdateTextureData(const void* pixels, uint32_t w, uint32_t h,
 
 void Texture::InitTextureEmpty(uint32_t w, uint32_t h, 
 		gl::TextureTarget target, gl::TextureSizedInternalFormat internalformat) {
-	UpdateTextureData(NULL, w, h, false, target, internalformat, gl::RGBA, gl::UNSIGNED_BYTE);
+	UpdateTextureData(nullptr, w, h, false, target, internalformat, gl::RGBA, gl::UNSIGNED_BYTE);
 }
 
 
