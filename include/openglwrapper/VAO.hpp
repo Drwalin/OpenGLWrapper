@@ -70,6 +70,8 @@ namespace gl {
 		void DrawElements(unsigned start, unsigned count);
 		void DrawMultiElementsIndirect(void* indirect, int drawCount,
 				const int limitObjectDrawnPerSingleInvocation=1024*4);
+		void DrawMultiArraysIndirect(void* indirect, int drawCount,
+				const int limitObjectDrawnPerSingleInvocation=1024*4);
 		
 	private:
 	public:
