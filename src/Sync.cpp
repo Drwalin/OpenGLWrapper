@@ -37,7 +37,7 @@ namespace gl {
 	void Sync::Destroy() {
 		if(sync) {
 			glDeleteSync(static_cast<GLsync>(sync));
-			sync = NULL;
+			sync = nullptr;
 		}
 	}
 	
@@ -45,7 +45,7 @@ namespace gl {
 		if(sync) {
 			GLint result = 0;
 			glGetSynciv(static_cast<GLsync>(sync), GL_SYNC_STATUS,
-					sizeof(uint32_t), NULL, &result);
+					sizeof(uint32_t), nullptr, &result);
 			return result == GL_SIGNALED;
 		}
 		return true;	

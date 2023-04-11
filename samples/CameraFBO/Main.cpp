@@ -63,12 +63,12 @@ int main() {
 	
 	// gen and setup FBO
 	gl::Texture renderTargetTexture;
-	renderTargetTexture.UpdateTextureData(NULL, RENDER_SIZE, RENDER_SIZE,
+	renderTargetTexture.UpdateTextureData(nullptr, RENDER_SIZE, RENDER_SIZE,
 			false, gl::TEXTURE_2D, (gl::TextureSizedInternalFormat)gl::RGBA, gl::RGBA, gl::UNSIGNED_BYTE);
 	renderTargetTexture.SetDefaultParamPixelartClampBorderNoMipmap();
 	
 	gl::Texture renderTargetDepth;
-	renderTargetDepth.UpdateTextureData(NULL, RENDER_SIZE, RENDER_SIZE, false,
+	renderTargetDepth.UpdateTextureData(nullptr, RENDER_SIZE, RENDER_SIZE, false,
 			gl::TEXTURE_2D,
 			(gl::TextureSizedInternalFormat)GL_DEPTH24_STENCIL8,
 			(gl::TextureDataFormat)GL_DEPTH_STENCIL,
@@ -105,7 +105,7 @@ int main() {
 			shader->Use();
 			// Set up FBO
 			fbo.Bind();
-			shader->SetTexture(texLoc, NULL, 0);
+			shader->SetTexture(texLoc, nullptr, 0);
 			
 			// Set Viewport
 			fbo.SetClearColor({0.2,0.3,8,0.5});

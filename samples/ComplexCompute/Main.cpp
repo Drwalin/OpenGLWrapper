@@ -38,7 +38,7 @@ const uint32_t COMPS = 32;
 std::unordered_map<int, int> map1, map2;
 
 int main() {
-	srand(time(NULL));
+	srand(time(nullptr));
 	map1.reserve(1024*1024);
 	map2.reserve(1024*1024);
 	gl::openGL.Init("Window test name 311", 800, 600, true, false);
@@ -57,9 +57,9 @@ int main() {
 	
 	std::vector<uint8_t> indirectVbo, atomicVbo, infosVbo;
 	
-	indirectBuffer.Generate(NULL, OBJECTS_COUNT*32);
+	indirectBuffer.Generate(nullptr, OBJECTS_COUNT*32);
 	indirectVbo.resize(OBJECTS_COUNT*32*indirectBuffer.VertexSize());
-	atomicBuffer.Generate(NULL, 640);
+	atomicBuffer.Generate(nullptr, 640);
 	atomicVbo.resize(640*atomicBuffer.VertexSize());
 	infosVbo.resize(OBJECTS_COUNT*infosBuffer.VertexSize());
 	gl::BufferAccessor::BufferRef<gl::Atr<Object, 1>> buf(&infosBuffer, infosVbo);

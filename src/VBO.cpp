@@ -59,7 +59,7 @@ void VBO::Init() {
 	GL_CHECK_PUSH_ERROR;
 	glCreateBuffers(1, &vboID);
 	GL_CHECK_PUSH_ERROR;
-	glNamedBufferData(vboID, vertexSize, NULL, usage);
+	glNamedBufferData(vboID, vertexSize, nullptr, usage);
 	GL_CHECK_PUSH_ERROR;
 	Generate(nullptr, 1);
 	vertices = 1;
