@@ -135,26 +135,17 @@ int main() {
 			shader->SetBool(useTexLoc, false);
 			gl::openGL.FaceCulling(true, false);
 			
-			shader->SetMat4(modelLoc,
-					glm::rotate(
-						glm::mat4(1),
-						3.141592f/2.0f,
-						glm::vec3(-1, 0, 0)
-						));
+			shader->SetMat4(modelLoc, glm::mat4(1));
 			terrain.Draw();
 			
 			shader->SetMat4(modelLoc,
 					glm::rotate(
-						glm::rotate(
-							glm::translate(
-								glm::mat4(1),
-								glm::vec3(5, 0, 0)
-								),
-							(lastFrame*0.7f)/1.0f,
-							glm::vec3(0,1,0)
+						glm::translate(
+							glm::mat4(1),
+							glm::vec3(5, 0, 0)
 							),
-						3.141592f/2.0f,
-						glm::vec3(-1, 0, 0)
+						(lastFrame*0.7f)/1.0f,
+						glm::vec3(0,1,0)
 						));
 			monkey.Draw();
 			
@@ -168,32 +159,29 @@ int main() {
 		{
 			shader->Use();
 			// Calculate and set projection matrix
-			shader->SetMat4(projLoc, glm::perspective(45.0f, 1.0f, 0.1f, 10000.0f));
+			shader->SetMat4(projLoc, glm::mat4(1));//glm::perspective(45.0f, 1.0f, 0.1f, 10000.0f));
 
 			// Calculate and set view matrix
-			shader->SetMat4(viewLoc, camera2.getViewMatrix());
+			shader->SetMat4(viewLoc, glm::mat4(1));//camera2.getViewMatrix());
 			
 			// Render FBO result
 			gl::openGL.FaceCulling(true, true);
 			shader->SetBool(useTexLoc, true);
 			shader->SetTexture(texLoc, drawingTexture, 0);
 			shader->SetMat4(modelLoc,
-					glm::scale(
-						glm::translate(
-							glm::rotate(
-								glm::rotate(
-									glm::mat4(1),
-									3.141592f/2.f,
-									{0,1,0}
-								),
-								3.141592f/2.f,
-								{0,0,1}
-							),
-							{0, 0, 5}
+					glm::rotate(
+						glm::rotate(
+							glm::mat4(1),
+							3.141592f/2.f,
+							{0,0,1}
 						),
-						{5,-5,5}
+						3.141592f/2.f,
+						{1,0,0}
 					));
+			
+			glDisable(GL_DEPTH_TEST);
 			cameraRenderMesh.Draw();
+			glEnable(GL_DEPTH_TEST);
 		}
 		
 		DefaultIterationEnd();
