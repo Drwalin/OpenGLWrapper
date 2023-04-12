@@ -57,17 +57,19 @@ namespace BasicMeshLoader {
 		aiAnimation const* aiAnim;
 		aiScene const* scene;
 		
+		
+		uint32_t CountBones();
+		
 		void LoadAnimation(class AssimpLoader* loader,
 				const aiAnimation* animation, std::shared_ptr<Mesh> mesh,
 				LoaderFlagsBitfield flags);
 		
-		
+		void GetModelBoneMatrices(glm::mat4* matrices, float time, bool loop);
 		void GetModelBoneMatrices(std::vector<glm::mat4>& matrices, float time,
 				bool loop);
 		
-		void ReadNodeHierarchy(std::vector<glm::mat4>& matrices,
-				float time, const aiNode* pNode, 
-				glm::mat4 parentTransform);
+		void ReadNodeHierarchy(glm::mat4* matrices, float time,
+				const aiNode* pNode, glm::mat4 parentTransform);
 	};
 	
 } // namespace BasicMeshLoader

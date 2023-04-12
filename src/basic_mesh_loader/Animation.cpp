@@ -55,14 +55,23 @@ namespace BasicMeshLoader {
 		duration = anim->mDuration/framesPerSecond;
 	}
 	
+	uint32_t Animation::CountBones() {
+		return skeleton->bones.size();
+	}
+	
 	void Animation::GetModelBoneMatrices(
 			std::vector<glm::mat4>& matrices,
 			float time, bool loop) {
+		matrices.resize(CountBones());
+		GetModelBoneMatrices(&matrices.front(), time, loop);
+	}
+	
+	void Animation::GetModelBoneMatrices(glm::mat4* matrices, float time,
+			bool loop) {
 		if(loop) {
 			time = fmod(time, duration);
 		}
 		time *= framesPerSecond;
-		matrices.resize(skeleton->bones.size());
 		
 		ReadNodeHierarchy(matrices, time, scene->mRootNode,
 				flags
@@ -158,9 +167,8 @@ namespace BasicMeshLoader {
 	
 	
 	
-	void Animation::ReadNodeHierarchy(std::vector<glm::mat4>& matrices,
-			float time, const aiNode* pNode, 
-			glm::mat4 parentTransform) {
+	void Animation::ReadNodeHierarchy(glm::mat4* matrices, float time,
+			const aiNode* pNode, glm::mat4 parentTransform) {
 		std::string nodeName = pNode->mName.C_Str();
 		glm::mat4 nodeTransformation = ConvertAssimpToGlmMat(pNode->mTransformation);
 		const aiNodeAnim* nodeAnim = FindNodeAnim(aiAnim, nodeName);
