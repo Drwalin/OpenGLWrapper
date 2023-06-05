@@ -83,6 +83,40 @@ void VAO::SetAttribPointer(VBO& vbo, int location, unsigned count,
 	}
 }
 
+void VAO::SetIntegerAttribPointer(VBO& vbo, int location, unsigned count,
+		gl::DataType type, unsigned offset, unsigned divisor) {
+	GL_CHECK_PUSH_ERROR;
+	if(!vbo.GetIdGL()) {
+		vbo.Init();
+	}
+	GL_CHECK_PUSH_ERROR;
+	glBindVertexArray(vaoID);
+	GL_CHECK_PUSH_ERROR;
+	glBindBuffer(vbo.target, vbo.vboID);
+	GL_CHECK_PUSH_ERROR;
+	GL_CHECK_PUSH_ERROR;
+	if(location >= 0) {
+		glEnableVertexAttribArray(location);
+		GL_CHECK_PUSH_ERROR;
+		glVertexAttribIPointer(location, count, type, vbo.vertexSize,
+				(void*)(size_t)offset);
+		GL_CHECK_PUSH_ERROR;
+		glVertexAttribDivisor(location, divisor);
+	}
+	GL_CHECK_PUSH_ERROR;
+	glBindVertexArray(0);
+	GL_CHECK_PUSH_ERROR;
+	glBindBuffer(vbo.target, 0);
+	GL_CHECK_PUSH_ERROR;
+	if(divisor>0) {
+		instances = std::max(instances, divisor*vbo.vertices);
+	} else if(vbo.target == gl::ELEMENT_ARRAY_BUFFER || vbo.target == gl::DRAW_INDIRECT_BUFFER) {
+		GL_PUSH_CUSTOM_ERROR(-666, "Cannot bind buffer of target GL_ELEMENT_ARRAY_BUFFER nor GL_DRAW_INDIRECT_BUFFER with VAO::SetAttribPointer");
+	} else {
+		sizeA = std::max(vbo.vertices, sizeA);
+	}
+}
+
 void VAO::BindElementBuffer(VBO& ebo, gl::DataType type) {
 	GL_CHECK_PUSH_ERROR;
 	if(!ebo.GetIdGL()) {

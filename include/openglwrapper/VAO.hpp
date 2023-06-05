@@ -55,6 +55,8 @@ namespace gl {
 		void SetAttribPointer(VBO& vbo, int location, unsigned count,
 				gl::DataType type, bool normalized, unsigned offset,
 				unsigned divisor=0);
+		void SetIntegerAttribPointer(VBO& vbo, int location, unsigned count,
+				gl::DataType type, unsigned offset, unsigned divisor=0);
 		void BindElementBuffer(VBO& elementBO, gl::DataType type);
 		void BindIndirectBuffer(VBO& indirectBO);
 		
