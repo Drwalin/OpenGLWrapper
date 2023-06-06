@@ -142,13 +142,24 @@ namespace BasicMeshLoader {
 				boundingBoxMax.y = std::max(boundingBoxMax.y, v.y);
 				boundingBoxMax.z = std::max(boundingBoxMax.z, v.z);
 			}
-			boundingSphereCenter = (boundingBoxMin + boundingBoxMax) * 0.5f;
-			float r2 = 0;
-			for(glm::vec3 v : pos) {
-				r2 = std::max(r2, glm::dot(v-boundingSphereCenter,
-							v-boundingSphereCenter));
+			
+			if(!mesh->HasBones()) {
+				boundingSphereCenter = (boundingBoxMin + boundingBoxMax) * 0.5f;
+				float r2 = 0;
+				for(glm::vec3 v : pos) {
+					r2 = std::max(r2, glm::dot(v-boundingSphereCenter,
+								v-boundingSphereCenter));
+				}
+				boundingSphereRadius = sqrt(r2);
+			} else {
+				boundingSphereCenter = {0,0,0};
+				float r2 = 0;
+				for(glm::vec3 v : pos) {
+					r2 = std::max(r2, glm::dot(v-boundingSphereCenter,
+								v-boundingSphereCenter));
+				}
+				boundingSphereRadius = sqrt(r2)*1.5;
 			}
-			boundingSphereRadius = sqrt(r2);
 		}
 		
 		if(mesh->HasVertexColors(0)) {
