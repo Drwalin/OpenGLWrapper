@@ -32,8 +32,9 @@ namespace gl {
 	class Sync final {
 	public:
 		
-		Sync(Sync&&) = default;
-		Sync& operator=(Sync&&) = default;
+		Sync();
+		Sync(Sync&&);
+		Sync& operator=(Sync&&);
 		~Sync();
 		
 		Sync(Sync&) = delete;
@@ -41,7 +42,7 @@ namespace gl {
 		Sync& operator=(Sync&) = delete;
 		Sync& operator=(const Sync&) = delete;
 		
-		static Sync Fence();
+		void StartFence();
 		void Destroy();
 		bool IsDone();
 		SyncWaitResult WaitClient(uint64_t timeoutNanoseconds);
@@ -55,3 +56,4 @@ namespace gl {
 }
 
 #endif
+

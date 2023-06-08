@@ -23,34 +23,56 @@
 #include "../include/openglwrapper/Sync.hpp"
 
 namespace gl {
+	Sync::Sync() : sync(nullptr) {
+	}
+	
 	Sync::Sync(void* glsync) : sync(glsync) {
+	}
+	
+	Sync::Sync(Sync&& s) {
+		this->sync = s.sync;
+		s.sync = nullptr;
+	}
+	
+	Sync& Sync::operator=(Sync&& s) {
+		Destroy();
+		this->sync = s.sync;
+		s.sync = nullptr;
+		return *this;
 	}
 	
 	Sync::~Sync() {
 		Destroy();
 	}
 	
-	Sync Sync::Fence() {
-		return Sync(glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0));
+	void Sync::StartFence() {
+		sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+		GL_CHECK_PUSH_PRINT_ERROR;
 	}
 	
 	void Sync::Destroy() {
 		if(sync) {
 			glDeleteSync(static_cast<GLsync>(sync));
+			GL_CHECK_PUSH_PRINT_ERROR;
 			sync = nullptr;
 		}
 	}
 	
 	bool Sync::IsDone() {
 		if(sync) {
-			GLint result = 0;
+			GLint result = -1;
+			GLsizei length = -1;
 			glGetSynciv(static_cast<GLsync>(sync), GL_SYNC_STATUS,
-					sizeof(uint32_t), nullptr, &result);
-			return result == GL_SIGNALED;
+					sizeof(uint32_t), &length, &result);
+			GL_CHECK_PUSH_PRINT_ERROR;
+			if(result != GL_SIGNALED) {
+				return false;
+			}
+			Destroy();
 		}
 		return true;	
 	}
-	
+		
 	SyncWaitResult Sync::WaitClient(uint64_t timeoutNanoseconds) {
 		if(sync) {
 			GLenum ret = glClientWaitSync(static_cast<GLsync>(sync),

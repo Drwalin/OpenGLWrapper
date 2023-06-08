@@ -129,7 +129,7 @@ void VBO::Fetch(void* data, uint32_t offset, uint32_t bytes) {
 
 void VBO::FetchAll(std::vector<uint8_t>& data) {
 	data.resize(vertices*vertexSize);
-	Fetch(&data.front(), 0, data.size());
+	Fetch(data.data(), 0, data.size());
 	GL_CHECK_PUSH_ERROR;
 }
 
