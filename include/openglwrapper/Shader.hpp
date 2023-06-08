@@ -47,6 +47,7 @@ namespace gl {
 		int Load(const std::string& computePath);		// return 0 if no error
 
 		void Use();
+		static void Unuse();
 		unsigned GetProgram();
 		void Dispatch(uint32_t numGroupsX, uint32_t numGroupsY, uint32_t numGroupsZ);
 		void DispatchRoundGroupNumbers(uint32_t numGroupsX, uint32_t numGroupsY, uint32_t numGroupsZ);
