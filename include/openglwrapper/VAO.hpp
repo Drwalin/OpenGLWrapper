@@ -64,7 +64,7 @@ namespace gl {
 		void SetInstances(unsigned instances);
 		
 		void Bind();
-		void Unbind();
+		static void Unbind();
 		
 		void Draw();
 		void Draw(unsigned start, unsigned count);

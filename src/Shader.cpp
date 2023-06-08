@@ -237,6 +237,12 @@ void Shader::Use() {
 	}
 }
 
+void Shader::Unuse() {
+	if(currentProgram)
+		glUseProgram(0);
+	currentProgram = 0;
+}
+
 unsigned int Shader::GetProgram() {
 	return program;
 }
