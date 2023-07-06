@@ -24,6 +24,8 @@
 #include "../include/openglwrapper/VAO.hpp"
 
 namespace gl {
+	
+	unsigned VAO::currentVao = 0;
 
 VAO::VAO(gl::VertexMode mode) : mode(mode) {
 	sizeI = 0;
@@ -37,9 +39,9 @@ VAO::~VAO() {
 }
 
 void VAO::Init() {
-	glBindVertexArray(0);
+	Unbind();
 	glGenVertexArrays(1, &vaoID);
-	glBindVertexArray(0);
+	Unbind();
 	GL_CHECK_PUSH_ERROR;
 }
 
@@ -56,7 +58,7 @@ void VAO::SetAttribPointer(VBO& vbo, int location, unsigned count,
 		vbo.Init();
 	}
 	GL_CHECK_PUSH_ERROR;
-	glBindVertexArray(vaoID);
+	Bind();
 	GL_CHECK_PUSH_ERROR;
 	glBindBuffer(vbo.target, vbo.vboID);
 	GL_CHECK_PUSH_ERROR;
@@ -70,7 +72,7 @@ void VAO::SetAttribPointer(VBO& vbo, int location, unsigned count,
 		glVertexAttribDivisor(location, divisor);
 	}
 	GL_CHECK_PUSH_ERROR;
-	glBindVertexArray(0);
+	Unbind();
 	GL_CHECK_PUSH_ERROR;
 	glBindBuffer(vbo.target, 0);
 	GL_CHECK_PUSH_ERROR;
@@ -90,7 +92,7 @@ void VAO::SetIntegerAttribPointer(VBO& vbo, int location, unsigned count,
 		vbo.Init();
 	}
 	GL_CHECK_PUSH_ERROR;
-	glBindVertexArray(vaoID);
+	Bind();
 	GL_CHECK_PUSH_ERROR;
 	glBindBuffer(vbo.target, vbo.vboID);
 	GL_CHECK_PUSH_ERROR;
@@ -104,7 +106,7 @@ void VAO::SetIntegerAttribPointer(VBO& vbo, int location, unsigned count,
 		glVertexAttribDivisor(location, divisor);
 	}
 	GL_CHECK_PUSH_ERROR;
-	glBindVertexArray(0);
+	Unbind();
 	GL_CHECK_PUSH_ERROR;
 	glBindBuffer(vbo.target, 0);
 	GL_CHECK_PUSH_ERROR;
@@ -123,11 +125,11 @@ void VAO::BindElementBuffer(VBO& ebo, gl::DataType type) {
 		ebo.Init();
 	}
 	GL_CHECK_PUSH_ERROR;
-	glBindVertexArray(vaoID);
+	Bind();
 	GL_CHECK_PUSH_ERROR;
 	glBindBuffer(gl::ELEMENT_ARRAY_BUFFER, ebo.vboID);
 	GL_CHECK_PUSH_ERROR;
-	glBindVertexArray(0);
+	Unbind();
 	glBindBuffer(gl::ELEMENT_ARRAY_BUFFER, 0);
 	drawArrays = false;
 	sizeI = std::max(ebo.vertices, sizeI);
@@ -159,16 +161,15 @@ void VAO::Draw(unsigned start, unsigned count) {
 }
 
 void VAO::DrawArrays(unsigned start, unsigned count) {
-	glBindVertexArray(vaoID);
+	Bind();
 	if(instances)
 		glDrawArraysInstanced(mode, start, count, instances);
 	else
 		glDrawArrays(mode, start, count);
-	glBindVertexArray(0);
 }
 
 void VAO::DrawElements(unsigned start, unsigned count) {
-	glBindVertexArray(vaoID);
+	Bind();
 	void* offset = nullptr;
 	switch(typeElements) {
 		case gl::UNSIGNED_BYTE:
@@ -189,7 +190,6 @@ void VAO::DrawElements(unsigned start, unsigned count) {
 	} else {
 		glDrawElements(mode, count, typeElements, offset);
 	}
-	glBindVertexArray(0);
 }
 
 void VAO::DrawMultiElementsIndirect(void* indirect, int drawCount,
@@ -202,7 +202,7 @@ void VAO::DrawMultiElementsIndirect(void* indirect, int drawCount,
 				"indirect host buffer passed\n");
 		return;
 	}
-	glBindVertexArray(vaoID);
+	Bind();
 	GL_CHECK_PUSH_ERROR;
 	switch(typeElements) {
 		case gl::UNSIGNED_BYTE:
@@ -225,8 +225,6 @@ void VAO::DrawMultiElementsIndirect(void* indirect, int drawCount,
 		indirect = (void*)((size_t)indirect + currentDrawCount*20);
 	}
 	GL_CHECK_PUSH_ERROR;
-	glBindVertexArray(0);
-	GL_CHECK_PUSH_ERROR;
 }
 
 void VAO::DrawMultiArraysIndirect(void* indirect, int drawCount,
@@ -238,7 +236,7 @@ void VAO::DrawMultiArraysIndirect(void* indirect, int drawCount,
 				"indirect draw buffer is not bound to VAO nor there is no "
 				"indirect host buffer passed\n");
 	}
-	glBindVertexArray(vaoID);
+	Bind();
 	GL_CHECK_PUSH_ERROR;
 	if(indirectDrawBuffer)
 		glBindBuffer(gl::DRAW_INDIRECT_BUFFER, indirectDrawBuffer->vboID);
@@ -250,8 +248,6 @@ void VAO::DrawMultiArraysIndirect(void* indirect, int drawCount,
 		indirect = (void*)((size_t)indirect + currentDrawCount*16);
 	}
 	GL_CHECK_PUSH_ERROR;
-	glBindVertexArray(0);
-	GL_CHECK_PUSH_ERROR;
 }
 
 void VAO::SetSize(unsigned count) {
@@ -262,11 +258,19 @@ void VAO::SetSize(unsigned count) {
 }
 
 void VAO::Bind() {
-	glBindVertexArray(vaoID);
+	if(currentVao != vaoID) {
+		currentVao = vaoID;
+		glBindVertexArray(vaoID);
+		GL_CHECK_PUSH_ERROR;
+	}
 }
 
 void VAO::Unbind() {
-	glBindVertexArray(0);
+	if(currentVao != 0) {
+		currentVao = 0;
+		glBindVertexArray(0);
+		GL_CHECK_PUSH_ERROR;
+	}
 }
 
 }

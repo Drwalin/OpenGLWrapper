@@ -84,6 +84,10 @@ namespace gl {
 		gl::VertexMode mode;
 		bool drawArrays;
 		VBO* indirectDrawBuffer;
+		
+	private:
+		
+		static unsigned currentVao;
 	};
 }
 
