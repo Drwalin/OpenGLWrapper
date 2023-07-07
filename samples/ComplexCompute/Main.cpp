@@ -111,10 +111,10 @@ int main() {
 					computeShader.workgroupSize[0], 1, 1);
 			emptyShader.Use();
 			
-			glMemoryBarrier(GL_ALL_BARRIER_BITS);
+			gl::MemoryBarrier(gl::ALL_BARRIER_BITS);
 			atomicBuffer.FetchAll(atomicVbo);
 			
-			glMemoryBarrier(GL_ALL_BARRIER_BITS);
+			gl::MemoryBarrier(gl::ALL_BARRIER_BITS);
 		}
 		
 		float T = (glfwGetTime()-currentFrame);
@@ -122,7 +122,7 @@ int main() {
 		indirectBuffer.FetchAll(indirectVbo);
 		infosBuffer.FetchAll(infosVbo);
 		atomicBuffer.FetchAll(atomicVbo);
-		glMemoryBarrier(GL_ALL_BARRIER_BITS);
+		gl::MemoryBarrier(gl::ALL_BARRIER_BITS);
 		
 // 		int components = *(unsigned*)&(atomicBuffer.Buffer()[0]);
 		int components = sum;

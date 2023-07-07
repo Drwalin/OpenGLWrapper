@@ -56,6 +56,11 @@ namespace gl {
 		MAP_PERSISTENT_BIT = GL_MAP_PERSISTENT_BIT,
 		MAP_COHERENT_BIT = GL_MAP_COHERENT_BIT,
 		CLIENT_STORAGE_BIT = GL_CLIENT_STORAGE_BIT,
+		MAP_FLUSH_EXPLICIT_BIT = GL_MAP_FLUSH_EXPLICIT_BIT,
+		
+		MAP_INVALIDATE_BUFFER_BIT = GL_MAP_INVALIDATE_BUFFER_BIT,
+		MAP_INVALIDATE_RANGE_BIT = GL_MAP_INVALIDATE_RANGE_BIT,
+		MAP_UNSYNCHRONIZED_BIT = GL_MAP_UNSYNCHRONIZED_BIT,
 	};
 	
 	enum TypicalImmutableStorageFlagSets : GLbitfield {
@@ -80,6 +85,13 @@ namespace gl {
 				GLbitfield flags);
 		void Init();
 		void Destroy();
+		
+		void* InitMapPersistent(const void* data, uint32_t vertexCount,
+				GLbitfield flags);
+		void* GetMappedPointer();
+		void FlushToGpuMapPersistentFullRange();
+		void FlushToGpuMapPersistent(uint32_t offsetVertex, uint32_t vertices);
+		void FlushFromGpuMapPersistentFullRange();
 		
 		void Generate(const void* data, uint32_t vertexCount);
 		void Generate(const std::vector<uint8_t>& data);
@@ -107,6 +119,8 @@ namespace gl {
 		uint32_t vertexSize, vertices;
 		bool immutable;
 		GLbitfield immutableFlags;
+		
+		void* mappedPointer;
 	};
 }
 

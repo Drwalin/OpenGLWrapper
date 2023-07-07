@@ -370,6 +370,10 @@ void Finish() {
 	glFinish();
 }
 
+void MemoryBarrier(GLbitfield barriers) {
+	glMemoryBarrier(barriers);
+}
+
 }
 
 #endif
