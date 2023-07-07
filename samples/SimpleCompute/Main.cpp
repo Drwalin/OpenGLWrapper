@@ -60,7 +60,7 @@ int main() {
 		emptyShader.Use();
 				
 		// fetch data
-		glMemoryBarrier(GL_ALL_BARRIER_BITS);
+		gl::MemoryBarrier(gl::ALL_BARRIER_BITS);
 		destinyBuffer.FetchAll(Dst);
 		
 		// validate data

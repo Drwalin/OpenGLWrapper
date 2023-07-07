@@ -30,6 +30,7 @@ VBO::VBO(uint32_t vertexSize, gl::BufferTarget target, gl::BufferUsage usage) :
 	vboID = 0;
 	vertices = 0;
 	immutable = false;
+	mappedPointer = nullptr;
 }
 
 VBO::~VBO() {
@@ -74,6 +75,59 @@ void VBO::Destroy() {
 		vboID = 0;
 		immutable = false;
 	}
+}
+
+void* VBO::InitMapPersistent(const void* data, uint32_t vertexCount,
+		GLbitfield flags) {
+	if(vboID) {
+		GL_PUSH_CUSTOM_ERROR(999999999, "Cannot initialize object that is already initialized.");
+		return nullptr;
+	}
+	InitImmutable(data, vertexCount,
+			(flags | DYNAMIC_STORAGE_BIT | MAP_PERSISTENT_BIT)
+				& (
+					DYNAMIC_STORAGE_BIT |
+					MAP_READ_BIT |
+					MAP_WRITE_BIT |
+					MAP_PERSISTENT_BIT |
+					MAP_COHERENT_BIT |
+					CLIENT_STORAGE_BIT
+				)
+			);
+	mappedPointer = (uint32_t*)glMapNamedBufferRange(
+			vboID, 0, vertexSize*vertices,
+			(flags | MAP_PERSISTENT_BIT)
+				& (
+					MAP_READ_BIT |
+					MAP_WRITE_BIT |
+					MAP_PERSISTENT_BIT |
+					MAP_COHERENT_BIT |
+					MAP_INVALIDATE_BUFFER_BIT |
+					MAP_INVALIDATE_RANGE_BIT |
+					MAP_FLUSH_EXPLICIT_BIT |
+					MAP_UNSYNCHRONIZED_BIT
+				));
+	GL_CHECK_PUSH_ERROR;
+	return mappedPointer;
+}
+
+void* VBO::GetMappedPointer() {
+	return mappedPointer;
+}
+
+void VBO::FlushToGpuMapPersistentFullRange() {
+	glFlushMappedNamedBufferRange(vboID, 0, vertexSize*vertices);
+	GL_CHECK_PUSH_ERROR;
+}
+
+void VBO::FlushToGpuMapPersistent(uint32_t offsetVertex, uint32_t verticesCount) {
+	glFlushMappedNamedBufferRange(vboID, offsetVertex*vertexSize,
+			verticesCount*vertexSize);
+	GL_CHECK_PUSH_ERROR;
+}
+
+void VBO::FlushFromGpuMapPersistentFullRange() {
+	gl::MemoryBarrier(gl::CLIENT_MAPPED_BUFFER_BARRIER_BIT);
 }
 
 void VBO::Generate(const void* data, uint32_t vertexCount) {
