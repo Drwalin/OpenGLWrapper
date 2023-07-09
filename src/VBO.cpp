@@ -16,9 +16,10 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "../include/openglwrapper/VBO.hpp"
-
 #include <cstdio>
+
+#include "../include/openglwrapper/VBO.hpp"
+#include "openglwrapper/OpenGL.hpp"
 
 namespace gl {
 
@@ -43,11 +44,12 @@ void VBO::InitImmutable(const void* data, uint32_t vertexCount,
 		GL_PUSH_CUSTOM_ERROR(999999999, "Cannot initialize object that is already initialized.");
 		return;
 	}
+	immutableFlags = flags;
 	vertices = vertexCount;
 	GL_CHECK_PUSH_ERROR;
 	glCreateBuffers(1, &vboID);
 	GL_CHECK_PUSH_ERROR;
-	glNamedBufferStorage(vboID, vertexSize*vertices, data, flags);
+	glNamedBufferStorage(vboID, vertexSize*vertices, data, immutableFlags);
 	GL_CHECK_PUSH_ERROR;
 	immutable = true;
 }
@@ -70,6 +72,10 @@ void VBO::Init() {
 
 void VBO::Destroy() {
 	if(vboID) {
+		if(mappedPointer) {
+			glUnmapNamedBuffer(vboID);
+			mappedPointer = nullptr;
+		}
 		glDeleteBuffers(1, &vboID);
 		GL_CHECK_PUSH_ERROR;
 		vboID = 0;
@@ -129,6 +135,23 @@ void VBO::FlushToGpuMapPersistent(uint32_t offsetVertex, uint32_t verticesCount)
 void VBO::FlushFromGpuMapPersistentFullRange() {
 	gl::MemoryBarrier(gl::CLIENT_MAPPED_BUFFER_BARRIER_BIT);
 }
+
+void* VBO::ResizePersistentMapped(uint32_t newVertices) {
+	throw "VBO::ResizePersistentMapped is undocumented and not tested.";
+	std::vector<uint8_t> data;
+	data.reserve(newVertices*vertexSize);
+	data.resize(vertices*vertexSize);
+	gl::MemoryBarrier(gl::ALL_BARRIER_BITS);
+	gl::Finish();
+	memcpy(data.data(), mappedPointer, data.size());
+	data.resize(newVertices*vertexSize);
+	GLbitfield immutableFlags = this->immutableFlags;
+	GLbitfield mapFlags = this->mapFlags;
+	Destroy();
+	return InitMapPersistent(data.data(), newVertices, immutableFlags|mapFlags);
+}
+
+
 
 void VBO::Generate(const void* data, uint32_t vertexCount) {
 	GL_CHECK_PUSH_ERROR;

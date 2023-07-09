@@ -19,9 +19,9 @@
 #ifndef OGLW_VBO_HPP
 #define OGLW_VBO_HPP
 
-#include <GL/glew.h>
-
 #include <vector>
+
+#include <GL/glew.h>
 
 #include "OpenGL.hpp"
 
@@ -92,6 +92,7 @@ namespace gl {
 		void FlushToGpuMapPersistentFullRange();
 		void FlushToGpuMapPersistent(uint32_t offsetVertex, uint32_t vertices);
 		void FlushFromGpuMapPersistentFullRange();
+		void* ResizePersistentMapped(uint32_t newVertices);
 		
 		void Generate(const void* data, uint32_t vertexCount);
 		void Generate(const std::vector<uint8_t>& data);
@@ -119,6 +120,7 @@ namespace gl {
 		uint32_t vertexSize, vertices;
 		bool immutable;
 		GLbitfield immutableFlags;
+		GLbitfield mapFlags;
 		
 		void* mappedPointer;
 	};
