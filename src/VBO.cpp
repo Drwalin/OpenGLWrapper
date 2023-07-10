@@ -19,7 +19,6 @@
 #include <cstdio>
 
 #include "../include/openglwrapper/VBO.hpp"
-#include "openglwrapper/OpenGL.hpp"
 
 namespace gl {
 
@@ -55,6 +54,10 @@ void VBO::InitImmutable(const void* data, uint32_t vertexCount,
 }
 
 void VBO::Init() {
+	Init(1);
+}
+
+void VBO::Init(uint32_t vertexCount) {
 	if(vboID) {
 		GL_PUSH_CUSTOM_ERROR(999999999, "Cannot initialize object that is already initialized.");
 		return;
@@ -62,11 +65,7 @@ void VBO::Init() {
 	GL_CHECK_PUSH_ERROR;
 	glCreateBuffers(1, &vboID);
 	GL_CHECK_PUSH_ERROR;
-	glNamedBufferData(vboID, vertexSize, nullptr, usage);
-	GL_CHECK_PUSH_ERROR;
-	Generate(nullptr, 1);
-	vertices = 1;
-	GL_CHECK_PUSH_ERROR;
+	Generate(nullptr, vertexCount);
 	immutable = false;
 }
 
