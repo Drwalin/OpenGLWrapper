@@ -84,6 +84,7 @@ namespace gl {
 		void InitImmutable(const void* data, uint32_t vertexCount,
 				GLbitfield flags);
 		void Init();
+		void Init(uint32_t vertexCount);
 		void Destroy();
 		
 		void* InitMapPersistent(const void* data, uint32_t vertexCount,
