@@ -113,6 +113,8 @@ namespace gl {
 		
 		void BindBufferBase(gl::BufferTarget target, int location);
 		
+		static uint64_t CountAllVBOMemoryUsage();
+		
 	private:
 		
 		gl::BufferTarget target;

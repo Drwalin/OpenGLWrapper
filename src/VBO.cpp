@@ -17,10 +17,15 @@
  */
 
 #include <cstdio>
+#include <mutex>
+#include <set>
 
 #include "../include/openglwrapper/VBO.hpp"
 
 namespace gl {
+	
+static std::set<VBO*> allVbos;
+static std::mutex mutex;
 
 VBO::VBO(uint32_t vertexSize, gl::BufferTarget target, gl::BufferUsage usage) :
 		target(target), usage(usage), vertexSize(vertexSize) {
@@ -31,10 +36,14 @@ VBO::VBO(uint32_t vertexSize, gl::BufferTarget target, gl::BufferUsage usage) :
 	vertices = 0;
 	immutable = false;
 	mappedPointer = nullptr;
+	std::lock_guard<std::mutex> lock(mutex);
+	allVbos.insert(this);
 }
 
 VBO::~VBO() {
 	Destroy();
+	std::lock_guard<std::mutex> lock(mutex);
+	allVbos.erase(this);
 }
 
 void VBO::InitImmutable(const void* data, uint32_t vertexCount,
@@ -79,6 +88,7 @@ void VBO::Destroy() {
 		GL_CHECK_PUSH_ERROR;
 		vboID = 0;
 		immutable = false;
+		vertices = 0;
 	}
 }
 
@@ -242,6 +252,17 @@ void VBO::Copy(VBO* readBuffer, uint32_t readOffset, uint32_t writeOffset, uint3
 			GL_CHECK_PUSH_ERROR;
 		}
 	}
+}
+
+uint64_t VBO::CountAllVBOMemoryUsage() {
+	std::lock_guard<std::mutex> lock(mutex);
+	uint64_t bytes = 0;
+	for(auto v : allVbos) {
+		if(v->GetIdGL()) {
+			bytes += (uint64_t)v->GetVertexCount() * (uint64_t)v->VertexSize();
+		}
+	}
+	return bytes;
 }
 
 } // namespace gl
