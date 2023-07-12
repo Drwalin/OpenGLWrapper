@@ -16,24 +16,115 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "../include/openglwrapper/Texture.hpp"
+#include <cstdio>
+#include <string>
+#include <mutex>
+#include <set>
+#include <map>
 
 #include "../thirdparty/SOIL2/src/SOIL2/SOIL2.h"
 
-#include <cstdio>
-#include <string>
+#include "../include/openglwrapper/Texture.hpp"
 
 namespace gl {
+	
+static uint32_t GetBytesPerFormat(TextureSizedInternalFormat format) {
+	static std::map<TextureSizedInternalFormat, int> m{
+		{R8, 1},
+		{R8_SNORM, 1},
+		{R16, 2},
+		{R16_SNORM, 2},
+		{RG8, 2},
+		{RG8_SNORM, 2},
+		{RG16, 4},
+		{RG16_SNORM, 4},
+		{R3_G3_B2, 1},
+		{RGB4, 2},
+		{RGB5, 2},
+		{RGB8, 3},
+		{RGB8_SNORM, 3},
+		{RGB10, 4},
+		{RGB12, 5},
+		{RGB16_SNORM,6 },
+		{RGBA2, 1},
+		{RGBA4, 2},
+		{RGB5_A1, 2},
+		{RGBA8, 4},
+		{RGBA8_SNORM, 4},
+		{RGB10_A2, 4},
+		{RGB10_A2UI, 4},
+		{RGBA12, 6},
+		{RGBA16, 8},
+		{SRGB8, 4},
+		{SRGB8_ALPHA8, 4},
+		{R16F, 2},
+		{RG16F, 4},
+		{RGB16F, 6},
+		{RGBA16F, 8},
+		{R32F, 4},
+		{RG32F, 8},
+		{RGB32F, 12},
+		{RGBA32F, 16},
+		{R11F_G11F_B10F, 4},
+		{RGB9_E5, 4},
+		{R8I, 1},
+		{R8UI, 1},
+		{R16I, 2},
+		{R16UI, 2},
+		{R32I, 4},
+		{R32UI, 4},
+		{RG8I, 2},
+		{RG8UI, 2},
+		{RG16I, 4},
+		{RG16UI, 4},
+		{RG32I, 8},
+		{RG32UI, 8},
+		{RGB8I, 3},
+		{RGB8UI, 3},
+		{RGB16I, 6},
+		{RGB16UI, 6},
+		{RGB32I, 12},
+		{RGB32UI, 12},
+		{RGBA8I, 4},
+		{RGBA8UI, 4},
+		{RGBA16I, 8},
+		{RGBA16UI, 8},
+		{RGBA32I, 16},
+		{RGBA32UI, 16},
+		
+		{DEPTH24_STENCIL8, 4},
+	};
+	
+	if(m.find(format) == m.end()) {
+		throw "Trying to find size in bytes of unknown gl::TextureSizedInternalFormat.";
+	}
+	return m[format];
+}
+	
+static std::set<Texture*> allTextures;
+static std::mutex mutex;
+
+void Texture::UpdateVramUsage() {
+	vramUsage = width*height*depth * GetBytesPerFormat(internalFormat);
+	if(hasMipmaps)
+		vramUsage = (11 * vramUsage) / 8;
+}
 
 Texture::Texture() {
 	textureID = 0;
 	width = 0;
 	height = 0;
 	depth = 0;
+	vramUsage = 0;
+	std::lock_guard<std::mutex> lock(mutex);
+	allTextures.insert(this);
+	hasMipmaps = false;
 }
 
 Texture::~Texture() {
 	Destroy();
+	std::lock_guard<std::mutex> lock(mutex);
+	allTextures.erase(this);
 }
 
 bool Texture::Load(const char* fileName,
@@ -99,6 +190,7 @@ void Texture::Generate1(gl::TextureTarget target,
 	this->width = w;
 	this->height = 1;
 	this->depth = 1;
+	this->internalFormat = internalformat;
 	
 	glTexImage1D(target, 0, internalformat, w, 0,
 			dataformat, datatype, nullptr);
@@ -106,6 +198,7 @@ void Texture::Generate1(gl::TextureTarget target,
 	
 	MinFilter(gl::NEAREST);
 	GL_CHECK_PUSH_PRINT_ERROR;
+	UpdateVramUsage();
 }
 
 void Texture::Update1(const void* pixels,
@@ -150,6 +243,7 @@ void Texture::Generate2(gl::TextureTarget target,
 	this->width = w;
 	this->height = h;
 	this->depth = 1;
+	this->internalFormat = internalformat;
 	
 	
 	glTexImage2D(target, 0, internalformat, w, h, 0,
@@ -159,6 +253,7 @@ void Texture::Generate2(gl::TextureTarget target,
 	MinFilter(gl::NEAREST);
 	MagFilter(gl::MAG_NEAREST);
 	GL_CHECK_PUSH_PRINT_ERROR;
+	UpdateVramUsage();
 }
 
 void Texture::Update2(const void* pixels,
@@ -203,6 +298,7 @@ void Texture::Generate3(gl::TextureTarget target,
 	this->width = w;
 	this->height = h;
 	this->depth = d;
+	this->internalFormat = internalformat;
 	
 	glTexImage3D(target, 0, internalformat, w, h, d, 0,
 			dataformat, datatype, nullptr);
@@ -211,6 +307,7 @@ void Texture::Generate3(gl::TextureTarget target,
 	MinFilter(gl::NEAREST);
 	MagFilter(gl::MAG_NEAREST);
 	GL_CHECK_PUSH_PRINT_ERROR;
+	UpdateVramUsage();
 }
 
 void Texture::Update3(const void* pixels,
@@ -264,6 +361,8 @@ void Texture::InitTextureEmpty(uint32_t w, uint32_t h,
 
 void Texture::GenerateMipmaps() {
 	glGenerateTextureMipmap(textureID);
+	hasMipmaps = true;
+	UpdateVramUsage();
 }
 
 void Texture::MinFilter(TextureMinFilter filter) {
@@ -312,6 +411,8 @@ void Texture::Destroy() {
 		height = 0;
 		textureID = 0;
 	}
+	vramUsage = 0;
+	hasMipmaps = false;
 }
 
 uint8_t* Texture::LoadImageData(const char* fileName, int* width, int* height,
@@ -322,6 +423,17 @@ uint8_t* Texture::LoadImageData(const char* fileName, int* width, int* height,
 
 void Texture::FreeImageData(uint8_t* imageData) {
 	SOIL_free_image_data(imageData);
+}
+
+uint64_t Texture::CountAllTextureMemoryUsage() {
+	std::lock_guard<std::mutex> lock(mutex);
+	uint64_t bytes = 0;
+	for(auto v : allTextures) {
+		if(v->GetTexture()) {
+			bytes += v->vramUsage;
+		}
+	}
+	return bytes;
 }
 
 }

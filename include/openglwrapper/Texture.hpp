@@ -162,6 +162,12 @@ namespace gl {
 		int width, height, depth;
 		uint32_t textureID;
 		gl::TextureTarget target;
+		uint64_t vramUsage;
+		
+		TextureSizedInternalFormat internalFormat;
+		bool hasMipmaps;
+		
+		void UpdateVramUsage();
 		
 	public:
 		
@@ -253,6 +259,8 @@ namespace gl {
 		static uint8_t* LoadImageData(const char* fileName, int* width,
 				int* height, int* channels, int forceChannelsCount=0);
 		static void FreeImageData(uint8_t* imageData);
+		
+		static uint64_t CountAllTextureMemoryUsage();
 		
 		Texture();
 		~Texture();
