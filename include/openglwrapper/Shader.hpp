@@ -50,7 +50,7 @@ namespace gl {
 		static void Unuse();
 		unsigned GetProgram();
 		void Dispatch(uint32_t numGroupsX, uint32_t numGroupsY, uint32_t numGroupsZ);
-		void DispatchRoundGroupNumbers(uint32_t numGroupsX, uint32_t numGroupsY, uint32_t numGroupsZ);
+		void DispatchRoundGroupNumbers(uint32_t numThreadsX, uint32_t numThreadsY, uint32_t numThreadsZ);
 		void DispatchBuffer(VBO& dispatchBuffer, uint32_t dispatchOffset);
 		
 		int GetUniformLocation(const char* name) const;
