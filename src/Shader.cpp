@@ -102,16 +102,13 @@ void Shader::Dispatch(uint32_t numGroupsX, uint32_t numGroupsY,
 	GL_CHECK_PUSH_ERROR;
 }
 
-void Shader::DispatchRoundGroupNumbers(uint32_t numGroupsX, uint32_t numGroupsY,
-		uint32_t numGroupsZ) {
-	if(numGroupsX==0 || numGroupsY==0 || numGroupsZ==0)
-		return;
-	glDispatchCompute(
-			this->workgroupSize[0]*((numGroupsX-1+this->workgroupSize[0])/this->workgroupSize[0]),
-			this->workgroupSize[1]*((numGroupsY-1+this->workgroupSize[1])/this->workgroupSize[1]),
-			this->workgroupSize[2]*((numGroupsZ-1+this->workgroupSize[2])/this->workgroupSize[2])
+void Shader::DispatchRoundGroupNumbers(uint32_t numThreadsX, uint32_t numThreadsY,
+		uint32_t numThreadsZ) {
+	Dispatch(
+			((numThreadsX-1+this->workgroupSize[0])/this->workgroupSize[0]),
+			((numThreadsY-1+this->workgroupSize[1])/this->workgroupSize[1]),
+			((numThreadsZ-1+this->workgroupSize[2])/this->workgroupSize[2])
 			);
-	GL_CHECK_PUSH_ERROR;
 }
 
 void Shader::DispatchBuffer(VBO& dispatchBuffer, uint32_t dispatchOffset) {

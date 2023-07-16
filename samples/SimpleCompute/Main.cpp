@@ -56,7 +56,7 @@ int main() {
 		
 		// call compute shader
 		computeShader.Use();
-		computeShader.DispatchRoundGroupNumbers(1024, 1, 1);
+		computeShader.Dispatch(128, 1, 1);
 		emptyShader.Use();
 				
 		// fetch data
