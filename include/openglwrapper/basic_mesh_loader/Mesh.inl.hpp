@@ -100,7 +100,7 @@ namespace BasicMeshLoader {
 			uint32_t subsequentChannels 
 			) const {
 		if(uv.size() <= channelId+subsequentChannels) {
-			// only informational warning
+			//TODO only informational warning
 		}
 		for(uint32_t i=0; i<subsequentChannels; ++i) {
 			if(i+channelId >= uv.size())

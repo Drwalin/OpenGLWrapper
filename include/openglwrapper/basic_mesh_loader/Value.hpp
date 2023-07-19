@@ -23,6 +23,7 @@
 
 #include <cinttypes>
 #include <cmath>
+#include <cstring>
 
 #include <vector>
 #include <unordered_map>
@@ -47,6 +48,18 @@ namespace BasicMeshLoader {
 		operator glm::vec4() const {
 			return {v[0], v[1], v[2], v[3]};
 		}
+		
+		Value() = default;
+		Value(std::initializer_list<float> list) {
+			auto it=list.begin();
+			for(int i=0; i<list.size() && i<dim; ++i, ++it) {
+				v[i] = *it;
+			}
+		}
+		Value(glm::vec1 s) { for(int i=0; i<1; ++i) v[i] = s[i]; }
+		Value(glm::vec2 s) { for(int i=0; i<2; ++i) v[i] = s[i]; }
+		Value(glm::vec3 s) { for(int i=0; i<3; ++i) v[i] = s[i]; }
+		Value(glm::vec4 s) { for(int i=0; i<4; ++i) v[i] = s[i]; }
 	};
 	
 	
