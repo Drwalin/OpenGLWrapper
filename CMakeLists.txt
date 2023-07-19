@@ -20,7 +20,7 @@ aux_source_directory(./include/openglwrapper/basic_mesh_loader/ header_files_bas
 aux_source_directory(./src/ source_files)
 aux_source_directory(./src/basic_mesh_loader/ source_files_basic_mesh_loader)
 
-add_library(OpenGLWrapper SHARED
+add_library(OpenGLWrapper STATIC
 	${header_files}
 	${header_files_basic_mesh_loader}
 	${source_files}
