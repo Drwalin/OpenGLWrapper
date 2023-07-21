@@ -239,6 +239,7 @@ OpenGL::OpenGL() {
 	for(auto it : keys)
 		it = false;
 	SwapInput();
+	SwapInput();
 }
 
 OpenGL::~OpenGL() {
