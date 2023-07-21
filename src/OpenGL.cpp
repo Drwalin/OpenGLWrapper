@@ -267,13 +267,13 @@ void OpenGLMouseCallback(GLFWwindow* window, double xPos, double yPos) {
 	if(w!=openGL.width || h!=openGL.height) {
 		openGL.firstMouse = true;
 	}
+	openGL.mouseCurrentX = xPos;
+	openGL.mouseCurrentY = yPos;
 	if(openGL.firstMouse) {
 		openGL.mouseLastX = openGL.mouseCurrentX;
 		openGL.mouseLastY = openGL.mouseCurrentY;
 		openGL.firstMouse = false;
 	}
-	openGL.mouseCurrentX = xPos;
-	openGL.mouseCurrentY = yPos;
 }
 
 void OpenGLWindowResizeCallback(GLFWwindow* window, int width, int height) {
@@ -289,8 +289,6 @@ void OpenGLWindowResizeCallback(GLFWwindow* window, int width, int height) {
 void OpenGLMouseButtonCallback(GLFWwindow* window, int button,
 		int action, int mods) {
 	if(button==GLFW_MOUSE_BUTTON_RIGHT && action==GLFW_PRESS) {
-		int a = 0;
-		a *= 3;
 	}
 }
 
