@@ -6,12 +6,9 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-option(BUILD_EXAMPLES "Build examples" ON)
-option(BUILD_DEBUG "Build debug" ON)
-option(BUILD_RELEASE "Build release" OFF)
+option(OGLW_BUILD_EXAMPLES "Build OpenGLWrapper examples" ON)
 
 add_subdirectory(thirdparty/SOIL2)
-option(ASSIMP_BUILD_TESTS, OFF)
 add_subdirectory(thirdparty/assimp)
 
 include_directories(./include/)
@@ -28,9 +25,7 @@ add_library(OpenGLWrapper
 )
 target_link_libraries(OpenGLWrapper soil2 assimp)
 
-
-
-if(BUILD_EXAMPLES)
+if(OGLW_BUILD_EXAMPLES)
 	add_executable(samples
 		samples/DefaultCameraAndOtherConfig
 		samples/Camera
@@ -51,8 +46,6 @@ if(BUILD_EXAMPLES)
 	)
 	target_link_libraries(samples OpenGLWrapper)
 endif()
-
-
 
 if(UNIX)
 	target_link_libraries(OpenGLWrapper
@@ -104,31 +97,4 @@ elseif(WIN32)
 else()
 	# print error message: not tested platform
 endif()
-
-add_compile_options(-ggdb3)
-add_compile_options(-ggdb)
-add_compile_options(-pg)
-
-set(CMAKE_CXX_FLAGS_DEBUG_INIT "-Wall -ggdb3 -ggdb -pedantic")
-set(CMAKE_CXX_FLAGS_RELEASE_INIT "-Wall -Ofast -s -pedantic")	
-	
-# if(BUILD_DEBUG)
-# 	add_compile_options(-ggdb3)
-# 	add_compile_options(-ggdb)
-# 	add_compile_options(-pg)
-# 	add_compile_options(--coverage)
-# 	# gcov file.cpp
-# 	# geninfo ./ -b ./ -o ./coverage.info
-# 	# genhtml ./coverage.info -o /tmp/html
-# else()
-# endif()
-
-# if(BUILD_RELEASE)
-# 	add_compile_options(-Ofast)
-# 	add_compile_options(-s)
-# else()
-# endif()
-
-
-
 
