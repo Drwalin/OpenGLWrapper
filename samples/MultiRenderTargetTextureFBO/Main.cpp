@@ -1,9 +1,9 @@
 
 #include "../DefaultCameraAndOtherConfig.hpp"
 #include "../../include/openglwrapper/basic_mesh_loader/SimpleRender.hpp"
-#include "openglwrapper/OpenGL.hpp"
-#include "openglwrapper/Texture.hpp"
-#include "openglwrapper/FBO.hpp"
+#include "../../include/openglwrapper/OpenGL.hpp"
+#include "../../include/openglwrapper/Texture.hpp"
+#include "../../include/openglwrapper/FBO.hpp"
 
 #include <cstring>
 #include <filesystem>
