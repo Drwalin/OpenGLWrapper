@@ -91,6 +91,7 @@ static uint32_t GetBytesPerFormat(TextureSizedInternalFormat format) {
 		{RGBA16UI, 8},
 		{RGBA32I, 16},
 		{RGBA32UI, 16},
+		{(TextureSizedInternalFormat)RGBA, 4},
 		
 		{DEPTH24_STENCIL8, 4},
 	};
@@ -227,6 +228,7 @@ void Texture::Generate2(gl::TextureTarget target,
 		uint32_t w, uint32_t h,
 		gl::TextureSizedInternalFormat internalformat,
 		gl::TextureDataFormat dataformat, gl::DataType datatype) {
+	GL_CHECK_PUSH_PRINT_ERROR;
 	if(textureID && target != this->target) {
 		glDeleteTextures(1, &textureID);
 		textureID = 0;

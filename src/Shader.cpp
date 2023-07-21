@@ -42,15 +42,20 @@ int Shader::Compile(const std::string& vertexCode, const std::string& geometryCo
 	GL_CHECK_PUSH_ERROR;
 	
 	program = glCreateProgram();
-	if(geometry)
-		glAttachShader(program, geometry);
-	glAttachShader(program, vertex);
-	glAttachShader(program, fragment);
+	GL_CHECK_PUSH_ERROR;
 	
+	if(geometry) {
+		glAttachShader(program, geometry);
+		GL_CHECK_PUSH_ERROR;
+	}
+	
+	glAttachShader(program, vertex);
+	GL_CHECK_PUSH_ERROR;
+	
+	glAttachShader(program, fragment);
 	GL_CHECK_PUSH_ERROR;
 	
 	glLinkProgram(program);
-	
 	GL_CHECK_PUSH_ERROR;
 	
 	if(vertex)
