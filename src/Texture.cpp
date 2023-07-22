@@ -92,6 +92,9 @@ static uint32_t GetBytesPerFormat(TextureSizedInternalFormat format) {
 		{RGBA32I, 16},
 		{RGBA32UI, 16},
 		{(TextureSizedInternalFormat)RGBA, 4},
+		{(TextureSizedInternalFormat)GL_DEPTH_COMPONENT32F, 4},
+		{(TextureSizedInternalFormat)GL_DEPTH_COMPONENT32, 4},
+		{(TextureSizedInternalFormat)GL_DEPTH_COMPONENT16, 2},
 		
 		{DEPTH24_STENCIL8, 4},
 	};
@@ -404,6 +407,14 @@ uint32_t Texture::GetTexture() const {
 
 void Texture::Unbind() {
 	glBindTexture(target, 0);
+}
+
+void Texture::BindImage(uint32_t unit, int32_t level, bool array,
+		int arrayLayerId, bool read, bool write, GLenum format) {
+	glBindImageTexture(unit, textureID, level, array, arrayLayerId,
+			read&&write ? GL_READ_WRITE : read ? GL_READ_ONLY : GL_WRITE_ONLY,
+			format);
+	GL_CHECK_PUSH_ERROR;
 }
 
 void Texture::Destroy() {

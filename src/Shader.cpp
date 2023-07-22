@@ -118,7 +118,9 @@ void Shader::DispatchRoundGroupNumbers(uint32_t numThreadsX, uint32_t numThreads
 
 void Shader::DispatchBuffer(VBO& dispatchBuffer, uint32_t dispatchOffset) {
 	glBindBuffer(gl::DISPATCH_INDIRECT_BUFFER, dispatchBuffer.GetIdGL());
+	GL_CHECK_PUSH_ERROR;
 	glDispatchComputeIndirect(dispatchOffset);
+	GL_CHECK_PUSH_ERROR;
 }
 
 unsigned Shader::CheckBuildStatus() {
@@ -161,23 +163,23 @@ unsigned Shader::CompileGLSL(const std::string& code, gl::ShaderType type) {
 		int success;
 		char infoLog[5120];
 		unsigned program = glCreateShader(type);
-	GL_CHECK_PUSH_ERROR;
+		GL_CHECK_PUSH_ERROR;
 		const char* pcode = code.c_str();
 		glShaderSource(program, 1, &pcode, nullptr);
-	GL_CHECK_PUSH_ERROR;
+		GL_CHECK_PUSH_ERROR;
 		glCompileShader(program);
-	GL_CHECK_PUSH_ERROR;
+		GL_CHECK_PUSH_ERROR;
 		glGetShaderiv(program, GL_COMPILE_STATUS, &success);
-	GL_CHECK_PUSH_ERROR;
+		GL_CHECK_PUSH_ERROR;
 		if(!success) {
 			GLsizei size;
 			glGetShaderInfoLog(program, 5120, &size, infoLog);
-	GL_CHECK_PUSH_ERROR;
+			GL_CHECK_PUSH_ERROR;
 			printf("\n ERROR::SHADER::%s::COMPILATION_FAILED\n %s",
 					shaderStrType, infoLog);
 			PrintCode(code);
 			glDeleteShader(program);
-	GL_CHECK_PUSH_ERROR;
+			GL_CHECK_PUSH_ERROR;
 			return 0;
 		}
 		return program;
@@ -269,7 +271,7 @@ int Shader::GetAttributeLocation(const std::string& name) const {
 void Shader::SetTexture(int location, class Texture* texture,
 		unsigned textureId) {
 	glActiveTexture(GL_TEXTURE0+textureId);
-		GL_CHECK_PUSH_ERROR;
+	GL_CHECK_PUSH_ERROR;
 	if(texture) {
 		texture->Bind();
 		GL_CHECK_PUSH_ERROR;
@@ -279,125 +281,141 @@ void Shader::SetTexture(int location, class Texture* texture,
 		glBindTexture(GL_TEXTURE_2D, 0);
 		GL_CHECK_PUSH_ERROR;
 	}
-	SetInt(location, textureId);
+}
+
+void Shader::SetTextureImage(int location, class Texture* texture,
+		uint32_t unit, int32_t level, bool array,
+		int arrayLayerId, bool read, bool write, GLenum format) {
+	if(texture) {
+		glActiveTexture(GL_TEXTURE0+unit);
+		
 		GL_CHECK_PUSH_ERROR;
+		
+		texture->BindImage(unit, level, array, arrayLayerId, read, write, format);
+		
+		SetInt(location, unit);
+		GL_CHECK_PUSH_ERROR;
+	} else {
+// 		glBindTexture(GL_TEXTURE_2D, 0);
+// 		GL_CHECK_PUSH_ERROR;
+	}
 }
 
 void Shader::SetBool(int location, bool value) {
 	Use();
 	glUniform1i(location, (int)value); 
-		GL_CHECK_PUSH_ERROR;
+	GL_CHECK_PUSH_ERROR;
 }
 
 void Shader::SetUInt(int location, uint32_t value) {
-		GL_CHECK_PUSH_ERROR;
+	GL_CHECK_PUSH_ERROR;
 	Use();
-		GL_CHECK_PUSH_ERROR;
+	GL_CHECK_PUSH_ERROR;
 	glProgramUniform1ui(program, location, value);
-		GL_CHECK_PUSH_ERROR;
+	GL_CHECK_PUSH_ERROR;
 }
 
 void Shader::SetInt(int location, int value) {
-		GL_CHECK_PUSH_ERROR;
+	GL_CHECK_PUSH_ERROR;
 	Use();
-		GL_CHECK_PUSH_ERROR;
+	GL_CHECK_PUSH_ERROR;
 	glProgramUniform1i(program, location, value);
-		GL_CHECK_PUSH_ERROR;
+	GL_CHECK_PUSH_ERROR;
 }
 
 void Shader::SetInt(int location, const std::vector<int>& array) {
 	Use();
 	glUniform1uiv(location, array.size(), (unsigned int*)&array.front());
-		GL_CHECK_PUSH_ERROR;
+	GL_CHECK_PUSH_ERROR;
 }
 
 void Shader::SetUInt(int location, const std::vector<unsigned int>& array) {
 	Use();
 	glUniform1uiv(location, array.size(), &array.front());
-		GL_CHECK_PUSH_ERROR;
+	GL_CHECK_PUSH_ERROR;
 }
 
 void Shader::SetFloat(int location, float value) { 
 	Use();
 	glUniform1f(location, value); 
-		GL_CHECK_PUSH_ERROR;
+	GL_CHECK_PUSH_ERROR;
 }
 
 void Shader::SetFloat(int location, const std::vector<float>& array) {
 	Use();
 	glUniform1fv(location, array.size(), &array.front());
-		GL_CHECK_PUSH_ERROR;
+	GL_CHECK_PUSH_ERROR;
 }
 
 void Shader::SetVec2(int location, const glm::vec2 &value) {
 	Use();
 	glUniform2fv(location, 1, glm::value_ptr(value));
-		GL_CHECK_PUSH_ERROR;
+	GL_CHECK_PUSH_ERROR;
 }
 
 void Shader::SetVec3(int location, const glm::vec3 &value) {
 	Use();
 	glUniform3fv(location, 1, glm::value_ptr(value));
-		GL_CHECK_PUSH_ERROR;
+	GL_CHECK_PUSH_ERROR;
 }
 
 void Shader::SetVec2(int location, const std::vector<glm::vec2>& array) {
 	Use();
 	glUniform2fv(location, array.size(), (float*)&array.front());
-		GL_CHECK_PUSH_ERROR;
+	GL_CHECK_PUSH_ERROR;
 }
 
 void Shader::SetVec3(int location, const std::vector<glm::vec3>& array) {
 	Use();
 	glUniform3fv(location, array.size(), (float*)&array.front());
-		GL_CHECK_PUSH_ERROR;
+	GL_CHECK_PUSH_ERROR;
 }
 
 void Shader::SetVec4(int location, const std::vector<glm::vec4>& array) {
 	Use();
 	glUniform4fv(location, array.size(), (float*)&array.front());
-		GL_CHECK_PUSH_ERROR;
+	GL_CHECK_PUSH_ERROR;
 }
 
 void Shader::SetVec4(int location, const glm::vec4 &value) {
 	Use();
 	glUniform4fv(location, 1, glm::value_ptr(value));
-		GL_CHECK_PUSH_ERROR;
+	GL_CHECK_PUSH_ERROR;
 }
 
 void Shader::SetMat2(int location, const glm::mat2 &mat) {
 	Use();
 	glUniformMatrix2fv(location, 1, GL_FALSE, glm::value_ptr(mat));
-		GL_CHECK_PUSH_ERROR;
+	GL_CHECK_PUSH_ERROR;
 }
 
 void Shader::SetMat3(int location, const glm::mat3 &mat) {
 	Use();
 	glUniformMatrix3fv(location, 1, GL_FALSE, glm::value_ptr(mat));
-		GL_CHECK_PUSH_ERROR;
+	GL_CHECK_PUSH_ERROR;
 }
 
 void Shader::SetMat4(int location, const glm::mat4 &mat) {
 	Use();
 	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(mat));
-		GL_CHECK_PUSH_ERROR;
+	GL_CHECK_PUSH_ERROR;
 }
 
 void Shader::SetMat4(int location, const std::vector<glm::mat4>& array) {
 	Use();
 	glUniformMatrix4fv(location, array.size()*16*4, GL_FALSE,
 			(float*)&array.front());
-		GL_CHECK_PUSH_ERROR;
+	GL_CHECK_PUSH_ERROR;
 }
 
 void Shader::Destroy() {
 	if(program) {
-	GL_CHECK_PUSH_ERROR;
+		GL_CHECK_PUSH_ERROR;
 		currentProgram = 0;
 		glUseProgram(0);
 		glDeleteProgram(program);
 		program = 0;
-	GL_CHECK_PUSH_ERROR;
+		GL_CHECK_PUSH_ERROR;
 	}
 }
 

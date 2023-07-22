@@ -154,6 +154,10 @@ namespace gl {
 		RGBA32UI = GL_RGBA32UI,
 		
 		DEPTH24_STENCIL8 = GL_DEPTH24_STENCIL8,
+		
+		DEPTH_COMPONENT32F = GL_DEPTH_COMPONENT32F,
+		DEPTH_COMPONENT32 = GL_DEPTH_COMPONENT32,
+		DEPTH_COMPONENT16 = GL_DEPTH_COMPONENT16,
 	};
 
 	class Texture {
@@ -170,6 +174,8 @@ namespace gl {
 		void UpdateVramUsage();
 		
 	public:
+		
+		TextureSizedInternalFormat GetInternalFormat() const { return internalFormat; }
 		
 		inline bool Loaded() const { return textureID; }
 		inline int GetWidth() const { return width; }
@@ -253,6 +259,9 @@ namespace gl {
 		void Bind() const;
 		uint32_t GetTexture() const;
 		void Unbind();
+		
+		void BindImage(uint32_t unit, int32_t level, bool array,
+				int arrayLayerId, bool read, bool write, GLenum format);
 		
 		void Destroy();
 		

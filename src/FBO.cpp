@@ -31,6 +31,7 @@ namespace gl {
 			Unbind();
 		}
 		glDeleteFramebuffers(1, &fbo);
+		GL_CHECK_PUSH_ERROR;
 		fbo = 0;
 	}
 	
@@ -44,6 +45,7 @@ namespace gl {
 		SimpleBind();
 		glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, GL_TEXTURE_2D,
 				texture->GetTexture(), 0);
+		GL_CHECK_PUSH_ERROR;
 		if(attachmentType >= ATTACHMENT_COLOR0
 				&& attachmentType <= ATTACHMENT_COLOR15) {
 			if(attachmentBuffers.size() <= bindLocation) {
@@ -56,6 +58,7 @@ namespace gl {
 	void FBO::DetachTexture(FboAttachmentType attachmentType) {
 		SimpleBind();
 		glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, GL_TEXTURE_2D, 0, 0);
+		GL_CHECK_PUSH_ERROR;
 	}
 	
 	void FBO::AttachColor(Texture* texture, int colorId, uint32_t bindLocation) {
@@ -81,11 +84,14 @@ namespace gl {
 		this->width = width;
 		this->height = height;
 		glViewport(x, y, width, height);
+		GL_CHECK_PUSH_ERROR;
 	}
 	
 	void FBO::Clear(bool color, bool depth) {
 		glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
+		GL_CHECK_PUSH_ERROR;
 		glClear((color?GL_COLOR_BUFFER_BIT:0) | (depth?GL_DEPTH_BUFFER_BIT:0));
+		GL_CHECK_PUSH_ERROR;
 	}
 	
 	void FBO::SetClearColor(glm::vec4 clearColor) {
@@ -99,21 +105,25 @@ namespace gl {
 	void FBO::SimpleBind() {
 		if(fbo == 0) {
 			glCreateFramebuffers(1, &fbo);
+			GL_CHECK_PUSH_ERROR;
 		}
 		if(currentlyBoundFBO != this) {
 			glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 			currentlyBoundFBO = this;
+			GL_CHECK_PUSH_ERROR;
 		}
 	}
 	
 	void FBO::Bind() {
 		SimpleBind();
 		glDrawBuffers(attachmentBuffers.size(), (GLenum*)&(attachmentBuffers[0]));
+		GL_CHECK_PUSH_ERROR;
 	}
 	
 	void FBO::Unbind() {
 		if(currentlyBoundFBO) {
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			GL_CHECK_PUSH_ERROR;
 			currentlyBoundFBO = nullptr;
 		}
 	}
@@ -122,6 +132,7 @@ namespace gl {
 	GLenum FBO::CheckStatus() {
 		SimpleBind();
 		GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+		GL_CHECK_PUSH_ERROR;
 		if(status != GL_FRAMEBUFFER_COMPLETE)
 			return status;	
 		return status;
