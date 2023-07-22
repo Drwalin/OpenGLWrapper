@@ -58,7 +58,10 @@ namespace gl {
 		int GetUniformLocation(const std::string& name) const;
 		int GetAttributeLocation(const std::string& name) const;
 		
-		void SetTexture(int location, class Texture* texture, unsigned textureId);
+		void SetTexture(int location, class Texture* texture, uint32_t textureId);
+		void SetTextureImage(int location, class Texture* texture,
+				uint32_t unit, int32_t level, bool array,
+				int arrayLayerId, bool read, bool write, GLenum format);
 		void SetBool(int location, bool value);
 		void SetUInt(int location, uint32_t value);
 		void SetInt(int location, int value);
