@@ -250,7 +250,6 @@ void Texture::Generate2(gl::TextureTarget target,
 	this->depth = 1;
 	this->internalFormat = internalformat;
 	
-	
 	glTexImage2D(target, 0, internalformat, w, h, 0,
 			dataformat, datatype, nullptr);
 	GL_CHECK_PUSH_PRINT_ERROR;

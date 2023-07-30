@@ -115,7 +115,6 @@ namespace BasicMeshLoader {
 			const std::vector<Value<dim>>& src,
 			void(*converter)(T* dst, Value<dim> value)
 			) {
-		
 		if(dst.size() < dstOffset + src.size()*stride)
 			dst.resize(dstOffset + src.size()*stride);
 		for(uint32_t i=0; i<src.size(); ++i) {
