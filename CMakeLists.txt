@@ -9,6 +9,13 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 option(OGLW_BUILD_EXAMPLES "Build OpenGLWrapper examples" ON)
 
 add_subdirectory(thirdparty/SOIL2)
+
+set(ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT OFF)
+set(ASSIMP_BUILD_TESTS OFF)
+set(ASSIMP_BUILD_USE_CCACHE OFF)
+set(ASSIMP_INJECT_DEBUG_POSTFIX OFF)
+set(ASSIMP_INSTALL OFF)
+set(ASSIMP_WARNINGS_AS_ERRORS OFF)
 add_subdirectory(thirdparty/assimp)
 
 include_directories(./include/)
