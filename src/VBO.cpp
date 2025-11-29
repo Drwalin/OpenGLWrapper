@@ -16,7 +16,6 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <cstdio>
 #include <mutex>
 #include <set>
 
@@ -74,6 +73,9 @@ void VBO::Init(uint32_t vertexCount) {
 	GL_CHECK_PUSH_ERROR;
 	glCreateBuffers(1, &vboID);
 	GL_CHECK_PUSH_ERROR;
+	if (vboID == 0) {
+		return;
+	}
 	Generate(nullptr, vertexCount);
 	immutable = false;
 }
@@ -169,7 +171,7 @@ void VBO::Generate(const void* data, uint32_t vertexCount) {
 		return;
 	}
 	if(!vboID) {
-		Init();
+		Init(vertexCount);
 	}
 	GL_CHECK_PUSH_ERROR;
 	vertices = vertexCount;
@@ -185,7 +187,7 @@ void VBO::Generate(const std::vector<uint8_t>& data) {
 void VBO::Update(const void* data, uint32_t offset, uint32_t bytes) {
 	GL_CHECK_PUSH_ERROR;
 	if(!vboID) {
-		Init();
+		Init((offset+bytes+vertexSize-1)/vertexSize);
 	}
 	GL_CHECK_PUSH_ERROR;
 	if(vertexSize*vertices < offset+bytes) {

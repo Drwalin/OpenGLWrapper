@@ -87,9 +87,9 @@ namespace gl {
 		
 		int32_t workgroupSize[3];
 		
-	private:
+		static std::string LoadFile(const std::string& filePath);
 		
-		std::string LoadFile(const std::string& filePath);
+	private:
 		
 		unsigned CheckBuildStatus();
 		

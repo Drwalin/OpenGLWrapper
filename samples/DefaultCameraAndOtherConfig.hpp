@@ -21,9 +21,9 @@ static float deltaTime = 0.0f;
 static float lastFrame = 0.0f;
 
 template<typename T=int>
-static void DefaultsSetup() {
+static void DefaultsSetup(bool vsync = true) {
 	srand(time(nullptr));
-	gl::openGL.Init("Window test name 311", 800, 600, true, false);
+	gl::openGL.Init("Window test name 311", 800, 600, true, false, vsync);
     gl::openGL.InitGraphic();
 }
 

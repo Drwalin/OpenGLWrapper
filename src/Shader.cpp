@@ -165,7 +165,8 @@ unsigned Shader::CompileGLSL(const std::string& code, gl::ShaderType type) {
 		unsigned program = glCreateShader(type);
 		GL_CHECK_PUSH_ERROR;
 		const char* pcode = code.c_str();
-		glShaderSource(program, 1, &pcode, nullptr);
+		int len = code.size()+1;
+		glShaderSource(program, 1, &pcode, &len);
 		GL_CHECK_PUSH_ERROR;
 		glCompileShader(program);
 		GL_CHECK_PUSH_ERROR;

@@ -175,6 +175,8 @@ namespace gl {
 		
 	public:
 		
+		uint32_t GetIdGL() { return textureID; }
+		
 		TextureSizedInternalFormat GetInternalFormat() const { return internalFormat; }
 		
 		inline bool Loaded() const { return textureID; }
