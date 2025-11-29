@@ -88,6 +88,7 @@ namespace gl {
 		int32_t workgroupSize[3];
 		
 		static std::string LoadFile(const std::string& filePath);
+		static std::string LoadFileUseIncludes(const std::string& filePath);
 		
 	private:
 		

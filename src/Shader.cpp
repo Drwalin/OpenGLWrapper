@@ -92,11 +92,11 @@ int Shader::Compile(const std::string& computeCode) {
 
 int Shader::Load(const std::string& vertexPath, const std::string& geometryPath,
 		const std::string& fragmentPath) {
-	return Compile(LoadFile(vertexPath), LoadFile(geometryPath), LoadFile(fragmentPath));
+	return Compile(LoadFileUseIncludes(vertexPath), LoadFileUseIncludes(geometryPath), LoadFileUseIncludes(fragmentPath));
 }
 
 int Shader::Load(const std::string& computePath) {
-	return Compile(LoadFile(computePath));
+	return Compile(LoadFileUseIncludes(computePath));
 }
 
 void Shader::Dispatch(uint32_t numGroupsX, uint32_t numGroupsY,
@@ -426,6 +426,49 @@ Shader::Shader() {
 
 Shader::~Shader() {
 	Destroy();
+}
+
+std::string Shader::LoadFileUseIncludes(const std::string& filePath)
+{
+	auto pathEnd = filePath.find_last_of("/\\");
+	std::string path = "./";
+	if (pathEnd != std::string::npos) {
+		path = filePath.substr(0, pathEnd+1);
+	}
+	std::string code = LoadFile(filePath);
+	if (code == "") {
+		return "";
+	}
+	
+	for (;;) {
+		const auto start = code.find("%:include");
+		if (start == std::string::npos) {
+			break;
+		}
+		const auto end = code.find_first_of("\n", start);
+		if (end == std::string::npos) {
+			code.replace(start, end-start, "#error include directive cannot be at the end of file, it needs new line");
+			break;
+		}
+		const auto startFileName = code.find("\"", start);
+		const auto endFileName = code.find("\"", startFileName+1);
+		bool includeError = false;
+		includeError |= startFileName == std::string::npos;
+		includeError |= endFileName == std::string::npos;
+		includeError |= end <= endFileName;
+		includeError |= endFileName <= startFileName;
+		const std::string includePath = path + code.substr(startFileName+1, endFileName-startFileName-1);
+		const std::string includedCode = LoadFile(includePath);
+		includeError |= includedCode == "";
+		if (includeError) {
+			code.replace(end, 0, std::string("\n#error Failed to include: `") + includePath + "`");
+			break;
+		} else {
+			code.insert(end, std::string("\n") + includedCode.c_str());
+			code.replace(start, 2, "//#");
+		}
+	}
+	return code;
 }
 
 }
