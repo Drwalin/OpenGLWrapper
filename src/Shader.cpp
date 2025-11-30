@@ -440,8 +440,9 @@ std::string Shader::LoadFileUseIncludes(const std::string& filePath)
 		return "";
 	}
 	
+	auto start = code.find("#include");
 	for (;;) {
-		const auto start = code.find("#include");
+		start = code.find("#include", start);
 		if (start == std::string::npos) {
 			break;
 		}
@@ -458,7 +459,7 @@ std::string Shader::LoadFileUseIncludes(const std::string& filePath)
 		includeError |= end <= endFileName;
 		includeError |= endFileName <= startFileName;
 		const std::string includePath = path + code.substr(startFileName+1, endFileName-startFileName-1);
-		const std::string includedCode = LoadFile(includePath);
+		const std::string includedCode = LoadFileUseIncludes(includePath);
 		includeError |= includedCode == "";
 		if (includeError) {
 			code.replace(end, 0, std::string("\n#error Failed to include: `") + includePath + "`");
@@ -466,6 +467,7 @@ std::string Shader::LoadFileUseIncludes(const std::string& filePath)
 		} else {
 			code.insert(end, std::string("\n") + includedCode.c_str());
 			code.replace(start, 1, "//%:");
+			start += 3 + strlen(includedCode.c_str());
 		}
 	}
 	return code;
