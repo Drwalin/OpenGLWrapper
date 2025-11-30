@@ -441,7 +441,7 @@ std::string Shader::LoadFileUseIncludes(const std::string& filePath)
 	}
 	
 	for (;;) {
-		const auto start = code.find("%:include");
+		const auto start = code.find("#include");
 		if (start == std::string::npos) {
 			break;
 		}
@@ -465,7 +465,7 @@ std::string Shader::LoadFileUseIncludes(const std::string& filePath)
 			break;
 		} else {
 			code.insert(end, std::string("\n") + includedCode.c_str());
-			code.replace(start, 2, "//#");
+			code.replace(start, 1, "//%:");
 		}
 	}
 	return code;
