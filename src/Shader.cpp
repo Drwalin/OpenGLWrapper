@@ -109,10 +109,14 @@ void Shader::Dispatch(uint32_t numGroupsX, uint32_t numGroupsY,
 
 void Shader::DispatchRoundGroupNumbers(uint32_t numThreadsX, uint32_t numThreadsY,
 		uint32_t numThreadsZ) {
+	if (workgroupSize[0] == 0 || workgroupSize[1] == 0 || workgroupSize[2] == 0) {
+		printf("\n ERROR::SHADER::PROGRAM::DISPATCH: workGroupSize is 0\n");
+		return;
+	}
 	Dispatch(
-			((numThreadsX-1+this->workgroupSize[0])/this->workgroupSize[0]),
-			((numThreadsY-1+this->workgroupSize[1])/this->workgroupSize[1]),
-			((numThreadsZ-1+this->workgroupSize[2])/this->workgroupSize[2])
+			((numThreadsX-1+workgroupSize[0])/workgroupSize[0]),
+			((numThreadsY-1+workgroupSize[1])/workgroupSize[1]),
+			((numThreadsZ-1+workgroupSize[2])/workgroupSize[2])
 			);
 }
 
@@ -439,6 +443,7 @@ std::string Shader::LoadFileUseIncludes(const std::string& filePath)
 	if (code == "") {
 		return "";
 	}
+	code.reserve(1024*1024);
 	
 	auto start = code.find("#include");
 	for (;;) {

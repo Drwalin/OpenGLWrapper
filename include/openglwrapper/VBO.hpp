@@ -106,6 +106,7 @@ namespace gl {
 		void Copy(VBO* sourceBuffer, uint32_t sourceOffset, uint32_t destinyOffset, uint32_t bytes);
 		
 		inline uint32_t VertexSize() const { return vertexSize; }
+		inline uint32_t GetBytes() const { return vertexSize * vertices; }
 		
 		inline uint32_t GetIdGL() const { return vboID; }
 		
